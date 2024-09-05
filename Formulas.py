@@ -50,8 +50,10 @@ def takeOffFieldLength(wing_loading, TO_field_length, rho,  AR, span_efficiency_
         TTW = (1.15 * alphaT * math.sqrt((NE/(NE-1))*wing_loading/(k_t* g * rho * math.pi * AR * span_efficiency_factor))) + 4 * h2/TO_field_length * (NE/(NE-1))
     return TTW
 
-def climbRateTTW(climb_rate_requirement, mass_fraction, C_D0, aspect_ratio, wing_loading, span_efficiency_factor, density):
+def climbRateTTW(climb_rate_requirement, mass_fraction, C_D0, aspect_ratio, wing_loading, span_efficiency_factor):
     thrust_lapse = Alpha(C_D0, aspect_ratio, wing_loading, span_efficiency_factor, mass_fraction,  climb_altitude=7400)
+    
+    # ISA
     climb_altitude = 7400
     std_temp = 288.15
     a = -0.0065

@@ -1,6 +1,5 @@
 import math
 from variables import *
-import numpy as np
 
 def Alpha(Zlcd, AR, WingLoading, Oswald, mass_fraction, climb_altitude = 0, std_temp = 288.15, density = 1.225): # climbtemp = 240.05,
     # ISA

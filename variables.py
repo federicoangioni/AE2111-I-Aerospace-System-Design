@@ -7,7 +7,7 @@ V_cr = .77 # Cruise speed
 rhostd = 1.225
 climb_rate_requirement = 6.8 # TBD
 # minimum stall speed
-obstacle_height = 100
+obstacle_height = 11
 
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 TBD
 approach_speed = 68 # m/s TBD

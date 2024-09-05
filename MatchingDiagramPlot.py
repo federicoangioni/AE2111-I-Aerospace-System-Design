@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from variables import *
 from Formulas import *
@@ -21,7 +22,7 @@ TakeOffLength = np.array([0])
 
 for load in wing_loadings[1:]:
     CruiseSpeed = np.append(CruiseSpeed, cruiseTTW(cruise_mass_fraction, CD_0_phases[0], V_cr,  AR, oswald_phases[0], load, cruise_h))
-    Climbrate = np.append(Climbrate, climbRateTTW(climb_rate_requirement, climb_mass_fraction, C_D0, AR, load, e, density=0.56308))
+    Climbrate = np.append(Climbrate, climbRateTTW(climb_rate_requirement, climb_mass_fraction, C_D0, AR, load, e))
     ClimbG119 = np.append(ClimbG119, climbGradientTTW(mass_fraction_119, climb_gradient_119, load, CD_0_phases[5], AR, oswald_phases[5]))
     ClimbG121a = np.append(ClimbG121a, climbGradientTTW(mass_fraction_121a, climb_gradient_121a, load, CD_0_phases[3], AR, oswald_phases[3], OEI=True))
     ClimbG121b = np.append(ClimbG121b, climbGradientTTW(mass_fraction_121b, climb_gradient_121b, load, CD_0_phases[2], AR, oswald_phases[2], OEI=True))
