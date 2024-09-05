@@ -30,10 +30,7 @@ for load in wing_loadings[1:]:
     TakeOffLength = np.append(TakeOffLength, takeOffFieldLength(load, takeoff_field_length, 1.225, AR, oswald_phases[3], obstacle_height))
 
 
-TfL = []
-
-
-figure, axis = plt.subplots(figsize=(8,5))
+figure, axis = plt.subplots(figsize=(11,5))
 axis.grid(True, alpha=0.9)
 axis.plot(minimum_speed, wing_loadings, label= "Minimum Speed", color="blue")
 axis.plot(lfl, wing_loadings, label = "Landing Field Length", color = "orange")
@@ -46,9 +43,10 @@ axis.plot(wing_loadings[1:], ClimbG121d[1:], label="Climb gradient CS25.121d")
 axis.plot(wing_loadings[1:], ClimbG119[1:], label="Climb gradient CS25.119")
 axis.plot(wing_loadings[1:], TakeOffLength[1:], label = "Take off Length")
 
-plt.legend()
+plt.legend(bbox_to_anchor=(1.025, 1.0), loc='upper left')
 plt.xlim(0, 6000)
 plt.ylim(0, 0.5)
+plt.tight_layout()
 
 
 
