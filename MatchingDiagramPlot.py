@@ -44,15 +44,30 @@ axis.plot(wing_loadings[1:], ClimbG121d[1:], label="Climb gradient CS25.121d")
 axis.plot(wing_loadings[1:], ClimbG119[1:], label="Climb gradient CS25.119")
 axis.plot(wing_loadings[1:], TakeOffLength[1:], label = "Take off Length")
 
+for i in range(1,90):
+    if minimum_speed[1] <= wing_loadings[i] and minimum_speed[1] >= wing_loadings[i - 1]:
+        rx1 = wing_loadings[i - 1]
+        rx2 = wing_loadings[i]
+        y1 = i-1
+        y2 = i
+        break
+    else:
+        continue
+dp = np.interp(minimum_speed[1], [rx1, rx2], [Climbrate[y1], Climbrate[y2]])
+plt.scatter(minimum_speed[2], dp, label = "Design Point", color = "yellow", marker = "D", zorder = 1000, edgecolors="black", s=60, linewidths=1.5)
+
+plt.annotate(f'({round(minimum_speed[1])}, {round(dp, 2)})',
+             xy=(minimum_speed[1], dp),
+             xytext=(minimum_speed[1] - 1500 , dp + 0.1),
+             arrowprops=dict(arrowstyle='->', lw=1.5))
+
+plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ (N/m^2)$', fontsize = 10)
+plt.ylabel(r'Thrust-to-weight ratio  ${T_{TO}/{W_{TO}}}$', fontsize=10)
+
 plt.legend(bbox_to_anchor=(1.025, 1.0), loc='upper left')
 plt.xlim(0, 6000)
 plt.ylim(0, 0.5)
 plt.tight_layout()
+plt.show()
 
-
-
-def Design_Point(climb, speed):
-    diff = np.abs(climb[10:] - speed[10:])  
-    print(climb, speed)
-Design_Point(Climbrate, minimum_speed)
 plt.show()
