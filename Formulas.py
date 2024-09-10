@@ -45,9 +45,9 @@ def climbGradientTTW(mass_fraction, climb_gradient, wing_loading,  C_D0, aspect_
 def takeOffFieldLength(wing_loading, TO_field_length, rho,  AR, span_efficiency_factor, h2, k_t = 0.85, g = 9.80665, OEI = False, NE = 2):
     alphaT = Alpha(CD_0_phases[3], AR, wing_loading, oswald_phases[3], 1)
     if OEI:
-        TTW = (1.15 * alphaT * math.sqrt(wing_loading/(k_t* g * rho * math.pi * AR * span_efficiency_factor))) + 4 * h2/TO_field_length
+        TTW = (1.15 * alphaT * math.sqrt(wing_loading/(k_t* g * rho * math.pi * AR * span_efficiency_factor * TO_field_length))) + 4 * h2/TO_field_length
     else:
-        TTW = (1.15 * alphaT * math.sqrt((NE/(NE-1))*wing_loading/(k_t* g * rho * math.pi * AR * span_efficiency_factor))) + 4 * h2/TO_field_length * (NE/(NE-1))
+        TTW = (1.15 * alphaT * math.sqrt((NE/(NE-1))*wing_loading/(k_t* g * rho * math.pi * AR * span_efficiency_factor * TO_field_length))) + 4 * h2/TO_field_length * (NE/(NE-1))
     return TTW
 
 def climbRateTTW(climb_rate_requirement, mass_fraction, C_D0, aspect_ratio, wing_loading, span_efficiency_factor):
