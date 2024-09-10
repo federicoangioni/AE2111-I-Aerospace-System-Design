@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+
 from variables import *
 from Formulas import *
 from Extrasheet import *
+# from ReferenceAircraft import RefDesignPoint
 
 # Initialisation of x and y value lists
 wing_loadings = np.arange(0, 9000, 100)
@@ -58,16 +60,19 @@ plt.scatter(minimum_speed[2], dp, label = "Design Point", color = "yellow", mark
 
 plt.annotate(f'({round(minimum_speed[1])}, {round(dp, 2)})',
              xy=(minimum_speed[1], dp),
-             xytext=(minimum_speed[1] - 1500 , dp + 0.1),
+             xytext=(minimum_speed[1] - 700 , dp + 0.1),
              arrowprops=dict(arrowstyle='->', lw=1.5))
 
-plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
-plt.scatter(0,0, label = "Embr CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
-plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
-plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
-plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
-plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
-plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+plt.scatter(4585.272, 0.379, label = "Bombardier CRJ700", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(5208.611, 0.324, label = "Embraer E170AR",marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(4862.099, 0.347, label = "Bombardier CRJ550", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(3785.325, 0.304, label = "Fokker F28 fellowship-1000", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(4740.997, 0.144, label = "Boeing 737-100", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(4975.019, 0.382, label = "Comac ARJ21-700 STD", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(5332.789, 0.180,label = "Embraer E190LR", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(5788.837, 0.295, label = "Sukhoi Superjet100/95B", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+plt.scatter(4253.758, 0.315, label = "Fairchild Dornier 728", marker="o", zorder = 999, edgecolors="black", s=15, linewidths=1)
+
 
 
 plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ (N/m^2)$', fontsize = 10)
@@ -77,6 +82,4 @@ plt.legend(bbox_to_anchor=(1.025, 1.0), loc='upper left')
 plt.xlim(0, 6000)
 plt.ylim(0, 0.5)
 plt.tight_layout()
-plt.show()
-
 plt.show()

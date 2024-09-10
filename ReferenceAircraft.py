@@ -10,7 +10,7 @@ def minimum_speed(wing_loadings, C_lmax_landing, approach_speed, landing_mass_fr
 
 def RefDesignPoint(wing_loadings):
     for i in range(1,90):
-        if minimum_speed()[1] <= wing_loadings[i] and minimum_speed()[1] >= wing_loadings[i - 1]:
+        if minimum_speed(   )[1] <= wing_loadings[i] and minimum_speed(     )[1] >= wing_loadings[i - 1]:
             rx1 = wing_loadings[i - 1]
             rx2 = wing_loadings[i]
             y1 = i-1
@@ -20,4 +20,4 @@ def RefDesignPoint(wing_loadings):
             continue
 
     dp = np.interp(minimum_speed(   )[1], [rx1, rx2], [climbRateTTW(   )[y1], climbRateTTW(    )[y2]])
-    plt.scatter(minimum_speed(  )[2], dp, label = "Design Point", color = "yellow", marker = "D", zorder = 1000, edgecolors="black", s=60, linewidths=1.5)
+    return dp
