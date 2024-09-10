@@ -9,7 +9,7 @@ from Extrasheet import *
 
 
 # Initialisation of x and y value lists
-wing_loadings = np.arange(0, 9000, 100)
+wing_loadings = np.arange(0, 9000, 1)
 
 minimum_speed = np.full(len(wing_loadings), stallSpeedWingLoading(C_lmax_landing, approach_speed, landing_mass_fraction, rhostd))
 lfl = np.full(len(wing_loadings), LandingFieldLength(C_lmax_landing, landing_field_distance, landing_mass_fraction, Clfl=0.45, density=rhostd))
@@ -32,7 +32,6 @@ for load in wing_loadings[1:]:
     ClimbG121d = np.append(ClimbG121d, climbGradientTTW(mass_fraction_121d, climb_gradient_121d, load, CD_0_phases[4], AR, oswald_phases[4], OEI=True))
     TakeOffLength = np.append(TakeOffLength, takeOffFieldLength(load, takeoff_field_length, 1.225, AR, oswald_phases[3], obstacle_height))
 
-
 figure, axis = plt.subplots(figsize=(11,5))
 axis.grid(True, alpha=0.9)
 axis.plot(minimum_speed, wing_loadings, label= "Minimum Speed", color="blue")
@@ -46,7 +45,7 @@ axis.plot(wing_loadings[1:], ClimbG121d[1:], label="Climb gradient CS25.121d")
 axis.plot(wing_loadings[1:], ClimbG119[1:], label="Climb gradient CS25.119")
 axis.plot(wing_loadings[1:], TakeOffLength[1:], label = "Take off Length")
 
-for i in range(1,90):
+for i in range(1,len(wing_loadings)):
     if minimum_speed[1] <= wing_loadings[i] and minimum_speed[1] >= wing_loadings[i - 1]:
         rx1 = wing_loadings[i - 1]
         rx2 = wing_loadings[i]
@@ -60,13 +59,19 @@ plt.scatter(minimum_speed[2], dp, label = "Design Point", color = "yellow", mark
 
 plt.annotate(f'({round(minimum_speed[1])}, {round(dp, 2)})',
              xy=(minimum_speed[1], dp),
-             xytext=(minimum_speed[1] - 700 , dp + 0.1),
+             xytext=(minimum_speed[1] - 770 , dp + 0.12),
              arrowprops=dict(arrowstyle='->', lw=1.5))
 
-tw = [0.379, 0.324, 0.347, 0.304, 0.144, 0.382, 0.18, 0.295, 0.315],
+tw = [0.379, 0.324, 0.373, 0.347, 0.304, 0.287, 0.382, 0.361, 0.295, 0.315],
  
-ws = [4585.272, 5208.611, 4862.099, 3785.325, 4740.997, 4975.019, 5332.789, 5788.837, 4253.758]
-plt.scatter(ws, tw, marker= "o", color="black", s=15, zorder=999)
+ws = [4585.272, 5208.611, 4882.186, 4862.099, 3785.325, 4740.997, 4975.019, 5332.789, 5788.837, 4253.758]
+plt.scatter(ws, tw, marker= "o", color="black", label= "Reference Aircraft", s=15, zorder=999)
+
+choice = np.array([])
+for value in range(len(Climbrate)):
+    choice = np.append(choice, max(CruiseSpeed[value], Climbrate[value]))
+
+axis.fill_between(wing_loadings[:5282], y1= choice[:5282], y2= minimum_speed[:5282],color="green", alpha = 0.2)
 
 plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ (N/m^2)$', fontsize = 10)
 plt.ylabel(r'Thrust-to-weight ratio  ${T_{TO}/{W_{TO}}}$', fontsize=10)
@@ -76,4 +81,3 @@ plt.xlim(0, 6500)
 plt.ylim(0, 0.5)
 plt.tight_layout()
 plt.show()
-

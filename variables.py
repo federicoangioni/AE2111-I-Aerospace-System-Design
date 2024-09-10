@@ -37,6 +37,7 @@ B = 9 # Bypass ratio 5 < B < 15
 
 TSFC = 22*B**(-0.19) # [g/kN/s] Thrust-specific fuel consumption of engines chosen
 engine_efficiency = V_cr / (TSFC*1e-6*43)   # 43 MJ/kg specific energy for kerosene
+
 max_flap = 35
 takeoff_flap = 15
 flap_angles = np.array([0, 0, 15, 15, 35, 35])
