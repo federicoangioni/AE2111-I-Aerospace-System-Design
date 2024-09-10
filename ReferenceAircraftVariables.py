@@ -1,6 +1,7 @@
 import numpy as np
 import math
-cruise_h = 10668 # m
+
+cruise_h = 10000 # m
 landing_field_distance = 1496 # m
 takeoff_field_length = 1296 # m
 V_cr = .77 # Cruise speed
@@ -11,7 +12,7 @@ obstacle_height = 11
 
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 TBD
 approach_speed = 68 # m/s TBD
-landing_mass_fraction = 0.886 # TBD 0.88 final value
+landing_mass_fraction = 0.87 # TBD 0.88 final value
 cruise_mass_fraction = 0.95 # TBD
 climb_mass_fraction = 0.95
 # stall/takeoff/cclimb/
@@ -20,8 +21,8 @@ C_lmax_takeoff = 1.8 # 1.6 < Cl < 2.2   TBD
 C_lmax_cruise = 1.4 # 1.2 < Cl <1.8     TBD
 
 # -- Drag Polar sheet --
-AR = 8.55 # TBD
-S_wet_S_wing = 6.5 # TBD
+AR = 11 # TBD
+S_wet_S_wing = 7.6  # TBD
 
 c_f = 0.00275 # to estimate from figure 6.3 TBD
 

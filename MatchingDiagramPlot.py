@@ -61,6 +61,15 @@ plt.annotate(f'({round(minimum_speed[1])}, {round(dp, 2)})',
              xytext=(minimum_speed[1] - 1500 , dp + 0.1),
              arrowprops=dict(arrowstyle='->', lw=1.5))
 
+plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+plt.scatter(0,0, label = "Embr CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+plt.scatter(0,0, label = "Bombardier CRJ700", color="blue",marker="D", zorder = 999, edgecolors="black", s=30, linewidths=1.5)
+
+
 plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ (N/m^2)$', fontsize = 10)
 plt.ylabel(r'Thrust-to-weight ratio  ${T_{TO}/{W_{TO}}}$', fontsize=10)
 
