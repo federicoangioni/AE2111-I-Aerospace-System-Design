@@ -20,7 +20,7 @@ C_lmax_takeoff = 1.8 # 1.6 < Cl < 2.2   TBD
 C_lmax_cruise = 1.4 # 1.2 < Cl <1.8     TBD
 
 # -- Drag Polar sheet --
-AR = 8.55 # TBD
+AR = 8.69 # TBD
 S_wet_S_wing = 6.5 # TBD
 
 c_f = 0.00275 # to estimate from figure 6.3 TBD
@@ -33,7 +33,7 @@ phi = 0.97 # fixed
 
 e = 1/(math.pi * AR * psi + 1/phi) # assumed oswald efficiency factor
 B = 9 # Bypass ratio 5 < B < 15
-
+print(e)
 
 TSFC = 22*B**(-0.19) # [g/kN/s] Thrust-specific fuel consumption of engines chosen
 engine_efficiency = V_cr / (TSFC*1e-6*43)   # 43 MJ/kg specific energy for kerosene
