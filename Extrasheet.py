@@ -1,7 +1,7 @@
 import math
 from variables import *
 
-def Alpha(Zlcd, AR, WingLoading, Oswald, mass_fraction, climb_altitude = 0, std_temp = 288.15, density = 1.225): # climbtemp = 240.05,
+def Alpha(Zlcd, AR, WingLoading, Oswald, mass_fraction, Bypass= B, climb_altitude = 0, std_temp = 288.15, density = 1.225): # climbtemp = 240.05,
     # ISA
     a = -0.0065
     T_h = std_temp-0.0065*climb_altitude
@@ -20,9 +20,9 @@ def Alpha(Zlcd, AR, WingLoading, Oswald, mass_fraction, climb_altitude = 0, std_
     deltat = pt / 101325 
     thetat = Tt / 288.15
     if thetat <= thetaTbreak:
-        alphaT = deltat*(1-(0.43+0.014*5)*math.sqrt(mach))
+        alphaT = deltat*(1-(0.43+0.014*Bypass)*math.sqrt(mach))
     else:
-        alphaT = deltat*(1-(0.43+0.014*5)*math.sqrt(mach) - 3*(thetat*thetaTbreak)/(1.5+mach))
+        alphaT = deltat*(1-(0.43+0.014*Bypass)*math.sqrt(mach) - 3*(thetat*thetaTbreak)/(1.5+mach))
     
     return alphaT
 

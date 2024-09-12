@@ -32,7 +32,7 @@ psi = 0.0075 #fixed
 phi = 0.97 # fixed
 
 e = 1/(math.pi * AR * psi + 1/phi) # assumed oswald efficiency factor
-B = 9 # Bypass ratio 5 < B < 15
+B = 5# Bypass ratio 5 < B < 15
 print(e)
 
 TSFC = 22*B**(-0.19) # [g/kN/s] Thrust-specific fuel consumption of engines chosen
