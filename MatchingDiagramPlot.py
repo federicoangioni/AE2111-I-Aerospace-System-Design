@@ -1,8 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-
-
 from variables import *
 from Formulas import *
 from Extrasheet import *
@@ -32,7 +29,7 @@ for load in wing_loadings[1:]:
     ClimbG121d = np.append(ClimbG121d, climbGradientTTW(mass_fraction_121d, climb_gradient_121d, load, CD_0_phases[4], AR, oswald_phases[4], OEI=True))
     TakeOffLength = np.append(TakeOffLength, takeOffFieldLength(load, takeoff_field_length, 1.225, AR, oswald_phases[3], obstacle_height))
 
-figure, axis = plt.subplots(figsize=(11,5))
+figure, axis = plt.subplots(figsize=(9,6))
 axis.grid(True, alpha=0.9)
 axis.plot(minimum_speed, wing_loadings, label= "Minimum Speed", color="blue")
 axis.plot(lfl, wing_loadings, label = "Landing Field Length", color = "orange")
@@ -73,10 +70,11 @@ for value in range(len(Climbrate)):
 
 axis.fill_between(wing_loadings[:5282], y1= choice[:5282], y2= minimum_speed[:5282],color="green", alpha = 0.2)
 
-plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ (N/m^2)$', fontsize = 10)
-plt.ylabel(r'Thrust-to-weight ratio  ${T_{TO}/{W_{TO}}}$', fontsize=10)
+plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ [N/m^2]$', fontsize = 10)
+plt.ylabel(r'Thrust-to-weight ratio  ${T_{TO}/{W_{TO}}} \ [N/N]$', fontsize=10)
 
-plt.legend(bbox_to_anchor=(1.025, 1.0), loc='upper left')
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
+          fancybox=True, shadow=True, ncol=3)
 plt.xlim(0, 6500)
 plt.ylim(0, 0.5)
 plt.tight_layout()

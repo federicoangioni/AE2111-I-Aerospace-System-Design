@@ -1,6 +1,7 @@
 import math
 from variables import *
 
+
 def Alpha(Zlcd, AR, WingLoading, Oswald, mass_fraction, Bypass= B, climb_altitude = 0, std_temp = 288.15, density = 1.225): # climbtemp = 240.05,
     # ISA
     a = -0.0065
