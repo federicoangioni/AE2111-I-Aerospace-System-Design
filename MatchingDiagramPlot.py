@@ -54,6 +54,8 @@ for i in range(1,len(wing_loadings)):
 dp = np.interp(minimum_speed[1], [rx1, rx2], [Climbrate[y1], Climbrate[y2]])
 plt.scatter(minimum_speed[2], dp, label = "Design Point", color = "yellow", marker = "D", zorder = 1000, edgecolors="black", s=60, linewidths=1.5)
 
+wing_surface = MTOW*9.81/minimum_speed[2]
+
 plt.annotate(f'({round(minimum_speed[1])}, {round(dp, 2)})',
              xy=(minimum_speed[1], dp),
              xytext=(minimum_speed[1] - 770 , dp + 0.12),
@@ -78,4 +80,5 @@ plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
 plt.xlim(0, 6500)
 plt.ylim(0, 0.5)
 plt.tight_layout()
-plt.show()
+if __name__ == "__main__":
+    plt.show()

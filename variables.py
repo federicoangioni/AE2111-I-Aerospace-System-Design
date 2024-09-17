@@ -9,7 +9,7 @@ rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
 obstacle_height = 11
-
+MTOW = 37968
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
 landing_mass_fraction = 0.886 # 0.88 final value
