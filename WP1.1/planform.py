@@ -13,7 +13,7 @@ def taper_ratio_real(tip_chord, root_chord):
     TaperRatio = tip_chord/root_chord
     return TaperRatio
 
-def taper_ratio_Mcr(Q4sweep = QC4Sweep()):
+def taper_ratio_Mcr(Q4sweep):
     TaperRatio = 0.2 * (2 - Q4sweep)
     return TaperRatio
 
@@ -78,8 +78,9 @@ def MAC_X_LE(yMAC, LE_sweep):
 
 ######################
 
-QCSweep = QC4Sweep()
-taper_ratio = taper_ratio_Mcr()
+#QCSweep = QC4Sweep()
+QCSweep = np.radians(25)
+taper_ratio = taper_ratio_Mcr(QCSweep)
 b = wing_span(AR, wing_surface)
 c_r = chord_root(wing_surface, taper_ratio, b)
 
@@ -89,14 +90,14 @@ halveCordSweep = QCSweep_to_HalveCordSweep(QCSweep, taper_ratio, b, c_r)
 LESweep = QCSweep_to_LESweep(QCSweep, taper_ratio, b, c_r)
 CL_max_min = min_CL_max(QCSweep, C_lmax_cruise)
 C_L_cruise = CL_cruise(Density(cruise_h), V_cr, minimum_speed[2])
-ticknessToCordRatio = tickness_cord_ratio(halveCordSweep, V_cr, C_L_cruise) # C_l_cruise =/= C_lmax_cruise
+ticknessToCordRatio = 0.14#tickness_cord_ratio(halveCordSweep, V_cr, C_L_cruise) # C_l_cruise =/= C_lmax_cruise
 MAC = mean_aerodynamic_chord(c_r, taper_ratio)
 y_MAC = MAC_spanwise(b, taper_ratio)
 XLEMAC = MAC_X_LE(y_MAC, LESweep)
 
+M_DD = 0.935/(np.cos(LESweep)) - (0.14)/((np.cos(LESweep)**2)) - 0.56/(10*((np.cos(LESweep)**3)))
+
 if __name__ == "__main__":
-    # print(c_r, c_t, b/2, taper_ratio, dihedral)
-    # print(math.tan(QCSweep))
     print(f"QCSweep: {math.degrees(QCSweep)} deg")
     print(f"Halve Cord Sweep: {math.degrees(halveCordSweep)} deg")
     print(f"Leading Edge Sweep: {math.degrees(LESweep)} deg")
@@ -110,3 +111,4 @@ if __name__ == "__main__":
     print(f"Mean Aerodynamic Chord: {MAC} m")
     print(f"MAC Spanwise: {y_MAC} m")
     print(f"XLEMAC: {XLEMAC} m")
+    print(f"Mach drag divergence: {M_DD}")

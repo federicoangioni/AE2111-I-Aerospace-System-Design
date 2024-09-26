@@ -12,13 +12,13 @@ obstacle_height = 11
 MTOW = 37968
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
-landing_mass_fraction = 0.886 # 0.88 final value
+landing_mass_fraction = 0.88 # 0.88 final value
 cruise_mass_fraction = 0.95 
 climb_mass_fraction = 0.95
 # stall/takeoff/cclimb/
 
 C_lmax_takeoff = 1.8 # 1.6 < Cl < 2.2   
-C_lmax_cruise = 1.4 # 1.2 < Cl <1.8     
+C_lmax_cruise = 1.45 # 1.2 < Cl <1.8     
 
 # -- Drag Polar sheet --
 AR = 8.69
