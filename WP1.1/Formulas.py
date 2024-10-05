@@ -1,6 +1,5 @@
 import math
 from variables import *
-from Extrasheet import *
 
 
 def stallSpeedWingLoading(CL_max, approach_velocity, mass_fraction, density = rhostd): # OK
@@ -62,3 +61,26 @@ def climbRateTTW(climb_rate_requirement, mass_fraction, C_D0, aspect_ratio, wing
     
     density = p_h/(287*T_h)
     return (mass_fraction / thrust_lapse) * ((math.sqrt(((climb_rate_requirement**2)/(mass_fraction * wing_loading))*((density * math.sqrt(C_D0 * math.pi * aspect_ratio * span_efficiency_factor))/2)))+(2*(math.sqrt(C_D0/(math.pi * aspect_ratio * span_efficiency_factor)))))
+
+def Alpha(Zlcd, AR, WingLoading, Oswald, mass_fraction, Bypass= B, climb_altitude = 0, std_temp = 288.15, density = 1.225): # climbtemp = 240.05,
+    # ISA
+    a = -0.0065
+    T_h = std_temp-0.0065*climb_altitude
+    p_h = 101325*(T_h/std_temp)**(-9.81/(a*287))
+    
+    thetaTbreak = 1.7 # 1.6 < thetaTbreak < 1.8
+    
+    ClimbRateCl = math.sqrt(Zlcd*math.pi*AR*Oswald)
+  
+    speed = math.sqrt(mass_fraction*WingLoading*(2/density)*(1/ClimbRateCl))
+    mach = speed/math.sqrt(1.4*287*T_h)
+    pt = p_h * (1+(mach**2)*((1.4-1)/2))**(1.4/(1.4-1))
+    Tt = T_h*(1+(mach**2)*((1.4-1)/2))
+    deltat = pt / 101325 
+    thetat = Tt / 288.15
+    if thetat <= thetaTbreak:
+        alphaT = deltat*(1-(0.43+0.014*Bypass)*math.sqrt(mach))
+    else:
+        alphaT = deltat*(1-(0.43+0.014*Bypass)*math.sqrt(mach) - 3*(thetat*thetaTbreak)/(1.5+mach))
+    
+    return alphaT

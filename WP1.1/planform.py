@@ -1,5 +1,5 @@
 import math
-from ISA import Temperature, Pressure, Density
+from ISA import Temperature, Density
 from variables import *
 from MatchingDiagramPlot import *
 # root chord, taper ratio
@@ -97,6 +97,16 @@ XLEMAC = MAC_X_LE(y_MAC, LESweep)
 
 M_DD = 0.935/(np.cos(LESweep)) - (0.14)/((np.cos(LESweep)**2)) - 0.56/(10*((np.cos(LESweep)**3)))
 
+a = np.sqrt(1.4*287*Temperature(cruise_h))
+
+V_inf = V_cr*a
+cd = .05
+
+D = 0.5 * Density(cruise_h) * V_inf**2 * (wing_surface) * cd
+tsfc = 15.6e-6
+
+SAR = V_inf/D*tsfc
+
 if __name__ == "__main__":
     print(f"QCSweep: {math.degrees(QCSweep)} deg")
     print(f"Halve Cord Sweep: {math.degrees(halveCordSweep)} deg")
@@ -108,7 +118,8 @@ if __name__ == "__main__":
     print(f"Diherdral: {dihedral} deg")
     print(f"Minimum airfoil CL/Max: {CL_max_min}")
     print(f"Tickness to Chord Ratio: {ticknessToCordRatio}")
-    print(f"Mean Aerodynamic Chord: {MAC} m")
+    print(f"Mean Aerodynamic Chord (MAC) : {MAC} m")
     print(f"MAC Spanwise: {y_MAC} m")
     print(f"XLEMAC: {XLEMAC} m")
     print(f"Mach drag divergence: {M_DD}")
+    print(f"The SAR value is: {SAR}")

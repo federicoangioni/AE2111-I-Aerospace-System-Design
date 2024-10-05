@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from variables import *
 from Formulas import *
-from Extrasheet import *
+
 
 
 # Initialisation of x and y value lists
