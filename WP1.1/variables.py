@@ -22,16 +22,14 @@ C_lmax_cruise = 1.45 # 1.2 < Cl <1.8
 
 # -- Drag Polar sheet --
 AR = 8.69
+
 S_wet_S_wing = 6.5
 
 c_f = 0.00275 
 
-C_D0 = c_f * S_wet_S_wing # zero-lift drag coeffficient
+C_D0 = 0.02135 # zero-lift drag coeffficient
 
-psi = 0.0075 
-phi = 0.97 
-
-e = 1/(math.pi * AR * psi + 1/phi) # assumed oswald efficiency factor
+e = 0.544 # assumed oswald efficiency factor
 B = 5 # Bypass ratio 
 
 max_flap = 35

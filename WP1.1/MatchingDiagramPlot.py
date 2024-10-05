@@ -55,7 +55,7 @@ dp = np.interp(minimum_speed[1], [rx1, rx2], [Climbrate[y1], Climbrate[y2]])
 plt.scatter(minimum_speed[2], dp, label = "Design Point", color = "yellow", marker = "D", zorder = 1000, edgecolors="black", s=60, linewidths=1.5)
 
 wing_surface = MTOW*9.81/minimum_speed[2]
-
+print(wing_surface)
 plt.annotate(f'({round(minimum_speed[1])}, {round(dp, 2)})',
              xy=(minimum_speed[1], dp),
              xytext=(minimum_speed[1] - 770 , dp + 0.12),
