@@ -1,10 +1,12 @@
+from ISA import Temperature, Density, Pressure
+from variables import C_lmax_cruise, cruise_h, V_cr, e
 import math
-from ISA import Temperature, Density
-from variables import *
-from MatchingDiagramPlot import *
-# root chord, taper ratio
-# eq. 8.1, 8.2, 8.3, 8.5, 8.6, 8.4, 8.9, 8.10, 8.11, 8.12, 8.13, example 8.4
+from MatchingDiagramPlot import wing_surface, minimum_speed
+import numpy as np
 
+
+wing_surface = 63.25314915
+AR = 8.22338478
 def QC4Sweep(M_cr = 0.77):
     Q4Sweep_Angle = math.acos(1.16/(M_cr + 0.5))
     return Q4Sweep_Angle
@@ -79,7 +81,7 @@ def MAC_X_LE(yMAC, LE_sweep):
 ######################
 
 #QCSweep = QC4Sweep()
-QCSweep = np.radians(25)
+QCSweep = math.radians(25)
 taper_ratio = taper_ratio_Mcr(QCSweep)
 b = wing_span(AR, wing_surface)
 c_r = chord_root(wing_surface, taper_ratio, b)
@@ -89,23 +91,23 @@ dihedral = Diherdral(math.degrees(QCSweep))
 halveCordSweep = QCSweep_to_HalveCordSweep(QCSweep, taper_ratio, b, c_r)
 LESweep = QCSweep_to_LESweep(QCSweep, taper_ratio, b, c_r)
 CL_max_min = min_CL_max(QCSweep, C_lmax_cruise)
-C_L_cruise = CL_cruise(Density(cruise_h), V_cr, minimum_speed[2])
+C_L_cruise = CL_cruise(Density(cruise_h), V_cr, minimum_speed)
 ticknessToCordRatio = 0.14#tickness_cord_ratio(halveCordSweep, V_cr, C_L_cruise) # C_l_cruise =/= C_lmax_cruise
 MAC = mean_aerodynamic_chord(c_r, taper_ratio)
 y_MAC = MAC_spanwise(b, taper_ratio)
 XLEMAC = MAC_X_LE(y_MAC, LESweep)
 
-M_DD = 0.935/(np.cos(LESweep)) - (0.14)/((np.cos(LESweep)**2)) - 0.56/(10*((np.cos(LESweep)**3)))
+M_DD = 0.935/(math.cos(LESweep)) - (0.14)/((math.cos(LESweep)**2)) - 0.56/(10*((math.cos(LESweep)**3)))
 
-a = np.sqrt(1.4*287*Temperature(cruise_h))
+a = math.sqrt(1.4*287*Temperature(cruise_h))
 
 V_inf = V_cr*a
-cd = .05
+cd = 0.616**2/(np.pi*AR*e) + 0.02135
 
 D = 0.5 * Density(cruise_h) * V_inf**2 * (wing_surface) * cd
 tsfc = 15.6e-6
 
-SAR = V_inf/D*tsfc
+SAR = V_inf/(D*tsfc)
 
 if __name__ == "__main__":
     print(f"QCSweep: {math.degrees(QCSweep)} deg")

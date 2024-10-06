@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from variables import *
 from Formulas import *
-
-
+from variables import C_lmax_landing, approach_speed, landing_mass_fraction, landing_field_distance, mass_fraction_119, climb_gradient_119, mass_fraction_121a, climb_gradient_121a, mass_fraction_121b, climb_gradient_121b, AR, obstacle_height, cruise_h, V_cr, climb_gradient_121c, climb_gradient_121d, climb_mass_fraction, climb_rate_requirement, cruise_mass_fraction, mass_fraction_121c, mass_fraction_121d, C_D0, takeoff_field_length, MTOW, e
+#from optimization import e
 
 # Initialisation of x and y value lists
 wing_loadings = np.arange(0, 9000, 1)
@@ -55,7 +54,6 @@ dp = np.interp(minimum_speed[1], [rx1, rx2], [Climbrate[y1], Climbrate[y2]])
 plt.scatter(minimum_speed[2], dp, label = "Design Point", color = "yellow", marker = "D", zorder = 1000, edgecolors="black", s=60, linewidths=1.5)
 
 wing_surface = MTOW*9.81/minimum_speed[2]
-print(wing_surface)
 plt.annotate(f'({round(minimum_speed[1])}, {round(dp, 2)})',
              xy=(minimum_speed[1], dp),
              xytext=(minimum_speed[1] - 770 , dp + 0.12),
@@ -82,3 +80,4 @@ plt.ylim(0, 0.5)
 plt.tight_layout()
 if __name__ == "__main__":
     plt.show()
+    print(wing_surface)

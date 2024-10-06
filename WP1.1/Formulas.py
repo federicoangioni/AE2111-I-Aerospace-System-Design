@@ -1,5 +1,5 @@
 import math
-from variables import *
+from variables import rhostd, oswald_phases, CD_0_phases, B
 
 
 def stallSpeedWingLoading(CL_max, approach_velocity, mass_fraction, density = rhostd): # OK

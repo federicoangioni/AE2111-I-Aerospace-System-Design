@@ -1,5 +1,6 @@
 import numpy as np
 import math
+#from optimization import AR, e
 
 cruise_h = 10668 # m
 landing_field_distance = 1210 # m
@@ -21,15 +22,13 @@ C_lmax_takeoff = 1.8 # 1.6 < Cl < 2.2
 C_lmax_cruise = 1.45 # 1.2 < Cl <1.8     
 
 # -- Drag Polar sheet --
-AR = 8.69
 
-S_wet_S_wing = 6.5
 
-c_f = 0.00275 
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
 
-e = 0.544 # assumed oswald efficiency factor
+AR = 7.87
+e = 0.5813488971479
 B = 5 # Bypass ratio 
 
 max_flap = 35
