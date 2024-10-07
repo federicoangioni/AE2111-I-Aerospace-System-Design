@@ -1,12 +1,13 @@
 from ISA import Temperature, Density, Pressure
-from variables import C_lmax_cruise, cruise_h, V_cr, e
+from variables import C_lmax_cruise, cruise_h, V_cr, e, AR
 import math
 from MatchingDiagramPlot import wing_surface, minimum_speed
 import numpy as np
 
 
+
 wing_surface = 63.25314915
-AR = 8.22338478
+
 def QC4Sweep(M_cr = 0.77):
     Q4Sweep_Angle = math.acos(1.16/(M_cr + 0.5))
     return Q4Sweep_Angle

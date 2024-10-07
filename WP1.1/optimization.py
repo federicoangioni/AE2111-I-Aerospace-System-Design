@@ -64,7 +64,6 @@ def gradient(AR, LE_sweep, tr):
     
     return cd, S, CL, e  # Return cd, S, CL, e
 
-from scipy.optimize import minimize
 
 def objective(params):
     AR, LE_sweep, tr = params  # Remove b from the parameters
@@ -119,4 +118,3 @@ print("Optimized wing surface area:", optimized_S[0])
 print("Final lift coefficient (CL):", optimized_CL[0])
 print("Final efficiency factor (e):", optimized_e)
 print("The optimized SAR value is: ", SAR[0])
-
