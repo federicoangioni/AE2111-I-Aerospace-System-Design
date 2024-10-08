@@ -1,120 +1,172 @@
 import numpy as np
-from scipy.optimize import minimize
-from ISA import Density
-from planform import V_inf
 from ambiance import Atmosphere
 
-atmosphere = Atmosphere(10668)
-mtow = 37968  # Maximum takeoff weight in N
+# Atmosphere initialization
+altitude = 10668  # Altitude in meters
+atmosphere = Atmosphere(altitude)
+mtow = 37968 * 9.81  # Maximum takeoff weight in N (mass in kg * gravity)
 mlw = 0.886 * mtow  # Maximum landing weight in N
-rho = atmosphere.density  # Air density
+rho = atmosphere.density[0]  # Air density (kg/m^3)
+V_inf = 228.31123834310043  # Free-stream velocity in m/s
 q = 0.5 * rho * V_inf**2  # Dynamic pressure
 
-# Function to compute surface area from lift
+# Fixed parameters
+LE_sweep = np.radians(27.9)  # Leading-edge sweep angle in radians
+tr = 0.312  # Taper ratio
+
+# Function to calculate surface area given lift, air density, velocity, and CL
 def compute_surface_area(L, rho, V_inf, CL):
     return (2 * L) / (rho * V_inf**2 * CL)
 
+# Function to calculate the geometric angle at a point along the wing
 def angle_at_xdivc(x, c, LEsweep, c_r, tr, b):
-    return np.arctan(np.tan(LEsweep) - (x/c)  * 2 * (c_r/b) * (1-tr))
+    return np.arctan(np.tan(LEsweep) - (x / c) * 2 * (c_r / b) * (1 - tr))
 
-def gradient(AR, LE_sweep, tr):
-    kin_visc = atmosphere.kinematic_viscosity
-    L = 0.5 * (mtow + mlw) * 9.81  # Lift force (weight in N)
-    
-    # Calculate S dynamically based on required lift
-    S = compute_surface_area(L, rho, V_inf, 0.56)
-    
-    # Calculate b from the relation
-    b = np.sqrt(S * AR)
+# Gradient function that dynamically updates surface area and CL
+def gradient(AR, tolerance=1e-6, max_iterations=100):
+    # Average lift force based on mtow and mlw
+    L = 0.5 * (mtow + mlw)  
+    rho = atmosphere.density[0]
+    V_inf = 228.31123834310043
+    q = 0.5 * rho * V_inf**2
 
-    # Define constants
-    c = b / AR
-    c_r = 2 * S / ((1 + tr) * b)
+    # Set an initial guess for CL
+    CL = 0.6  # Initial guess for lift coefficient
+    S = compute_surface_area(L, rho, V_inf, CL)  # Initial guess for S based on initial CL
 
-    # Calculate CL using the computed surface area S
-    CL = 1.1 * (1 / q) * 0.5 * (mtow + mlw) * 9.81 / S
-    
-    # Efficiency factor (e) calculation
+    iteration = 0
+    delta = float('inf')  # Initialize the change between iterations
+
+    # Iteratively update S and CL until they converge
+    while delta > tolerance and iteration < max_iterations:
+        # Calculate new CL based on current surface area S
+        CL_new = L / (q * S)
+        # Calculate new S based on the updated CL
+        S_new = compute_surface_area(L, rho, V_inf, CL_new)
+
+        # Check how much S has changed between iterations
+        delta = abs(S_new - S)
+
+        # Update S and CL for the next iteration
+        S = S_new
+        CL = CL_new
+        iteration += 1
+
+    # Proceed with the rest of the calculations using the final converged S and CL
+    c = np.sqrt(S / AR)  # Mean aerodynamic chord
+    b = np.sqrt(AR * S)  # Wingspan
+    c_r = (2 * S) / ((1 + tr) * b)  # Root chord length
+
+    # Calculate mid-chord sweep angle lambda_m
+    x_c_m = 0.37 * c  # x/c location for mean aerodynamic chord
+    lambda_m = angle_at_xdivc(x_c_m, c, LE_sweep, c_r, tr, b)
+
+    # Desired lift coefficient
+    cldes = CL
     e = 4.61 * (1 - 0.045 * AR**0.68) * (np.cos(LE_sweep)**0.15) - 3.1
-
-    # Further calculations for drag coefficient
-    cldes = 1.1 * (1/q) * 0.5 * (mtow + mlw) * 9.81 / S
     cdind = (cldes**2) / (np.pi * AR * e)
-    
+
+    # Wet wing surface area and interference factor
     S_wet_wing = 2 * 1.07 * S
-    IF_wing = 1.4
-    x_c_m = 0.37
-    ttoc = 0.14
-    lambda_m = angle_at_xdivc(37, 10, LE_sweep, c_r, tr, b)
-    laminar_wing = 0.1
-    k = 0.634e-5  # paint factor
-    Re = V_inf * c / kin_visc
-    # Laminar friction coefficient
+    IF_wing = 1.4  # Interference factor
+    ttoc = 0.14  # Thickness-to-chord ratio
+    M = 0.77  # Mach number
+
+    # Estimate Reynolds number
+    laminar_wing = 0.1  # Fraction of laminar flow
+    Re = V_inf * c / atmosphere.kinematic_viscosity[0]
+
+    # Laminar and turbulent friction coefficients
     C_f_lamwing = 1.328 / np.sqrt(Re)
-    # Turbulent friction coefficient
-    C_f_turbwing = 0.455 / ((np.log10(Re)**(2.58)) * (1 + 0.144 * 0.77**2)**0.65)
-    # Total friction coefficient weighted
+    C_f_turbwing = 0.455 / ((np.log10(Re)**2.58) * (1 + 0.144 * M**2)**0.65)
     C_fwing = laminar_wing * C_f_lamwing + (1 - laminar_wing) * C_f_turbwing
-    FF_wing = (1 + (0.6 / x_c_m) * ttoc + 100 * ttoc**4) * (1.34 * 0.77**0.18 * np.cos(lambda_m)**0.28)
-    
-    cd0 = (1/S) * (C_fwing * FF_wing * IF_wing * S_wet_wing)
+
+    # Form factor and drag coefficient
+    FF_wing = (1 + (0.6 / 0.37) * ttoc + 100 * ttoc**4) * (1.34 * M**0.18 * np.cos(lambda_m)**0.28)
+    cd0 = (1 / S) * (C_fwing * FF_wing * IF_wing * S_wet_wing)
 
     # Final drag coefficient
     cd = cd0 + cdind
+
+    return cd, S, CL, e
+
+# Function to enforce the lift constraint
+def enforce_lift_constraint(AR):
+    L = mtow  # Lift force must equal maximum takeoff weight
+    rho = atmosphere.density[0]
+    V_inf = 228.31123834310043
+    q = 0.5 * rho * V_inf**2
+
+    # Compute S and CL dynamically for the given AR
+    _, S, CL, _ = gradient(AR)
+
+    # Required CL for lift
+    CL_required = L / (q * S)
+
+    # Check if the computed CL meets or exceeds the required CL for lift
+    if CL < CL_required:
+        # Adjust S dynamically to ensure the lift constraint is met
+        S_new = compute_surface_area(L, rho, V_inf, CL_required)
+        return S_new  # Return the updated surface area after enforcing the constraint
+    return S
+
+# Function to calculate the gradient of the drag coefficient with respect to AR
+def calculate_gradient_cd(AR, step=0.01):
+    # Compute the drag coefficient for AR and AR + step
+    cd, S, CL, e = gradient(AR)
+    cd_step, S_step, CL_step, e_step = gradient(AR + step)
+
+    # Approximate gradient (change in cd divided by step)
+    gradient_cd = (cd_step - cd) / step
+    return gradient_cd, cd
+
+# Gradient descent algorithm to minimize cd with respect to AR
+def gradient_descent_cd(initial_AR, learning_rate=0.01, max_iterations=1000, tolerance=1e-6):
+    AR = initial_AR  # Start with the initial guess
+    iteration = 0
+    while iteration < max_iterations:
+        grad_cd, current_cd = calculate_gradient_cd(AR)
+
+        # Update AR using the gradient of the drag coefficient
+        AR_new = AR - learning_rate * grad_cd
+
+        # Enforce the lift constraint on the new AR
+        S_new = enforce_lift_constraint(AR_new)
+        
+        # Check for convergence
+        if abs(AR_new - AR) < tolerance:
+            break
+        
+        AR = AR_new
+        iteration += 1
+
+        # Print debug information for each iteration
+        print(f"Iteration {iteration}, AR: {AR}, Drag Coefficient: {current_cd}, Gradient: {grad_cd}")
     
-    return cd, S, CL, e  # Return cd, S, CL, e
+    return AR
 
+# Set initial guess for AR
+initial_AR = 10  # Initial guess for AR
 
-def objective(params):
-    AR, LE_sweep, tr = params  # Remove b from the parameters
-    cd, S, CL, e = gradient(AR, LE_sweep, tr)  # Get drag coefficient and surface area
+# Run gradient descent to minimize cd and optimize AR
+optimized_AR = gradient_descent_cd(initial_AR)
 
-    print(f"Objective Function - Params: {params}, Drag Coefficient: {cd}, Surface Area: {S}, Product: {S * cd}")
-    taper_ratio_penalty = 0.1 * (0.2 - tr)
-    # Minimize the product of S and cd
-    return S * cd - 0.1 * AR  - taper_ratio_penalty# Introduce AR into the objective function with a negative weight to encourage maximization
+# After optimization, calculate the optimized aerodynamic properties
+optimized_cd, optimized_S, optimized_CL, optimized_e = gradient(optimized_AR)
 
-# Constraint to ensure surface area is sufficient for lift
-def lift_constraint(params):
-    AR, LE_sweep, tr = params  # Remove b from the parameters
-    L = mtow * 9.81  # Required lift force (aircraft weight in N)   
-    
-    # Calculate S based on lift and current parameters
-    S = compute_surface_area(L, rho, V_inf, 0.56)  # Use a nominal CL for constraint
-    _, S_current, CL, _ = gradient(AR, LE_sweep, tr)  # Get the current surface area
-    return S_current - S  # Ensure the current S is sufficient
+# Compute Specific Air Range (SAR)
+D = 0.5 * rho * V_inf**2 * optimized_S * optimized_cd
+tsfc = 15.6e-6  # Thrust specific fuel consumption in kg/(N·s)
+SAR = V_inf / (D * tsfc)
 
-# Initial guesses for the parameters
-initial_guess = [8.69, np.radians(27.9), 0.312]  # [AR, LE_sweep, taper ratio]
-
-# Define bounds for the parameters
-bounds = [
-    (8, 12),  # AR bounds
-    (np.radians(27.9), np.radians(35)),  # LE_sweep bounds (in radians)
-    (0.2, 0.5)  # Taper ratio bounds
-]
-
-# Define the constraints
-constraints = [{'type': 'ineq', 'fun': lift_constraint}]  # Inequality constraint
-
-# Use SciPy's minimize function with bounds and constraints
-result = minimize(objective, initial_guess, bounds=bounds, constraints=constraints, method='SLSQP')
-
-# Optimized parameters
-optimized_params = result.x
-optimized_cd, optimized_S, optimized_CL, optimized_e = gradient(*optimized_params)  # Calculate all values using optimized parameters
-D = 0.5 * Density(10668) * V_inf**2 * (optimized_S) * optimized_cd
-tsfc = 15.6e-6
-
-SAR = V_inf/(D*tsfc)
-
-
+Cldes_M077 = optimized_CL / (np.cos(LE_sweep)**2)
+Cldes_M0 = Cldes_M077 * np.sqrt(1 - 0.77**2)
 
 # Print results
-print("Optimized parameters (AR, LE_sweep, taper ratio):", optimized_params[0], np.degrees(optimized_params[1]), optimized_params[2])
-print("Minimum Cd achieved:", optimized_cd)
-print("Minimum product of S and drag coefficient:", result.fun)
-print("Optimized wing surface area:", optimized_S[0])
-print("Final lift coefficient (CL):", optimized_CL[0])
-print("Final efficiency factor (e):", optimized_e)
-print("The optimized SAR value is: ", SAR[0])
+print("Optimized Aspect Ratio (AR):", optimized_AR)
+print("Minimum drag coefficient:", optimized_cd)
+print("Optimized wing surface area:", optimized_S)
+print("Optimized lift coefficient (CL):", optimized_CL)
+print("Airfoil lift coefficient then must be (Cldes):", Cldes_M0)
+print("Optimized efficiency factor (e):", optimized_e)
+print("The optimized SAR value is:", SAR)

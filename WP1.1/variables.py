@@ -27,7 +27,7 @@ C_lmax_cruise = 1.45 # 1.2 < Cl <1.8
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
 
-AR = 10.41286
+AR = 8.87
 e = 0.4234722199394
 B = 5 # Bypass ratio 
 
