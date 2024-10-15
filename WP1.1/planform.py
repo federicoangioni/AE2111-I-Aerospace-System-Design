@@ -8,6 +8,7 @@ import numpy as np
 
 wing_surface = 69.7
 AR = 8.87
+
 def QC4Sweep(M_cr = 0.77):
     Q4Sweep_Angle = math.acos(1.16/(M_cr + 0.5))
     return Q4Sweep_Angle

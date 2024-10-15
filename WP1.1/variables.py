@@ -10,7 +10,7 @@ rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
 obstacle_height = 11
-MTOW = 37968
+MTOW = 38358
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
 landing_mass_fraction = 0.88 # 0.88 final value
@@ -22,7 +22,6 @@ C_lmax_takeoff = 1.8 # 1.6 < Cl < 2.2
 C_lmax_cruise = 1.45 # 1.2 < Cl <1.8     
 
 # -- Drag Polar sheet --
-
 
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
@@ -54,3 +53,13 @@ climb_gradient_121a = 0.0
 climb_gradient_121b = 0.024
 climb_gradient_121c = 0.012
 climb_gradient_121d = 0.021
+
+# Values after optimization procedure
+S = 69.7
+LE_sweep = np.radians(27.7)
+C4_sweep = np.radians(25)
+b = 24.86 
+c_r = 4.27 
+c_t = 1.33
+e = 0.526
+AR = 8.87
