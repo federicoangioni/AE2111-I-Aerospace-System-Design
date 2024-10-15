@@ -78,8 +78,14 @@ S_wet_wing = 2*1.07*S
 
 multiplied_wing = C_fwing*S_wet_wing*IF_wing*FF_wing
 
-# S_Ref
+## Nacelle drag component
+
 # C_fe for nacelle
+
+Re_nacelle = min(V_inf * l_n*rho/dyn_visc, 44.62*((l_n/k)**1.053) * M**1.16)
+
+C_f_nacelle = 0.455/((np.log10(Re_nacelle)**(2.58))*(1+0.144*M**2)**0.65)
+
 # FF for nacelle
 
 def fineness_factor(l_n, D_n):
@@ -138,8 +144,31 @@ D_p = 0.5  # Diameter of the plug
 S_wet_plug = plug_wetted_area(l_p, D_p)
 print(S_wet_plug)
 
+## Vertical 
+S_emp = 0
+laminar_vertemp = 0.1
+mac_vert_emp = 0
+x_c_mvert = 0
+ttocvert = 0
+lambda_mvert = 0
 
-# Wave drag estimation
+Re = min(V_inf * mac_vert_emp*rho/dyn_visc, 44.62*((mac_vert_emp/k)**1.053) * M**1.16)
+
+# Laminar friction coefficient
+C_f_lamvertemp = 1.328/np.sqrt(Re)
+
+# Turbulent friction coefficient
+C_f_turbvertemp =  0.455/((np.log10(Re)**(2.58))*(1+0.144*M**2)**0.65)
+
+IF_vertemp = 1.045
+
+C_fvertemp = laminar_vertemp * C_f_lamvertemp + (1-laminar_vertemp) * C_f_turbvertemp
+
+FF_vert_emp = (1+ (0.6 / x_c_mvert) * ttocvert + 100*ttocvert**4)*(1.34*M**0.18*np.cos(lambda_mvert)**0.28)
+
+S_wet_emp_vert = 2*1.05*S_emp
+
+## Wave drag estimation
 
 q = 0.5*rho*V_inf**2
 C_Ldes = 0.56 # Value from WP1.1
