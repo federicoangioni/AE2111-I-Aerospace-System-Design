@@ -22,7 +22,7 @@ C_lmax_takeoff = 1.8 # 1.6 < Cl < 2.2
 C_lmax_cruise = 1.45 # 1.2 < Cl <1.8     
 
 # -- Drag Polar sheet --
-
+limit_load_factor = 3.5
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
 

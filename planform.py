@@ -5,10 +5,6 @@ from MatchingDiagramPlot import wing_surface, minimum_speed
 import numpy as np
 
 
-
-wing_surface = 69.7
-AR = 8.87
-
 def QC4Sweep(M_cr = 0.77):
     Q4Sweep_Angle = math.acos(1.16/(M_cr + 0.5))
     return Q4Sweep_Angle
@@ -104,7 +100,7 @@ M_DD = 0.935/(math.cos(LESweep)) - (0.14)/((math.cos(LESweep)**2)) - 0.56/(10*((
 a = math.sqrt(1.4*287*Temperature(cruise_h))
 
 V_inf = V_cr*a
-cd = 0.616**2/(np.pi*AR*e) + 0.02135
+# cd = 0.616**2/(np.pi*AR*e) + 0.02135
 
 D = 0.5 * Density(cruise_h) * V_inf**2 * (wing_surface) * cd
 tsfc = 15.6e-6
@@ -127,4 +123,3 @@ if __name__ == "__main__":
     print(f"XLEMAC: {XLEMAC} m")
     print(f"Mach drag divergence: {M_DD}")
     print(f"The SAR value is: {SAR}")
-    print(V_inf)

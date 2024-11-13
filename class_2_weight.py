@@ -1,5 +1,5 @@
 import numpy as np
-from variables import MTOW, landing_mass_fraction
+from variables import MTOW, landing_mass_fraction, limit_load_factor
 from SARoptimization import optimized_S, optimized_AR, tr
 
 
@@ -7,7 +7,7 @@ mtow_kg = MTOW # kg
 mlw_kg = mtow_kg*landing_mass_fraction
 
 design_weight = ((mtow_kg + mlw_kg)/2) # kg
-limit_load_factor = 3.5
+
 # formula for different sweep angles
 def angle_at_xdivc(x, c, LEsweep, c_r, tr, b):
     return np.arctan(np.tan(LEsweep) - (x/c)  * 2 * (c_r/b) * (1-tr))
@@ -82,7 +82,6 @@ def vertical_weight_GD(z_h, b_v, W_to, n_ult, S_v, M_H, l_v, S_r, A_v, tr_v, c4_
   S_r rudder surface area ft2
   S_v vertical tail surface area ft2
   """
-  
   W_v = 0.19*((1+z_h/b_v)**0.5 * (W_to*n_ult)**0.363 * S_v **1.089 * M_H **0.601 *l_v**-0.726 * (1+S_r/S_v)**0.217 * A_v **0.337 *(1+tr_v)**0.363 * np.cos(c4_vertical)**-0.484)**1.014
   return W_v
 

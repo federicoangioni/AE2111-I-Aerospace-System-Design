@@ -9,7 +9,6 @@ def stallSpeedWingLoading(CL_max, approach_velocity, mass_fraction, density = rh
 def LandingFieldLength(Clmax, Lfd, mfrac,  Clfl = 0.45, density=1.225): # OK
     return ((1/mfrac)*(Lfd/Clfl)*((density*Clmax)/2))
 
-
 def cruiseTTW(mass_fraction, C_D0, mach, aspect_ratio, span_efficiency_factor, wing_loading, cruise_altitude, std_temp = 288.15, thetaTbreak = 1.6): # OK
     # ISA
     a = -0.0065
