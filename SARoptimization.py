@@ -2,8 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from ambiance import Atmosphere
 import sympy as sp
-
-V_inf = 228.  # Free-stream velocity in m/s
+from planform import LESweep, taper_ratio, V_inf
 
 # Atmosphere initialization
 atmosphere = Atmosphere(10668)
@@ -14,12 +13,10 @@ rho = atmosphere.density  # Air density
 q = 0.5 * rho * V_inf**2  # Dynamic pressure
 
 # Fixed parameters
-LE_sweep = np.radians(27.9)  # Leading-edge sweep angle in radians
 tr = 0.312  # Taper ratio
-
 # Function to calculate sweep at a given x/c location
-def angle_at_xdivc(x, c, LEsweep, c_r, tr, b):
-    return np.arctan(np.tan(LEsweep) - (x/c) * 2 * (c_r/b) * (1-tr))
+def angle_at_xdivc(x, c, LESweep, c_r, tr, b):
+    return np.arctan(np.tan(LESweep) - (x/c) * 2 * (c_r/b) * (1-tr))
 
 # Function to compute surface area from lift
 def compute_surface_area(L, rho, V_inf, CL):
@@ -58,7 +55,7 @@ def gradient(AR, tol=1e-6, max_iter=100):
 
     # Induced drag and efficiency factor calculations
     cldes = CL  # Use dynamically computed CL
-    e = 4.61 * (1 - 0.045 * AR**0.68) * (np.cos(LE_sweep)**0.15) - 3.1
+    e = 4.61 * (1 - 0.045 * AR**0.68) * (np.cos(LESweep)**0.15) - 3.1
     cdind = (cldes**2) / (np.pi * AR * e)
 
     # Calculate wet area and friction drag
@@ -66,7 +63,7 @@ def gradient(AR, tol=1e-6, max_iter=100):
     IF_wing = 1.4
     x_c_m = 0.37
     ttoc = 0.14
-    lambda_m = angle_at_xdivc(37, 10, LE_sweep, c_r, tr, np.sqrt(S * AR))
+    lambda_m = angle_at_xdivc(37, 10, LESweep, c_r, tr, np.sqrt(S * AR))
     laminar_wing = 0.1
     Re = V_inf * c / atmosphere.kinematic_viscosity
 
@@ -176,7 +173,7 @@ D = 0.5 * rho * V_inf**2 * (optimized_S) * optimized_cd
 tsfc = 15.6e-6
 SAR = V_inf / (D * tsfc)
 
-Cldes_M077 = (optimized_CL / (np.cos(LE_sweep)**2))
+Cldes_M077 = (optimized_CL / (np.cos(LESweep)**2))
 Cldes_M0 = Cldes_M077 * np.sqrt(1 - 0.77**2)
 if __name__ == "__main__":
     # Print results

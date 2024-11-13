@@ -5,7 +5,7 @@ import math
 cruise_h = 10668 # m
 landing_field_distance = 1210 # m
 takeoff_field_length = 1296 # m
-V_cr = .77 # Cruise speed
+M_cr = .77 # Cruise speed
 rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed

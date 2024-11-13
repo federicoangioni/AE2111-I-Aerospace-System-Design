@@ -54,17 +54,34 @@ c4sweep_vt = angle_at_xdivc(1, 4, LEsweep = c0sweep_vt, c_r = 3.62, tr = tr_v, b
 S_w = optimized_S[0]
 t_to_c = 0.14
 Lambda_c4 = np.radians(25)
-S_csw = (1.2387 * 2 + 22.56) 
+S_csw = (1.2387 * 2 + 22.56) # FIX THIS PLEASEEEEEN XXXXXXXXXXXXXXXX 
 AR = optimized_AR
 
 #---------------------------------------------------------------------------------------------------
+# fuselage weight
+
+
 
 def wing_weight(Wdg, Nz, Sw, A, tc_root, lamda, Scsw):
     # Calculate wing weight using the given formula
     W_wing = 0.0051 * ((Wdg * Nz) ** (0.557)) * (Sw ** 0.649) * (A ** 0.5) * ((tc_root) ** (-0.4)) * ((1 + lamda) ** 0.1) * (np.cos(lamda) ** (-1.0)) * (Scsw ** 0.1)
     return W_wing
 
-
+def fuselage_weight(K_door, K_Lg, Wdg, Nz, L, Sf, K_ws, D):
+    """
+    K_door 1.12
+    K_Lg 1.12
+    Wdg design_weight
+    Nz
+    L fuselage length
+    Sf fuselage wetted area
+    K_ws 0.75*((1+2*tr)/(1+tr)) * (B_w*np.tan(Lambda_c4/L_fus))
+    D fuselage diameter
+    """
+    
+    W_fuselage = 0.3280 * K_door * K_Lg * ((Wdg * Nz) ** 0.5) * (L ** 0.25) * (Sf ** 0.302) * ((1 + K_ws) ** 0.04) * ((L/D) ** 0.1)
+    return W_fuselage
+  
 def horizontal_tail_weight(K_uht, F_w, B_h, Wdg, Nz, S_ht, L_t, K_y, Lambda_ht, A_h, S_e):
     W_ht = 0.0379 * K_uht * ((1 + F_w / B_h) ** -0.25) * (Wdg ** 0.639) * (Nz ** 0.10) * (S_ht ** 0.75) * (L_t ** -1.0) * (K_y ** 0.704) * ((np.cos(Lambda_ht)) ** -1.0) * (A_h ** 0.166) * ((1 + S_e / S_ht) ** 0.1)
     return W_ht

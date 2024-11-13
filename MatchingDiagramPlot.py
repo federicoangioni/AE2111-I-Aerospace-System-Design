@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from Formulas import *
-from variables import C_lmax_landing, approach_speed, landing_mass_fraction, landing_field_distance, mass_fraction_119, climb_gradient_119, mass_fraction_121a, climb_gradient_121a, mass_fraction_121b, climb_gradient_121b, AR, obstacle_height, cruise_h, V_cr, climb_gradient_121c, climb_gradient_121d, climb_mass_fraction, climb_rate_requirement, cruise_mass_fraction, mass_fraction_121c, mass_fraction_121d, C_D0, takeoff_field_length, MTOW, e
+from matching_formulas import *
+from variables import C_lmax_landing, approach_speed, landing_mass_fraction, landing_field_distance, mass_fraction_119, climb_gradient_119, mass_fraction_121a, climb_gradient_121a, mass_fraction_121b, climb_gradient_121b, AR, obstacle_height, cruise_h, M_cr, climb_gradient_121c, climb_gradient_121d, climb_mass_fraction, climb_rate_requirement, cruise_mass_fraction, mass_fraction_121c, mass_fraction_121d, C_D0, takeoff_field_length, MTOW, e
 #from optimization import e
 
 # Initialisation of x and y value lists
@@ -19,7 +19,7 @@ ClimbG121d = np.array([0])
 TakeOffLength = np.array([0])
 
 for load in wing_loadings[1:]:
-    CruiseSpeed = np.append(CruiseSpeed, cruiseTTW(cruise_mass_fraction, CD_0_phases[0], V_cr,  AR, oswald_phases[0], load, cruise_h))
+    CruiseSpeed = np.append(CruiseSpeed, cruiseTTW(cruise_mass_fraction, CD_0_phases[0], M_cr,  AR, oswald_phases[0], load, cruise_h))
     Climbrate = np.append(Climbrate, climbRateTTW(climb_rate_requirement, climb_mass_fraction, C_D0, AR, load, e))
     ClimbG119 = np.append(ClimbG119, climbGradientTTW(mass_fraction_119, climb_gradient_119, load, CD_0_phases[5], AR, oswald_phases[5]))
     ClimbG121a = np.append(ClimbG121a, climbGradientTTW(mass_fraction_121a, climb_gradient_121a, load, CD_0_phases[3], AR, oswald_phases[3], OEI=True))

@@ -1,7 +1,6 @@
 import math
 from variables import rhostd, oswald_phases, CD_0_phases, B
 
-
 def stallSpeedWingLoading(CL_max, approach_velocity, mass_fraction, density = rhostd): # OK
     ratio_approach_to_stall_speed = 1.23  # Defined in CS-25
     return (1/mass_fraction) * (density * CL_max * (approach_velocity / ratio_approach_to_stall_speed )**2) / 2
