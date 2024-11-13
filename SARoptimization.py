@@ -2,18 +2,18 @@ import numpy as np
 from scipy.optimize import minimize
 from ambiance import Atmosphere
 import sympy as sp
-from planform import LESweep, V_inf
-
+from planform import LESweep, V_inf, taper_ratio
+from variables import MTOW
 # Atmosphere initialization
 atmosphere = Atmosphere(10668)
 
-mtow = 37359  # Maximum takeoff weight in N
-mlw = 0.886 * mtow  # Maximum landing weight in N
+mtow = MTOW # Maximum takeoff weight in kg
+mlw = 0.886 * mtow  # Maximum landing weight in kg
 rho = atmosphere.density  # Air density
 q = 0.5 * rho * V_inf**2  # Dynamic pressure
 
 # Fixed parameters
-tr = 0.312  # Taper ratio
+tr = taper_ratio  # Taper ratio
 # Function to calculate sweep at a given x/c location
 def angle_at_xdivc(x, c, LESweep, c_r, tr, b):
     return np.arctan(np.tan(LESweep) - (x/c) * 2 * (c_r/b) * (1-tr))
@@ -23,11 +23,11 @@ def compute_surface_area(L, rho, V_inf, CL):
     return (2 * L) / (rho * V_inf**2 * CL)
 
 # Gradient function with iterative update for CL and S
-def gradient(AR, tol=1e-6, max_iter=100):
+def gradient(AR, tol=1e-6, max_iter=100, V_inf = V_inf):
     # Constants
     L = 0.5 * (mtow + mlw) * 9.81  # Lift force (weight in N)
     rho = atmosphere.density  # Air density
-    V_inf = 228.31123834310043  # Free-stream velocity in m/s
+    # Free-stream velocity in m/s
     
     # Initial guess for surface area and lift coefficient
     CL = 0.5  # Initial guess for lift coefficient
@@ -91,10 +91,9 @@ def objective(AR):
     return S * cd - 2 * AR  # Negative weight for AR to encourage maximization
 
 # Constraint to ensure surface area is sufficient for lift
-def lift_constraint(AR):
-    L = 37968 * 9.81  # Required lift force (aircraft weight in N)
+def lift_constraint(AR, V_inf = V_inf ):
+    L = mtow * 9.81  # Required lift force (aircraft weight in N)
     rho = atmosphere.density  # Air density
-    V_inf = 228.31123834310043  # Free-stream velocity
 
     # Get the current surface area
     _, S, _, _ = gradient(AR)  # Unpack all values from gradient

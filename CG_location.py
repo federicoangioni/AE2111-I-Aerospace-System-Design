@@ -4,7 +4,7 @@ from fuselage import fuselage_length, l_cabin, l_nose
 from variables import l_nacelle
 from class_2_weight import OEW_est
 
-OEW_MAC_FRAC = OEW_est #TBD #a value of 0.16 was assumed before the iterations
+OEW_MAC_FRAC = 0.16 #TBD #a value of 0.16 was assumed before the iterations
 X_hl = 13 #assumed fixed
 # group = [mass, xloc]
 
@@ -57,7 +57,7 @@ X_LEMAC = calculate_X_LEMAC(calculate_X_FCG(empennage, fuselage, fixed_eq, engin
 
 # CGS
 fuel_mass_fraction = 8100/MTOW
-OEW_mass_fraction = OEW_est # initial value was 23409/MTOW
+OEW_mass_fraction =  23409/MTOW #OEW_est
 payload_mass_fraction = 9302/MTOW
 
 fuel_cg_length = X_LEMAC + (0.4 * MAC)
