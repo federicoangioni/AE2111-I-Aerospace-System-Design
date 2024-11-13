@@ -1,7 +1,7 @@
 import numpy as np
 from fuselage import fuselage_length, d_fus, l_nc, l_tc
 from planform import MAC, c_r, taper_ratio, wing_surface, b, angle_at_xdivc, LESweep, c4sweep
-from variables import M_cr, V_inf
+from variables import M_cr, V_inf, l_nacelle
 from empennage_planform import ARvert, ARhoriz, MACvert, SV, LEsweepvert, taperingvert, SH, MAChoriz, LEsweephoriz, taperinghoriz
 
 # ISA values at 35000 ft
@@ -77,7 +77,7 @@ M_DD = 0.87/(np.cos(c4sweep)) - (ttoc)/((np.cos(c4sweep)**2)) - C_Ldes/(10*((np.
 deltaCD_wave = 0.002*(1+2.5*(M_DD-M_cr)/0.05)**(-1)
 #--------------------------------------------------------------------------------------------------------------------------
 # Nacelle
-l_nacelle = 2.286  # Length of the nacelle
+  # Length of the nacelle
 D_n = 1.4478  # Diameter of the fan cowl
 l_1 = 0.5  # The distance l1 is measured from the leading edge to the position of maximum thickness of the fan cowling
 D_Hl = 1.346 # Diameter of the fan

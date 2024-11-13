@@ -1,9 +1,10 @@
 from planform import MAC
 from variables import MTOW
 from fuselage import fuselage_length, l_cabin, l_nose
-from class_2_drag import  l_n
+from variables import l_nacelle
+
 OEW_MAC_FRAC = 0.16 #TBD
-X_hl = 13 # TBD
+X_hl = 13 # assumed fixed
 # group = [mass, xloc]
 
 # wing group
@@ -68,6 +69,6 @@ OEW_WP_WF =  ((OEW_mass_fraction * OEW_cg_length)+(payload_mass_fraction * paylo
 OEW_WF = (((OEW_mass_fraction * OEW_cg_length)+(fuel_mass_fraction * fuel_cg_length)))/(OEW_mass_fraction + fuel_mass_fraction)
 
 if __name__ == "__main__":
-    print(OEW_WP, OEW_WP_WF, OEW_WF)
+    print(f"The different CG locations are {OEW_WP, OEW_WP_WF, OEW_WF} m")
     print(f"x position of the main wing LEMAC is {X_LEMAC}")
 

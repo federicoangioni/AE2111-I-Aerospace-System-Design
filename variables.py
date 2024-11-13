@@ -69,3 +69,5 @@ from ISA import Temperature
 a = math.sqrt(1.4*287*Temperature(cruise_h))
 
 V_inf = M_cr*a
+
+l_nacelle = 2.286
