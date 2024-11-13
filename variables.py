@@ -71,3 +71,8 @@ a = math.sqrt(1.4*287*Temperature(cruise_h))
 V_inf = M_cr*a
 
 l_nacelle = 2.286
+
+mtow_kg = MTOW # kg
+mlw_kg = mtow_kg*landing_mass_fraction
+
+design_weight = ((mtow_kg + mlw_kg)/2) # k

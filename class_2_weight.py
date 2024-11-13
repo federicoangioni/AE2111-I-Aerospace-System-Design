@@ -1,31 +1,23 @@
 import numpy as np
-from variables import MTOW, landing_mass_fraction, limit_load_factor
+from variables import design_weight, landing_mass_fraction, limit_load_factor, MTOW
 from SARoptimization import optimized_S, optimized_AR, tr
-
-
-mtow_kg = MTOW # kg
-mlw_kg = mtow_kg*landing_mass_fraction
-
-design_weight = ((mtow_kg + mlw_kg)/2) # kg
-
-# formula for different sweep angles
-def angle_at_xdivc(x, c, LEsweep, c_r, tr, b):
-    return np.arctan(np.tan(LEsweep) - (x/c)  * 2 * (c_r/b) * (1-tr))
-
+from planform import angle_at_xdivc, MAC
+from CG_location import X_LEMAC
+from empennage_planform import SH, bhoriz, MAChoriz
 ### Variables names and value
-
+print(SH)
 # General Empennage
 N_z = 1.5 * limit_load_factor 
-wing_macx = 16.63 + 0.25 *3.06 #m 
+wing_macx = X_LEMAC + 0.25 * MAC #m 
 
 #---------------------------------------------------------------------------------------------------
 
 # Horizontal empennage
 K_uht = 1.0
 F_w = 2.2 # m # fuselage width at horizontal tail intersection
-B_h = 10.13 #m
-S_ht = 25.66 #m2
-mac_h = 2.69 # m 
+B_h = bhoriz #m
+S_ht = SH #m2
+mac_h = MAChoriz # m 
 c0sweep_ht = np.radians(34.4) # horizontal sweep at mac DEGREES 
 L_t_h = 1.09*np.tan(c0sweep_ht)+0.25*mac_h + 24.9 - wing_macx #wing quarter mac to tail quarter mac
 K_y = 0.3*L_t_h
@@ -110,6 +102,6 @@ v_weight = vertical_tail_weight(Ht*3.28084, Hv*3.28084, Wdg = design_weight * 2.
 
 if __name__ == "__main__":
   print(f"weight wing {wingweight/2.20462} kg (Raymer)")
-  print(f"Vertical tail weight is {v_weight/2.20462} kg (Raymer)")
+  print(f"Vertical tail weight is {v_weight/2.20462} kg (Raymer) DO NOT USE")
   print(f"Horizontal tail weight is {h_weight/2.20462} kg (Raymer)")
   print(f"Vertical tail weight from GD estimation {v_weight_GD/2.20462} kg (GD method)")

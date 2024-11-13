@@ -22,7 +22,6 @@ LV = Xv - Xaft  # distance from vertical tail's aerodynamic center to the aircra
 SH = VH * SW * MAC / LH
 SV = VV * SW * b / LV
 
-
 # Tail vertical
 
 ARvert = 1.75
