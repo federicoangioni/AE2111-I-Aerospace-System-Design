@@ -10,7 +10,7 @@ rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
 obstacle_height = 11 # m
-MTOW = 37359 # kg
+MTOW = 38359 # kg
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
 landing_mass_fraction = 0.886 # 0.88 final value
@@ -63,3 +63,9 @@ c_r = 4.27
 c_t = 1.33
 e = 0.526
 AR = 8.87
+
+from ISA import Temperature
+
+a = math.sqrt(1.4*287*Temperature(cruise_h))
+
+V_inf = M_cr*a

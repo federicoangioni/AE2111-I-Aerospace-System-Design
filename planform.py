@@ -1,5 +1,5 @@
 from ISA import Temperature, Density, Pressure
-from variables import C_lmax_cruise, cruise_h, M_cr, e, AR
+from variables import C_lmax_cruise, cruise_h, M_cr, e, AR, V_inf
 import math
 from MatchingDiagramPlot import wing_surface, minimum_speed
 import numpy as np
@@ -75,6 +75,9 @@ def MAC_spanwise(wing_span, taper_ratio,):
 def MAC_X_LE(yMAC, LE_sweep):
     return yMAC * math.tan(LE_sweep)
 
+def angle_at_xdivc(x, c, LEsweep, c_r, tr, b):
+    return np.arctan(np.tan(LEsweep) - (x/c)  * 2 * (c_r/b) * (1-tr))
+
 ######################
 
 c4sweep = math.radians(25)
@@ -95,9 +98,7 @@ XLEMAC = MAC_X_LE(y_MAC, LESweep)
 
 M_DD = 0.935/(math.cos(LESweep)) - (0.14)/((math.cos(LESweep)**2)) - 0.56/(10*((math.cos(LESweep)**3)))
 
-a = math.sqrt(1.4*287*Temperature(cruise_h))
 
-V_inf = M_cr*a
 cd = 0.616**2/(np.pi*AR*e) + 0.02135
 
 D = 0.5 * Density(cruise_h) * V_inf**2 * (wing_surface) * cd

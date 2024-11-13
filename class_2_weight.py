@@ -60,8 +60,6 @@ AR = optimized_AR
 #---------------------------------------------------------------------------------------------------
 # fuselage weight
 
-
-
 def wing_weight(Wdg, Nz, Sw, A, tc_root, lamda, Scsw):
     # Calculate wing weight using the given formula
     W_wing = 0.0051 * ((Wdg * Nz) ** (0.557)) * (Sw ** 0.649) * (A ** 0.5) * ((tc_root) ** (-0.4)) * ((1 + lamda) ** 0.1) * (np.cos(lamda) ** (-1.0)) * (Scsw ** 0.1)

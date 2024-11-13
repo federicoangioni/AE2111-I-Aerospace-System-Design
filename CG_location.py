@@ -1,13 +1,9 @@
 from planform import MAC
 from variables import MTOW
-
+from fuselage import fuselage_length, l_cabin, l_nose
+from class_2_drag import  l_n
 OEW_MAC_FRAC = 0.16 #TBD
-fuselage_length = 30.19
 X_hl = 13 # TBD
-l_nacelle = 2.286 # Nacelle lenght of engine TBD
-l_nose = 4
-l_cabin = 18.36
-
 # group = [mass, xloc]
 
 # wing group
@@ -57,10 +53,6 @@ def calculate_X_LEMAC(X_FCG, c_bar, x_c_WCG, M_W, M_F, x_c_OEWCG):
 #XLEMAC
 X_LEMAC = calculate_X_LEMAC(calculate_X_FCG(empennage, fuselage, fixed_eq, engine)[0], MAC, calculate_X_WCG(wing)[0], calculate_X_WCG(wing)[1], calculate_X_FCG(empennage, fuselage, fixed_eq, engine)[1], OEW_MAC_FRAC)
 
-
-#Most aft cg determination
-print(X_LEMAC)
-
 # CGS
 fuel_mass_fraction = 7743/MTOW
 OEW_mass_fraction = 23409/MTOW
@@ -75,6 +67,7 @@ OEW_WP =  ((OEW_mass_fraction * OEW_cg_length)+(payload_mass_fraction * payload_
 OEW_WP_WF =  ((OEW_mass_fraction * OEW_cg_length)+(payload_mass_fraction * payload_cg_length) + (fuel_mass_fraction * fuel_cg_length))/(OEW_mass_fraction + fuel_mass_fraction + payload_mass_fraction)
 OEW_WF = (((OEW_mass_fraction * OEW_cg_length)+(fuel_mass_fraction * fuel_cg_length)))/(OEW_mass_fraction + fuel_mass_fraction)
 
-print(OEW_WP, OEW_WP_WF, OEW_WF)
-
+if __name__ == "__main__":
+    print(OEW_WP, OEW_WP_WF, OEW_WF)
+    print(f"x position of the main wing LEMAC is {X_LEMAC}")
 
