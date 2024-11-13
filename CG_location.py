@@ -2,9 +2,10 @@ from planform import MAC
 from variables import MTOW
 from fuselage import fuselage_length, l_cabin, l_nose
 from variables import l_nacelle
+from class_2_weight import OEW_est
 
-OEW_MAC_FRAC = 0.16 #TBD
-X_hl = 13 # assumed fixed
+OEW_MAC_FRAC = OEW_est #TBD #a value of 0.16 was assumed before the iterations
+X_hl = 13 #assumed fixed
 # group = [mass, xloc]
 
 # wing group
@@ -55,8 +56,8 @@ def calculate_X_LEMAC(X_FCG, c_bar, x_c_WCG, M_W, M_F, x_c_OEWCG):
 X_LEMAC = calculate_X_LEMAC(calculate_X_FCG(empennage, fuselage, fixed_eq, engine)[0], MAC, calculate_X_WCG(wing)[0], calculate_X_WCG(wing)[1], calculate_X_FCG(empennage, fuselage, fixed_eq, engine)[1], OEW_MAC_FRAC)
 
 # CGS
-fuel_mass_fraction = 7743/MTOW
-OEW_mass_fraction = 23409/MTOW
+fuel_mass_fraction = 8100/MTOW
+OEW_mass_fraction = OEW_est # initial value was 23409/MTOW
 payload_mass_fraction = 9302/MTOW
 
 fuel_cg_length = X_LEMAC + (0.4 * MAC)

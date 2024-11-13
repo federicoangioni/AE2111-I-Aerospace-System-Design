@@ -1,6 +1,7 @@
 import numpy as np
 from fuselage import fuselage_length, d_fus, l_nc, l_tc
-from planform import MAC, c_r, taper_ratio, wing_surface, b, angle_at_xdivc, LESweep, c4sweep
+from planform import MAC, c_r, taper_ratio, angle_at_xdivc, LESweep, c4sweep
+from SARoptimization import optimized_b, optimized_S
 from variables import M_cr, V_inf, l_nacelle
 from empennage_planform import ARvert, ARhoriz, MACvert, SV, LEsweepvert, taperingvert, SH, MAChoriz, LEsweephoriz, taperinghoriz
 
@@ -42,7 +43,7 @@ laminar_wing = 0.1
 # SC(2)-0714
 x_c_m = 0.37
 ttoc = 0.14
-lambda_m  = angle_at_xdivc(37, 100, np.radians(LESweep), c_r, taper_ratio, b)
+lambda_m  = angle_at_xdivc(37, 100, np.radians(LESweep), c_r, taper_ratio, optimized_b)
 
 
 k = 0.634e-5 # paint factor
@@ -63,7 +64,7 @@ FF_wing = (1+ (0.6 / x_c_m) * ttoc + 100*ttoc**4)*(1.34*M_cr**0.18*np.cos(lambda
 
 IF_wing = 1.4 
 
-S_wet_wing = 2*1.07*wing_surface
+S_wet_wing = 2*1.07*optimized_S
 
 multiplied_wing = C_fwing*S_wet_wing*IF_wing*FF_wing
 
@@ -213,7 +214,7 @@ multiplied_horizontal = C_fhoremp*FF_hor_emp*IF_horemp*S_wet_emp_hor
 
 #-----------------------------------
 # Total Cd
-cd0 = (1/wing_surface)*(multiplied_engine*2 + multiplied_fus + multiplied_wing + multiplied_horizontal + multiplied_vertical) + deltaCD_wave
+cd0 = (1/optimized_S)*(multiplied_engine*2 + multiplied_fus + multiplied_wing + multiplied_horizontal + multiplied_vertical) + deltaCD_wave
 
 if __name__ == "__main__":
     print(f"The parasitic drag of the airplane is {cd0}") 

@@ -1,12 +1,13 @@
 import numpy as np
 from fuselage import fuselage_length
 from CG_location import X_LEMAC
-
+from SARoptimization import optimized_b, optimized_S
+from planform import MAC
 # inputs
 Xlemac = X_LEMAC
-SW = 69.7  # surface wing area
-MAC = 3.06
-b = 24.86  # wingspan
+SW = optimized_S  # surface wing area
+MAC = MAC
+b = optimized_b # wingspan
 
 # from references
 VH = 0.99

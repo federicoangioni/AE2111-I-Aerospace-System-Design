@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from ambiance import Atmosphere
 import sympy as sp
-from planform import LESweep, taper_ratio, V_inf
+from planform import LESweep, V_inf
 
 # Atmosphere initialization
 atmosphere = Atmosphere(10668)
@@ -175,6 +175,10 @@ SAR = V_inf / (D * tsfc)
 
 Cldes_M077 = (optimized_CL / (np.cos(LESweep)**2))
 Cldes_M0 = Cldes_M077 * np.sqrt(1 - 0.77**2)
+
+# New values computing
+optimized_b = np.sqrt(optimized_AR*optimized_S) # m
+
 if __name__ == "__main__":
     # Print results
     print("Optimized Aspect Ratio (AR):", optimized_AR)
