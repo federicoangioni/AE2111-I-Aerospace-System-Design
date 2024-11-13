@@ -202,7 +202,7 @@ C_fhoremp = laminar_horemp * C_f_lamhoremp + (1-laminar_horemp) * C_f_turbhoremp
 
 FF_hor_emp = (1+ (0.6 / x_c_mhor) * ttochor + 100*ttochor**4)*(1.34*M**0.18*np.cos(lambda_mhor)**0.28)
 
-S_wet_emp_hor = 2*1.05*S_emphor
+S_wet_emp_vert = 2*1.05*S_emphor
 
 
 ## Wave drag estimation

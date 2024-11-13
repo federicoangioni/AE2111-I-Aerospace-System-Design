@@ -9,11 +9,11 @@ V_cr = .77 # Cruise speed
 rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
-obstacle_height = 11
-MTOW = 38358
+obstacle_height = 11 # m
+MTOW = 37359 # kg
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
-landing_mass_fraction = 0.88 # 0.88 final value
+landing_mass_fraction = 0.886 # 0.88 final value
 cruise_mass_fraction = 0.95 
 climb_mass_fraction = 0.95
 # stall/takeoff/cclimb/

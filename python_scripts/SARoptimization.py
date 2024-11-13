@@ -81,7 +81,7 @@ def gradient(AR, tol=1e-6, max_iter=100):
 
     # Final drag coefficient
     cd = cd0 + cdind
-    print(cd0)
+    #print(cd0)
     return cd, S, CL, e
 
 # Objective function to minimize S * cd - 2 * AR
@@ -89,7 +89,7 @@ def objective(AR):
     cd, S, CL, e = gradient(AR)  # Get drag coefficient, surface area, lift coefficient, and e
 
     # Print current values for debugging
-    print(f"Objective Function - AR: {AR}, Drag Coefficient: {cd}, Surface Area: {S}, Product: {S * cd}")
+    #print(f"Objective Function - AR: {AR}, Drag Coefficient: {cd}, Surface Area: {S}, Product: {S * cd}")
     # Minimize the product of S and cd while encouraging a higher AR
     return S * cd - 2 * AR  # Negative weight for AR to encourage maximization
 
@@ -104,8 +104,9 @@ def lift_constraint(AR):
 
     CL = 1.1 * (1 / q) * 0.5 * (mtow + mlw) * 9.81 / S
     S_required = compute_surface_area(L, rho, V_inf, CL)  # Required surface area
-    print(f"REquired surfracea area for lift {S_required}")
+    #print(f"REquired surfracea area for lift {S_required}")
     return S - S_required  # S must be greater than or equal to S_required
+
 
 # Fuel volume constraint function
 def wing_fuel_volume(AR):
@@ -147,7 +148,7 @@ def wing_fuel_volume(AR):
 
     # Get the actual surface area from the gradient function
     _, S, _, _ = gradient(AR)
-    print(f"The required wing area for fuel volume: {S_required}")
+    #print(f"The required wing area for fuel volume: {S_required}")
     # Return the difference (S must be greater than or equal to S_required)
     return S - S_required
 
@@ -177,12 +178,12 @@ SAR = V_inf / (D * tsfc)
 
 Cldes_M077 = (optimized_CL / (np.cos(LE_sweep)**2))
 Cldes_M0 = Cldes_M077 * np.sqrt(1 - 0.77**2)
-
-# Print results
-print("Optimized Aspect Ratio (AR):", optimized_AR)
-print("Minimum drag coefficient:", optimized_cd)
-print("Optimized wing surface area:", optimized_S)
-print("Optimized lift coefficient (CL):", optimized_CL)
-print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
-print("Optimized efficiency factor (e):", optimized_e)
-print("The optimized SAR value is:", SAR)
+if __name__ == "__main__":
+    # Print results
+    print("Optimized Aspect Ratio (AR):", optimized_AR)
+    print("Minimum drag coefficient:", optimized_cd)
+    print("Optimized wing surface area:", optimized_S)
+    print("Optimized lift coefficient (CL):", optimized_CL)
+    print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
+    print("Optimized efficiency factor (e):", optimized_e)
+    print("The optimized SAR value is:", SAR)

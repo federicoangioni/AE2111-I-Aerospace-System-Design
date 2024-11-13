@@ -127,3 +127,4 @@ if __name__ == "__main__":
     print(f"XLEMAC: {XLEMAC} m")
     print(f"Mach drag divergence: {M_DD}")
     print(f"The SAR value is: {SAR}")
+    print(V_inf)
