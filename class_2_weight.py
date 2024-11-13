@@ -54,7 +54,7 @@ c4sweep_vt = angle_at_xdivc(1, 4, LEsweep = c0sweep_vt, c_r = 3.62, tr = tr_v, b
 S_w = optimized_S[0]
 t_to_c = 0.14
 Lambda_c4 = np.radians(25)
-S_csw = (1.2387 * 2 + 22.56)
+S_csw = (1.2387 * 2 + 22.56) 
 AR = optimized_AR
 
 #---------------------------------------------------------------------------------------------------
