@@ -4,14 +4,12 @@ from class_2_weight import MTOW, OEW_est
 
 files_tobe_Updated = ["class_1_weight.py", "MatchingDiagramPlot.py", "planform.py", "SARoptimization.py", "CG_location.py",  "fuselage.py", "class_2_weight.py",  "empennage_planform.py", "class_2_drag.py"]
 
-Fuel_mass_fraction = 8100/MTOW
-
 OEW_i = OEW_est
 
-for i in range(100):
+for i in range(10):
     print(f"Current OEW is:{OEW_i}")
-    MTOW = 7200/(1-(OEW_i/MTOW)-(Fuel_mass_fraction/MTOW))
-    OEW_i = OEW_est
+    MTOW = 7200/(1-(OEW_i/MTOW)-(8100/MTOW))
+    
     for filename in files_tobe_Updated:
         with open("variables.py", 'r') as file:
             lines = file.readlines()
@@ -35,3 +33,5 @@ for i in range(100):
     # Run each file with the updated parameter
     for filename in files_tobe_Updated:
         subprocess.run(["python", filename])
+
+    OEW_i = OEW_est

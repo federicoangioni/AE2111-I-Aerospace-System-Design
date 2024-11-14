@@ -79,5 +79,4 @@ plt.xlim(0, 6500)
 plt.ylim(0, 0.5)
 plt.tight_layout()
 if __name__ == "__main__":
-    plt.show()
     print(wing_surface)

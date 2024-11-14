@@ -154,7 +154,7 @@ surface_controls_weight = 1.2*.64*MTOW**(2/3)*.768
 
 propulsion_group = 1.15*1.18*2*1700 # kg
 
-OEW_est = (wingweight/2.20462 + v_weight_GD/2.20462 + h_weight/2.20462 + fus_weight/2.20462 + torenboek_nosegear + torenboek_maingear + surface_controls_weight + propulsion_group)
+OEW_est = (wingweight/2.20462 + v_weight_GD/2.20462 + h_weight/2.20462 + fus_weight/2.20462 + torenboek_nosegear + torenboek_maingear + surface_controls_weight + propulsion_group + 0.17*MTOW)[0]
 
 if __name__ == "__main__":
   print(f"Main landing gear weight {torenboek_maingear} kg, nose gear weight {torenboek_nosegear} kg")
