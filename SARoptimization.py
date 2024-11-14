@@ -178,7 +178,7 @@ Cldes_M0 = Cldes_M077 * np.sqrt(1 - 0.77**2)
 # New values computing
 optimized_b = np.sqrt(optimized_AR*optimized_S) # m
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 #     # Print results
 #     print("Optimized Aspect Ratio (AR):", optimized_AR)
 #     print("Minimum drag coefficient:", optimized_cd)
@@ -186,4 +186,4 @@ optimized_b = np.sqrt(optimized_AR*optimized_S) # m
 #     print("Optimized lift coefficient (CL):", optimized_CL)
 #     print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
 #     print("Optimized efficiency factor (e):", optimized_e)
-#     print("The optimized SAR value is:", SAR)
+    print("The optimized SAR value is:", SAR)
