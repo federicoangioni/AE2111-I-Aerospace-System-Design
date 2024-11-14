@@ -57,7 +57,7 @@ X_LEMAC = calculate_X_LEMAC(calculate_X_FCG(empennage, fuselage, fixed_eq, engin
 
 # CGS
 fuel_mass_fraction = 8100/MTOW
-OEW_mass_fraction = [0.00125882]
+OEW_mass_fraction = 23409/MTOW
 payload_mass_fraction = 9302/MTOW
 
 fuel_cg_length = X_LEMAC + (0.4 * MAC)
@@ -70,5 +70,6 @@ OEW_WP_WF =  ((OEW_mass_fraction * OEW_cg_length)+(payload_mass_fraction * paylo
 OEW_WF = (((OEW_mass_fraction * OEW_cg_length)+(fuel_mass_fraction * fuel_cg_length)))/(OEW_mass_fraction + fuel_mass_fraction)
 
 if __name__ == "__main__":
-    print(f"The different CG locations are {OEW_WP, OEW_WP_WF, OEW_WF} m")
-    print(f"x position of the main wing LEMAC is {X_LEMAC}")
+    pass
+    # print(f"The different CG locations are {OEW_WP, OEW_WP_WF, OEW_WF} m")
+    # print(f"x position of the main wing LEMAC is {X_LEMAC}")

@@ -56,13 +56,14 @@ climb_gradient_121d = 0.021
 
 # Values after optimization procedure
 S = 69.7
+AR = 8.87
 LE_sweep = np.radians(27.7)
 C4_sweep = np.radians(25)
-b = 24.86 
+b = np.sqrt(S*AR)
 c_r = 4.27 
 c_t = 1.33
 e = 0.526
-AR = 8.87
+
 
 from ISA import Temperature
 

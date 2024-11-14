@@ -216,5 +216,5 @@ multiplied_horizontal = C_fhoremp*FF_hor_emp*IF_horemp*S_wet_emp_hor
 # Total Cd
 cd0 = (1/optimized_S)*(multiplied_engine*2 + multiplied_fus + multiplied_wing + multiplied_horizontal + multiplied_vertical) + deltaCD_wave
 
-if __name__ == "__main__":
-    print(f"The parasitic drag of the airplane is {cd0}") 
+# if __name__ == "__main__":
+#     print(f"The parasitic drag of the airplane is {cd0}") 

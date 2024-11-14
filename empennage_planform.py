@@ -67,37 +67,37 @@ LERoot_horiz = Xh - ACtoRootC_horiz
 TERoot_horiz = LERoot_horiz + croot_horiz
 
 if __name__ == "__main__":
-    print(f"""Tail Areas:
-      Horizontal tail area: {SH}
-      Vertical tail area:  {SV}
-      """)
+    # print(f"""Tail Areas:
+    #   Horizontal tail area: {SH}
+    #   Vertical tail area:  {SV}
+    #   """)
 
-    print(f"""Vertical tail:
-      Area : {SV}
-      Root chord: {croot_vert}
-      Tip chord: {ctip_vert}
-      Span: {bvert}
-      LE sweep: {np.degrees(LEsweepvert)}
-      Spanwise location MAC: {bmacvert}
-      MAC: {MACvert}
-      xMAC: {bmacvert * np.tan(LEsweepvert)}
-      AC to root chord: {ACtoRootC_vert}
-      Root LE position: {LERoot_vert}
-      Root TE position: {TERoot_vert}
-      """)
+    # print(f"""Vertical tail:
+    #   Area : {SV}
+    #   Root chord: {croot_vert}
+    #   Tip chord: {ctip_vert}
+    #   Span: {bvert}
+    #   LE sweep: {np.degrees(LEsweepvert)}
+    #   Spanwise location MAC: {bmacvert}
+    #   MAC: {MACvert}
+    #   xMAC: {bmacvert * np.tan(LEsweepvert)}
+    #   AC to root chord: {ACtoRootC_vert}
+    #   Root LE position: {LERoot_vert}
+    #   Root TE position: {TERoot_vert}
+    #   """)
 
-    print(f"""Horizontal tail:
-      Area : {SH}
-      Root chord: {croot_horiz}
-      Tip chord: {ctip_horiz}
-      Span: {bhoriz}
-      LE sweep: {np.degrees(LEsweephoriz)}
-      Spanwise location MAC: {bmachoriz}
-      MAC: {MAChoriz}
-      xMAC: {bmachoriz * np.tan(LEsweephoriz)}
-      AC to root chord: {ACtoRootC_horiz}
-      Root LE position: {LERoot_horiz}
-      Root TE position: {TERoot_horiz}
-      """)
+    # print(f"""Horizontal tail:
+    #   Area : {SH}
+    #   Root chord: {croot_horiz}
+    #   Tip chord: {ctip_horiz}
+    #   Span: {bhoriz}
+    #   LE sweep: {np.degrees(LEsweephoriz)}
+    #   Spanwise location MAC: {bmachoriz}
+    #   MAC: {MAChoriz}
+    #   xMAC: {bmachoriz * np.tan(LEsweephoriz)}
+    #   AC to root chord: {ACtoRootC_horiz}
+    #   Root LE position: {LERoot_horiz}
+    #   Root TE position: {TERoot_horiz}
+    #   """)
 
-    print(f"fuselage length: {fuselage_length}")
+    # print(f"fuselage length: {fuselage_length}")

@@ -18,8 +18,8 @@ model = LinearRegression()
 model.fit(X, y)
 
 # Print the coefficients
-print(f"Intercept: {model.intercept_}")
-print(f"Slope: {model.coef_[0]}")
+# print(f"Intercept: {model.intercept_}")
+# print(f"Slope: {model.coef_[0]}")
 
 # Predict MTOW values based on the model
 def predict(self):

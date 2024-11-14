@@ -53,13 +53,14 @@ fuselage_length = l_cabin + l_nose + tail_cone_sl*tttc_lr*d_fus
 
 
 if __name__ == "__main__":
-    print(design_payload *1e3/(mass1_lugg+carryon1_mass+pass1_mass))
-    print(f"Passengers mass only {mass_pass} kg with {passengers} passengers")
-    print(f"Design payload mass is: {design_payload*10**3} kg")
-    print(f"Remaining cargo mass left for payload is: {design_payload*1e3 - (mass_pass + mass_lugg + mass_cargolugg)}")
-    print(f"The fuselage length is {fuselage_length} m")
-    print(f"The tail length is (l_t) {l_t} m")
-    print(f"The nose cone length is (l_nc) {l_nc} m")
-    print(f"The length of the cabin l_cab is {l_cabin} m")
-    print(f"Length of the tail cone is l_tc {l_tc} m")
-    print(f"length of the nose is l_n {l_nose} m")
+    pass
+    # print(design_payload *1e3/(mass1_lugg+carryon1_mass+pass1_mass))
+    # print(f"Passengers mass only {mass_pass} kg with {passengers} passengers")
+    # print(f"Design payload mass is: {design_payload*10**3} kg")
+    # print(f"Remaining cargo mass left for payload is: {design_payload*1e3 - (mass_pass + mass_lugg + mass_cargolugg)}")
+    # print(f"The fuselage length is {fuselage_length} m")
+    # print(f"The tail length is (l_t) {l_t} m")
+    # print(f"The nose cone length is (l_nc) {l_nc} m")
+    # print(f"The length of the cabin l_cab is {l_cabin} m")
+    # print(f"Length of the tail cone is l_tc {l_tc} m")
+    # print(f"length of the nose is l_n {l_nose} m")

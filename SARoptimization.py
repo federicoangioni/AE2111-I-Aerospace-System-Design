@@ -180,10 +180,10 @@ optimized_b = np.sqrt(optimized_AR*optimized_S) # m
 
 if __name__ == "__main__":
     # Print results
-    print("Optimized Aspect Ratio (AR):", optimized_AR)
-    print("Minimum drag coefficient:", optimized_cd)
-    print("Optimized wing surface area:", optimized_S)
-    print("Optimized lift coefficient (CL):", optimized_CL)
-    print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
-    print("Optimized efficiency factor (e):", optimized_e)
+    # print("Optimized Aspect Ratio (AR):", optimized_AR)
+    # print("Minimum drag coefficient:", optimized_cd)
+    # print("Optimized wing surface area:", optimized_S)
+    # print("Optimized lift coefficient (CL):", optimized_CL)
+    # print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
+    # print("Optimized efficiency factor (e):", optimized_e)
     print("The optimized SAR value is:", SAR)
