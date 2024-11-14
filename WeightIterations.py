@@ -1,6 +1,7 @@
 import numpy as np
 import subprocess
 from class_2_weight import MTOW, OEW_est
+from class_1_weight import predict
 
 files_tobe_Updated = ["class_1_weight.py", "MatchingDiagramPlot.py", "planform.py", "SARoptimization.py", "CG_location.py",  "fuselage.py", "class_2_weight.py",  "empennage_planform.py", "class_2_drag.py"]
 
@@ -8,7 +9,7 @@ OEW_i = OEW_est
 
 for i in range(10):
     print(f"Current OEW is:{OEW_i}")
-    MTOW = 7200/(1-(OEW_i/MTOW)-(8100/MTOW))
+    MTOW = predict(OEW_est)#7200/(1-(OEW_i/MTOW)-(8100/MTOW))
     
     for filename in files_tobe_Updated:
         with open("variables.py", 'r') as file:
