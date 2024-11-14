@@ -10,7 +10,7 @@ rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
 obstacle_height = 11 # m
-MTOW = 38359 # kg
+MTOW = 36177.107452129116
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
 landing_mass_fraction = 0.886 # 0.88 final value
@@ -26,8 +26,8 @@ limit_load_factor = 3.5
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
 
-AR = 8.87
-e = 0.4234722199394
+AR = 9.607009170557427
+e = 0.47524262069824186
 B = 5 # Bypass ratio 
 
 max_flap = 35
@@ -55,14 +55,14 @@ climb_gradient_121c = 0.012
 climb_gradient_121d = 0.021
 
 # Values after optimization procedure
-S = 65.69157699799354
-AR = 7.427934670748982
+S = 71.57308402120125
+AR = 9.607009170557427
 LE_sweep = np.radians(27.7)
 C4_sweep = np.radians(25)
 b = 24.86 
 c_r = 4.27 
 c_t = 1.33
-e = 0.6286129716455728
+e = 0.47524262069824186
 
 
 from ISA import Temperature

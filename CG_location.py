@@ -57,7 +57,7 @@ X_LEMAC = calculate_X_LEMAC(calculate_X_FCG(empennage, fuselage, fixed_eq, engin
 print(X_LEMAC)
 # CGS
 fuel_mass_fraction = 8100/MTOW
-OEW_mass_fraction = 23409/MTOW
+OEW_mass_fraction = 0.558634889749516
 payload_mass_fraction = 9302/MTOW
 
 fuel_cg_length = X_LEMAC + (0.4 * MAC)
