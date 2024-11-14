@@ -66,7 +66,7 @@ ACtoRootC_horiz = bmachoriz * np.tan(LEsweephoriz) + 0.35 * MAChoriz
 LERoot_horiz = Xh - ACtoRootC_horiz
 TERoot_horiz = LERoot_horiz + croot_horiz
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # print(f"""Tail Areas:
     #   Horizontal tail area: {SH}
     #   Vertical tail area:  {SV}

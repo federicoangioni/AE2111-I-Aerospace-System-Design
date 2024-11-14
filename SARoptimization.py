@@ -166,7 +166,7 @@ result = minimize(objective, initial_guess, bounds=bounds, constraints=constrain
 # Optimized parameters
 optimized_AR = result.x[0]
 optimized_cd, optimized_S, optimized_CL, optimized_e = gradient(optimized_AR)  # Calculate drag coefficient, surface area, CL, and e using optimized parameters
-
+optimized_S = optimized_S[0]
 # Compute SAR
 D = 0.5 * rho * V_inf**2 * (optimized_S) * optimized_cd
 tsfc = 15.6e-6

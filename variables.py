@@ -26,8 +26,8 @@ limit_load_factor = 3.5
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
 
-AR = 8.87
-e = 0.4234722199394
+AR = 9.607009170545325
+e = 0.47878721566643945
 B = 5 # Bypass ratio 
 
 max_flap = 35
@@ -56,14 +56,11 @@ climb_gradient_121d = 0.021
 
 # Values after optimization procedure
 S = 69.7
-AR = 8.87
 LE_sweep = np.radians(27.7)
 C4_sweep = np.radians(25)
-b = np.sqrt(S*AR)
+b = 24.86 
 c_r = 4.27 
 c_t = 1.33
-e = 0.526
-
 
 from ISA import Temperature
 

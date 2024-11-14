@@ -11,10 +11,10 @@ OEW_i = OEW_est
 Weights = []
 
 for i in range(10):
-    print(f"Current OEW is:{OEW_i}")
+    print(f"Current OEW is:{OEW_i}", f"current MTOW is {MTOW}")
     print(type(OEW_i), type(MTOW))
     Weights.append(MTOW)
-    MTOW = predict(OEW_i)#7200/(1-(OEW_i/MTOW)-(8100/MTOW))
+    
     for filename in files_tobe_Updated:
         with open("variables.py", 'r') as file:
             lines = file.readlines()
@@ -22,12 +22,12 @@ for i in range(10):
             for line in lines:
                 if line.startswith("MTOW = "):
                     file.write(f"MTOW = {MTOW}\n")
-                elif line.startswith("AR = "):
-                    file.write(f"AR = {optimized_AR}")
-                elif line.startswith("S = "):
-                    file.write(f"S = {optimized_S}")
-                elif line.startswith("e = "):
-                    file.write(f"e = {optimized_e}")
+                if line.startswith("AR = "):
+                    file.write(f"AR = {optimized_AR}\n")
+                if line.startswith("S = "):
+                    file.write(f"S = {optimized_S}\n")
+                if line.startswith("e = "):
+                    file.write(f"e = {optimized_e}\n")
                 else:
                     file.write(line)
 
@@ -44,7 +44,8 @@ for i in range(10):
     # Run each file with the updated parameter
     for filename in files_tobe_Updated:
         subprocess.run(["python", filename])
-
+        
+    MTOW = predict(OEW_i)
     OEW_i = OEW_est
 
 print(Weights)

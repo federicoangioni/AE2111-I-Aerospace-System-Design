@@ -42,7 +42,7 @@ b_v = Hv # m
 c4sweep_vt = angle_at_xdivc(1, 4, LEsweep = c0sweep_vt, c_r = 3.62, tr = tr_v, b = b_v) # in radians
 # ---------------------------------------------------------------------------------------------------
 # Main wing
-S_w = optimized_S[0]
+S_w = optimized_S
 t_to_c = 0.14
 
 S_csw = (1.2387 * 2 + 22.56) # FIX THIS PLEASEEEEEN XXXXXXXXXXXXXXXX 
@@ -154,7 +154,7 @@ surface_controls_weight = 1.2*.64*MTOW**(2/3)*.768
 
 propulsion_group = 1.15*1.18*2*1700 # kg
 
-OEW_est = (wingweight/2.20462 + v_weight_GD/2.20462 + h_weight/2.20462 + fus_weight/2.20462 + torenboek_nosegear + torenboek_maingear + surface_controls_weight + propulsion_group + 0.17*MTOW)[0]
+OEW_est = (wingweight/2.20462 + v_weight_GD/2.20462 + h_weight/2.20462 + fus_weight/2.20462 + torenboek_nosegear + torenboek_maingear + surface_controls_weight + propulsion_group + 0.17*MTOW)
 if __name__ == "__main__":
   # print(f"Main landing gear weight {torenboek_maingear} kg, nose gear weight {torenboek_nosegear} kg")
   # print(f"Weight of control surfaces {surface_controls_weight} kg")
