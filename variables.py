@@ -12,7 +12,7 @@ rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
 obstacle_height = 11 # m
-MTOW = 34761.13644497873
+MTOW = 38359
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
 landing_mass_fraction = 0.886 # 0.88 final value
@@ -28,8 +28,9 @@ limit_load_factor = 3.5
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
 
-AR = 7.320937168044678
-e = 0.636497806557105
+AR = 8.87
+S = 69.7
+e = 0.56
 B = 5 # Bypass ratio 
 
 max_flap = 35
@@ -57,14 +58,12 @@ climb_gradient_121c = 0.012
 climb_gradient_121d = 0.021
 
 # Values after optimization procedure
-S = 65.37462676307803
-AR = 7.320937168044678
+
 LE_sweep = np.radians(27.7)
 C4_sweep = np.radians(25)
-b = 24.86 
+b = np.sqrt(S*AR)
 c_r = 4.27 
 c_t = 1.33
-e = 0.636497806557105
 
 
 a = math.sqrt(1.4*287*Temperature(cruise_h))
