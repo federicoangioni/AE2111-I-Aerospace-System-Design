@@ -7,8 +7,8 @@ from variables import MTOW
 # Atmosphere initialization
 atmosphere = Atmosphere(10668)
 
-mtow = MTOW # Maximum takeoff weight in kgmlw = 0.886 * mtow  # Maximum landing weight in kg
-mlw = land
+mtow = MTOW # Maximum takeoff weight in kg
+mlw = 0.886 * mtow  # Maximum landing weight in kg
 rho = atmosphere.density  # Air density
 q = 0.5 * rho * V_inf**2  # Dynamic pressure
 
@@ -166,7 +166,7 @@ result = minimize(objective, initial_guess, bounds=bounds, constraints=constrain
 # Optimized parameters
 optimized_AR = result.x[0]
 optimized_cd, optimized_S, optimized_CL, optimized_e = gradient(optimized_AR)  # Calculate drag coefficient, surface area, CL, and e using optimized parameters
-optimized_S = optimized_S[0]
+
 # Compute SAR
 D = 0.5 * rho * V_inf**2 * (optimized_S) * optimized_cd
 tsfc = 15.6e-6
@@ -180,10 +180,10 @@ optimized_b = np.sqrt(optimized_AR*optimized_S) # m
 
 if __name__ == "__main__":
     # Print results
-    # print("Optimized Aspect Ratio (AR):", optimized_AR)
-    # print("Minimum drag coefficient:", optimized_cd)
-    # print("Optimized wing surface area:", optimized_S)
-    # print("Optimized lift coefficient (CL):", optimized_CL)
-    # print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
-    # print("Optimized efficiency factor (e):", optimized_e)
+    print("Optimized Aspect Ratio (AR):", optimized_AR)
+    print("Minimum drag coefficient:", optimized_cd)
+    print("Optimized wing surface area:", optimized_S)
+    print("Optimized lift coefficient (CL):", optimized_CL)
+    print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
+    print("Optimized efficiency factor (e):", optimized_e)
     print("The optimized SAR value is:", SAR)
