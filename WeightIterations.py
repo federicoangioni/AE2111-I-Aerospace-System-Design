@@ -10,12 +10,11 @@ files_tobe_Updated = [
     "CG_location.py", "fuselage.py", "class_2_weight.py", "empennage_planform.py", "class_2_drag.py"
 ]
 
-OEW_i = OEW_est
 Weights = []
 
 for i in range(10):
-    print(f"Current OEW is: {OEW_i}, current MTOW is {MTOW}")
-    MTOW = predict(OEW_i)
+    print(f"Current OEW is: {OEW_est}, current MTOW is {MTOW}")
+    MTOW = predict(OEW_est)
     Weights.append(MTOW)
 
     # Update variables.py with the new MTOW, AR, S, and e values in one pass
@@ -42,15 +41,14 @@ for i in range(10):
     with open("CG_location.py", 'w') as file:
         for line in contents2:
             if line.startswith("OEW_mass_fraction = "):
-                file.write(f"OEW_mass_fraction = {OEW_i / MTOW}\n")
+                file.write(f"OEW_mass_fraction = {OEW_est / MTOW}\n")
             else:
                 file.write(line)
     
     # Run each file with the updated parameters
     for filename in files_tobe_Updated:
         subprocess.run(["python", filename])
-    
-    # Update OEW_i for the next iteration
-    OEW_i = OEW_est
+
+    # Here you could optionally reload or update OEW_est if it needs to be recalculated.
 
 print(Weights)
