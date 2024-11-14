@@ -25,3 +25,5 @@ model.fit(X, y)
 def predict(self):
     mtow = model.predict([[self]])
     return mtow[0]
+
+print(predict())

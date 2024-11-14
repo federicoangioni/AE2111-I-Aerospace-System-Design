@@ -13,8 +13,9 @@ Weights = []
 for i in range(10):
     print(f"Current OEW is:{OEW_i}", f"current MTOW is {MTOW}")
     print(type(OEW_i), type(MTOW))
+    MTOW = predict(OEW_i)
     Weights.append(MTOW)
-    
+
     for filename in files_tobe_Updated:
         with open("variables.py", 'r') as file:
             lines = file.readlines()
@@ -45,7 +46,7 @@ for i in range(10):
     for filename in files_tobe_Updated:
         subprocess.run(["python", filename])
         
-    MTOW = predict(OEW_i)
+  
     OEW_i = OEW_est
 
 print(Weights)
