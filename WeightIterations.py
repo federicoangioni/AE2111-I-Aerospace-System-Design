@@ -7,10 +7,12 @@ files_tobe_Updated = ["class_1_weight.py", "MatchingDiagramPlot.py", "planform.p
 
 OEW_i = OEW_est
 
+Weights = []
+
 for i in range(10):
     print(f"Current OEW is:{OEW_i}")
-    MTOW = predict(OEW_est)#7200/(1-(OEW_i/MTOW)-(8100/MTOW))
-    
+    Weights.append(MTOW)
+    MTOW = predict(OEW_i)#7200/(1-(OEW_i/MTOW)-(8100/MTOW))
     for filename in files_tobe_Updated:
         with open("variables.py", 'r') as file:
             lines = file.readlines()
@@ -36,3 +38,5 @@ for i in range(10):
         subprocess.run(["python", filename])
 
     OEW_i = OEW_est
+
+print(Weights)

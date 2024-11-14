@@ -23,5 +23,5 @@ print(f"Slope: {model.coef_[0]}")
 
 # Predict MTOW values based on the model
 def predict(self):
-    mtow = model.predict(self)
-    return mtow
+    mtow = model.predict([[self]])
+    return mtow[0]

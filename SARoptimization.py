@@ -152,7 +152,7 @@ def wing_fuel_volume(AR):
 initial_guess = [10]  # [AR]
 
 # Define bounds for AR
-bounds = [(0, 14)]  # AR bounds
+bounds = [(5, 14)]  # AR bounds
 
 # Define the constraints
 constraints = [
