@@ -155,6 +155,45 @@ surface_controls_weight = 1.2*.64*MTOW**(2/3)*.768
 propulsion_group = 1.15*1.18*2*1700 # kg
 
 OEW_est = (wingweight/2.20462 + v_weight_GD/2.20462 + h_weight/2.20462 + fus_weight/2.20462 + torenboek_nosegear + torenboek_maingear + surface_controls_weight + propulsion_group + 0.17*MTOW)
+
+
+# Function definitions for wing, fuselage, horizontal tail, etc.
+# (As they are in your current file)
+
+# Define the new function to update OEW based on the latest MTOW
+def update_OEW(MTOW):
+    # Calculate fuselage weight, wing weight, etc. based on MTOW and other parameters
+    fus_weight = fuselage_weight(K_door=1.12, K_Lg=1.12, Wdg=design_weight * 2.20462, Nz=1.5 * limit_load_factor,
+                                 L=fuselage_length * 3.28084, Sf=S_f, K_ws=K_ws, D=d_fus * 3.28084)
+
+    wingweight = wing_weight(Wdg=design_weight * 2.20462, Nz=1.5 * limit_load_factor, Sw=optimized_S * 10.7639,
+                             A=optimized_AR, tc_root=0.14, lamda=c4sweep, Scsw=S_csw * 10.7639)
+
+    # Additional component weight calculations
+    v_weight_GD = vertical_weight_GD(z_h=0, b_v=bvert * 3.28084, W_to=MTOW * 2.20462, n_ult=1.5 * limit_load_factor,
+                                     S_v=SV * 10.7639, M_H=0.77, l_v=L_t_h * 3.28084, S_r=1, A_v=ARvert,
+                                     tr_v=taperingvert, c4_vertical=c4sweep_vt)
+
+    h_weight = horizontal_tail_weight(K_uht=1.0, F_w=2.2 * 3.28084, B_h=bhoriz * 3.28084, Wdg=design_weight * 2.20462,
+                                      Nz=1.5 * limit_load_factor, S_ht=SH * 10.7639, L_t=L_t_h * 3.28084,
+                                      K_y=0.3 * L_t_h * 3.28084, Lambda_ht=c4sweep_ht, A_h=ARhoriz)
+
+    torenboek_nosegear = torenboeek_landing_gear(A=5.4, B=0.049, C=0, D=0, mtow=MTOW)
+    torenboek_maingear = torenboeek_landing_gear(A=15, B=0.033, C=0.021, D=0, mtow=MTOW)
+    surface_controls_weight = 1.2 * 0.64 * MTOW ** (2 / 3) * 0.768
+    propulsion_group = 1.15 * 1.18 * 2 * 1700  # kg (example for propulsion group)
+
+    # Compute the estimated OEW based on these values
+    OEW_est = (wingweight / 2.20462 + v_weight_GD / 2.20462 + h_weight / 2.20462 + fus_weight / 2.20462 +
+               torenboek_nosegear + torenboek_maingear + surface_controls_weight + propulsion_group + 0.17 * MTOW)
+
+    return OEW_est
+
+
+
+
+
+
 if __name__ == "__main__":
   # print(f"Main landing gear weight {torenboek_maingear} kg, nose gear weight {torenboek_nosegear} kg")
   # print(f"Weight of control surfaces {surface_controls_weight} kg")

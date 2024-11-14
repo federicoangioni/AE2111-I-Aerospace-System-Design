@@ -1,5 +1,7 @@
 import numpy as np
 import math
+from ISA import Temperature
+
 #from optimization import AR, e
 
 cruise_h = 10668 # m
@@ -10,7 +12,7 @@ rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
 obstacle_height = 11 # m
-MTOW = 34880.364997943194
+MTOW = 34761.13644497873
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
 landing_mass_fraction = 0.886 # 0.88 final value
@@ -26,8 +28,8 @@ limit_load_factor = 3.5
 
 C_D0 = 0.02135 # zero-lift drag coeffficient
 
-AR = 7.439003555590523
-e = 0.6278613368949344
+AR = 7.320937168044678
+e = 0.636497806557105
 B = 5 # Bypass ratio 
 
 max_flap = 35
@@ -55,17 +57,15 @@ climb_gradient_121c = 0.012
 climb_gradient_121d = 0.021
 
 # Values after optimization procedure
-S = 65.7241913406044
-AR = 7.439003555590523
+S = 65.37462676307803
+AR = 7.320937168044678
 LE_sweep = np.radians(27.7)
 C4_sweep = np.radians(25)
 b = 24.86 
 c_r = 4.27 
 c_t = 1.33
-e = 0.6278613368949344
+e = 0.636497806557105
 
-
-from ISA import Temperature
 
 a = math.sqrt(1.4*287*Temperature(cruise_h))
 

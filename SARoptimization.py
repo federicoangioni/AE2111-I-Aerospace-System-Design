@@ -7,7 +7,7 @@ from variables import MTOW
 # Atmosphere initialization
 atmosphere = Atmosphere(10668)
 
-mtow = MTOW # Maximum takeoff weight in kg
+mtow = 34761.13644497873
 mlw = 0.886 * mtow  # Maximum landing weight in kg
 rho = atmosphere.density  # Air density
 q = 0.5 * rho * V_inf**2  # Dynamic pressure
