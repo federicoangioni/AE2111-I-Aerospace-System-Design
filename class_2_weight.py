@@ -5,6 +5,7 @@ from planform import angle_at_xdivc, MAC, c4sweep
 from CG_location import X_LEMAC
 from empennage_planform import SH, bhoriz, MAChoriz, LEsweephoriz, ARhoriz, taperinghoriz, bvert, SV, MACvert, LEsweepvert, ARvert, taperingvert, bmacvert, bmachoriz, LERoot_horiz, LERoot_vert
 from fuselage import fuselage_length, l_nc, l_cabin, l_tc, d_fus
+
 ### Variables names and value
 # General Empennage
 N_z = 1.5 * limit_load_factor 

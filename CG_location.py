@@ -2,7 +2,7 @@ from planform import MAC
 from variables import MTOW
 from fuselage import fuselage_length, l_cabin, l_nose
 from variables import l_nacelle
-from class_2_weight import OEW_est
+
 
 OEW_MAC_FRAC = 0.16 #TBD #a value of 0.16 was assumed before the iterations
 X_hl = 13 #assumed fixed
@@ -72,4 +72,3 @@ OEW_WF = (((OEW_mass_fraction * OEW_cg_length)+(fuel_mass_fraction * fuel_cg_len
 if __name__ == "__main__":
     print(f"The different CG locations are {OEW_WP, OEW_WP_WF, OEW_WF} m")
     print(f"x position of the main wing LEMAC is {X_LEMAC}")
-
