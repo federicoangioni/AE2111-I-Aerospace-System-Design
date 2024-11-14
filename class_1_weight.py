@@ -23,7 +23,5 @@ model.fit(X, y)
 
 # Predict MTOW values based on the model
 def predict(self):
-    mtow = model.predict([[self]])
+    mtow = model.predict([[self/1e3]])
     return mtow[0]
-
-print(predict())
