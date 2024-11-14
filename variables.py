@@ -10,7 +10,7 @@ rhostd = 1.225
 climb_rate_requirement = 6.8
 # minimum stall speed
 obstacle_height = 11 # m
-MTOW = 38359
+MTOW = 38359 # kg
 C_lmax_landing = 2.5 #1.8 < Cl < 2.8 
 approach_speed = 68 # m/s 
 landing_mass_fraction = 0.886 # 0.88 final value
@@ -27,7 +27,7 @@ limit_load_factor = 3.5
 C_D0 = 0.02135 # zero-lift drag coeffficient
 
 AR = 8.87
-e = 0.42
+e = 0.4234722199394
 B = 5 # Bypass ratio 
 
 max_flap = 35
@@ -59,7 +59,7 @@ S = 65.69157699799354
 AR = 7.427934670748982
 LE_sweep = np.radians(27.7)
 C4_sweep = np.radians(25)
-b = np.sqrt(S*AR)
+b = 24.86 
 c_r = 4.27 
 c_t = 1.33
 e = 0.6286129716455728
@@ -74,7 +74,6 @@ V_inf = M_cr*a
 l_nacelle = 2.286
 
 mtow_kg = MTOW # kg
-
 mlw_kg = mtow_kg*landing_mass_fraction
 
 design_weight = ((mtow_kg + mlw_kg)/2) # k
