@@ -11,9 +11,9 @@ class WingBox():
     
 
     
-    def Polar(self, t): # t : thickness,
+    def Polar(self, t, alpha): # t : thickness,
         A = 0.55 * self.chord() * (0.0728 * self.chord() + 0.1013 * self.chord())/2
-        S = S
+        S = 0.0728 * self.chord() + 0.1013 * self.chord() + 2 * 0.55*c*np.cos(np.radians(alpha))
         J = (4 * t * A**2)/S 
         return(J)
     
