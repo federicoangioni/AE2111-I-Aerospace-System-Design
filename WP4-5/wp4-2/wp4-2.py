@@ -8,7 +8,6 @@ class WingBox():
     def chord(self, z, c_r, c_t):
         c = c_r - c_r*(1-(c_t/c_r))*z
         return(c)
-    
 
     
     def Polar(self, t, alpha): # t : thickness,
@@ -50,6 +49,10 @@ class WingBox():
         L type stringer: [base, height, thickness base, thickness height]
         I type stringer: [base, top, web height, thickness top, thickness web, thickness bottom]
         """
+        if type == "L":
+            I_xx = (1/12)*dimensions[2]**3*dimensions[4]
+            I_yy = 0
+        
         
     
         
