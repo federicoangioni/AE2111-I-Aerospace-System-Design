@@ -24,6 +24,16 @@ class WingBox():
         
 
         x = (weights)/sum(A)
+    
+    def I_stiffeners(self, type: str, dimensions: list):
+        type = ["L", "I"]
+        
+        """
+        dimensions: changes in base of the used stringer
+        L type stringer: [base, height, thickness base, thickness height]
+        """
+        
+        
         
         
 
