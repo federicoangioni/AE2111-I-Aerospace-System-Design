@@ -1,7 +1,9 @@
 import scipy as sc
 import numpy as np
 
-class WingBox(self):
+class WingBox():
+    def __init__(self):
+        pass
     
     def chord(z, c_r, c_t):
         c = c_r - c_r*(1-(c_t/c_r))*z
@@ -51,7 +53,7 @@ class WingBox(self):
         """
         dimensions: changes in base of the used stringer
         L type stringer: [base, height, thickness base, thickness height]
-        I type stringer: [base, web height, top, ]
+        I type stringer: [base, top, web height, thickness top, thickness web, thickness bottom]
         """
         
         
