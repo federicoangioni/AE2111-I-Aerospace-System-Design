@@ -34,17 +34,14 @@ class WingBox(self):
         while j <= len(stringer_x_pos): #include the contributions of the stringers
             A.append(stringer_area[j])
             X.append(stringer_x_pos[j])
-            Y.append(stringer_y_pos[j])
 
         while i <= len(X):
-            weights_X = A[i]*X[i]
-            weights_Y = A[i]*Y[i]
+            weights = A[i]*A[X]
         
-        x = (weights_X)/sum(A)
-        y= (weights_Y)/sum(A)
-        return(x, y)
-    
 
+        x = (weights)/sum(A)
+
+    def MOMEWB (self,):
 
         x = (weights)/sum(A)
     
