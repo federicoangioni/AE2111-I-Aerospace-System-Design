@@ -53,9 +53,8 @@ class WingBox():
             I_xx = (1/12)*dimensions[2]**3*dimensions[4]
             I_yy = 0
         
-        
-    
-        
+        elif type == "I":
+            pass
         
         
 
