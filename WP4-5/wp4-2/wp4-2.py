@@ -13,7 +13,7 @@ class WingBox():
     
     def Polar(self, )# t : thickness, 
     
-    def Centroid(self, c, t, alpha, stringer_x_pos[], stringer_y_pos[], stringer_area[]):# c-chord, t-thickness, alpha-
+    def Centroid(self, c, t, alpha, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
         A = [0.0728*c*t, 0.1013*c*t, 0.55*c*np.sin(np.radians(alpha))*t, 0.55*c*np.sin(np.radians(alpha))*t] #Areas of the components
         X = [0, 0.55*c, 0.5*0.55*c*np.cos(np.radians(alpha)), 0.5*0.55*c*np.cos(np.radians(alpha))] # X positions of the components
         Y = [0, 0, 0.5*0.1013*c-0.5*0.55*c*np.sin(np.radians(alpha)), -0.5*0.1013*c+0.5*0.55*c*np.sin(np.radians(alpha))] # Y positions of the components
@@ -29,6 +29,7 @@ class WingBox():
         
         x = (weights_X)/sum(A)
         y= (weights_Y)/sum(A)
+        
         return(x, y)
 
     def MOMEWB (self,):
