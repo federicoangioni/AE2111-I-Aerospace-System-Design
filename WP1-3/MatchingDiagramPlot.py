@@ -70,14 +70,13 @@ for value in range(len(Climbrate)):
 
 axis.fill_between(wing_loadings[:5282], y1= choice[:5282], y2= minimum_speed[:5282],color="green", alpha = 0.2)
 
-plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ [N/m^2]$', fontsize = 10)
-plt.ylabel(r'Thrust-to-weight ratio  ${T_{TO}/{W_{TO}}} \ [N/N]$', fontsize=10)
+# plt.xlabel(r'Wing loading  $W_{TO}/{S_w} \ [N/m^2]$', fontsize = 10)
+# plt.ylabel(r'Thrust-to-weight ratio  ${T_{TO}/{W_{TO}}} \ [N/N]$', fontsize=10)
 
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
-          fancybox=True, shadow=True, ncol=3)
-plt.xlim(0, 6500)
-plt.ylim(0, 0.5)
-plt.tight_layout()
-if __name__ == "__main__":
-    plt.show()
-    print(wing_surface)
+# plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
+#           fancybox=True, shadow=True, ncol=3)
+# plt.xlim(0, 6500)
+# plt.ylim(0, 0.5)
+# # plt.tight_layout()
+# if __name__ == "__main__":
+#     print(wing_surface)
