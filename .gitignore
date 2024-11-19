@@ -1,0 +1,10 @@
+# workspace_folders:
+.vscode/
+
+# virtualenv:
+venv/
+.env/
+.venv/
+
+# python:
+__pycache__/
