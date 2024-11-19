@@ -1,11 +1,15 @@
 import scipy as sc
 import numpy as np
 
-class WingBox(self):
+class WingBox():
+    def __init__(self):
+        pass
     
     def chord(z, c_r, c_t):
         c = c_r - c_r*(1-(c_t/c_r))*z
         return(c)
+    
+    
     
     def Centroid(self, c, t, alpha, stringer_x_pos[], stringer_area[]):
         A = [0.0728*c*t, 0.1013*c*t, 0.55*c*np.sin(np.radians(alpha))*t, 0.55*c*np.sin(np.radians(alpha))*t] #area 
@@ -21,11 +25,9 @@ class WingBox(self):
 
         x = (weights)/sum(A)
         
+        
 
 
 
 
 wingbox = WingBox()
-
-print(check this works)
-print(checking2ifthiswork)
