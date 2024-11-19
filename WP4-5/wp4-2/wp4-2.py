@@ -3,7 +3,7 @@ import numpy as np
 
 class WingBox(self):
     
-    def chord(z, c_r, c_t):
+    def chord(self, z, c_r, c_t):
         c = c_r - c_r*(1-(c_t/c_r))*z
         return(c)
     
@@ -16,7 +16,11 @@ class WingBox(self):
         x = (A1*0 + A2*0.55*c + 0.5*0.55*c*np.cos(np.radians(alpha)) + 0.5*0.55*c*np.cos(np.radians(alpha)))/(A1+A2+A3+A4)
 
     
-    def Polar(self, )# t : thickness, 
+    def Polar(self, t): # t : thickness,
+        A = 0.55 * self.chord() * (0.0728 * self.chord() + 0.1013 * self.chord())/2
+        S = S
+        J = (4 * t * A**2)/S 
+        return(J)
     
     
     
