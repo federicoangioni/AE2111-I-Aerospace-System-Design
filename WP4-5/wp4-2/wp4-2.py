@@ -18,7 +18,7 @@ class WingBox():
         x = (A1*0 + A2*0.55*c + 0.5*0.55*c*np.cos(np.radians(alpha)) + 0.5*0.55*c*np.cos(np.radians(alpha)))/(A1+A2+A3+A4)
 
     
-
+    def Polar(self, )# t : thickness, 
     
     
     
