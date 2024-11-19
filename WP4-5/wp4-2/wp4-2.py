@@ -28,3 +28,4 @@ class WingBox(self):
 wingbox = WingBox()
 
 print(check this works)
+print(checking2ifthiswork)
