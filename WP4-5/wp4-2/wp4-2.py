@@ -22,10 +22,12 @@ class WingBox():
             A.append(stringer_area[j])
             X.append(stringer_x_pos[j])
             Y.append(stringer_y_pos[j])
+            j+=1
 
         while i <= len(X):
             weights_X = A[i]*X[i]
             weights_Y = A[i]*Y[i]
+            i+=1
         
         x = (weights_X)/sum(A)
         y= (weights_Y)/sum(A)
