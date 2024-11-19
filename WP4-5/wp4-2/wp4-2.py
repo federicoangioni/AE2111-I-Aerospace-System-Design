@@ -23,3 +23,5 @@ class WingBox(self):
 
 
 wingbox = WingBox()
+
+print(check this works)
