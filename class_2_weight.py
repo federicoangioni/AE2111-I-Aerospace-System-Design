@@ -195,13 +195,14 @@ def update_OEW(MTOW):
 
 
 if __name__ == "__main__":
-  # print(f"Main landing gear weight {torenboek_maingear} kg, nose gear weight {torenboek_nosegear} kg")
-  # print(f"Weight of control surfaces {surface_controls_weight} kg")
-  # print(f"Main landing gear weight {main_gear_weight/2.20462} kg")
-  # print(f"Nose gear gear {nose_gear_weight/2.20462} kg")
-  # print(f"weight fuselage {fus_weight/2.20462}")
-  # print(f"weight wing {wingweight/2.20462} kg (Raymer)")
-  # print(f"Vertical tail weight is {v_weight/2.20462} kg (Raymer) DO NOT USE")
-  # print(f"Horizontal tail weight is {h_weight/2.20462} kg (Raymer)")
-  # print(f"Vertical tail weight from GD estimation {v_weight_GD/2.20462} kg (GD method)")
+  print(propulsion_group)
+  print(f"Main landing gear weight {torenboek_maingear} kg, nose gear weight {torenboek_nosegear} kg")
+  print(f"Weight of control surfaces {surface_controls_weight} kg")
+  print(f"Main landing gear weight {main_gear_weight/2.20462} kg")
+  print(f"Nose gear gear {nose_gear_weight/2.20462} kg")
+  print(f"weight fuselage {fus_weight/2.20462}")
+  print(f"weight wing {wingweight/2.20462} kg (Raymer)")
+  print(f"Vertical tail weight is {v_weight/2.20462} kg (Raymer) DO NOT USE")
+  print(f"Horizontal tail weight is {h_weight/2.20462} kg (Raymer)")
+  print(f"Vertical tail weight from GD estimation {v_weight_GD/2.20462} kg (GD method)")
   print(f"Total Weight of the airplane {OEW_est} kg")

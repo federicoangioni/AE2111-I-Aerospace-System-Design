@@ -13,7 +13,7 @@ files_tobe_Updated = [
 
 Weights = []
 
-for i in range(10):
+for i in range(20):
     print(f"Current OEW is: {OEW_est}, current MTOW is {MTOW}")
     MTOW = predict(OEW_est)
     Weights.append(MTOW)

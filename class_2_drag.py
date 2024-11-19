@@ -15,7 +15,6 @@ k = 0.634e-5
 laminar_fus = 0.05
 
 Re = min(V_inf * fuselage_length*rho/dyn_visc, 44.62*((fuselage_length/k)**1.053) * M_cr**1.16)
-
 # Laminar friction coefficient
 C_f_lamFus = 1.328/np.sqrt(Re)
 
@@ -43,13 +42,11 @@ laminar_wing = 0.1
 # SC(2)-0714
 x_c_m = 0.37
 ttoc = 0.14
-lambda_m  = angle_at_xdivc(37, 100, np.radians(LESweep), c_r, taper_ratio, optimized_b)
-
-
+lambda_m  = angle_at_xdivc(37, 100, (LESweep), c_r, taper_ratio, optimized_b)
+print(lambda_m)
 k = 0.634e-5 # paint factor
 
 Re = min(V_inf *MAC*rho/dyn_visc, 44.62*((MAC/k)**1.053) * M_cr**1.16)
-
 
 # Laminar friction coefficient
 C_f_lamwing = 1.328/np.sqrt(Re)
@@ -73,9 +70,11 @@ multiplied_wing = C_fwing*S_wet_wing*IF_wing*FF_wing
 q = 0.5*rho*V_inf**2
 C_Ldes = 0.56 # Value from WP1.1
 
-M_DD = 0.87/(np.cos(c4sweep)) - (ttoc)/((np.cos(c4sweep)**2)) - C_Ldes/(10*((np.cos(c4sweep)**3)))
+M_DD = 0.935/(np.cos(c4sweep)) - (ttoc)/((np.cos(c4sweep)**2)) - C_Ldes/(10*((np.cos(c4sweep)**3)))
 
-deltaCD_wave = 0.002*(1+2.5*(M_DD-M_cr)/0.05)**(-1)
+deltaCD_wave =  0.002*(1+2.5*(M_DD-M_cr)/0.05)**(-1)
+print(deltaCD_wave)
+
 #--------------------------------------------------------------------------------------------------------------------------
 # Nacelle
   # Length of the nacelle
@@ -130,7 +129,6 @@ D_p = 0.5  # Diameter of the plug
 S_wet_plug = plug_wetted_area(l_p, D_p)
 
 multiplied_engine = C_f_nacelle*FF_N*Q_g*S_wet_fan_cowl
-
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Vertical empennage
 
@@ -211,10 +209,10 @@ FF_hor_emp = (1+ (0.6 / x_c_mhor) * ttochor + 100*ttochor**4)*(1.34*M_cr**0.18*n
 S_wet_emp_hor = 2*1.05*S_hor
 
 multiplied_horizontal = C_fhoremp*FF_hor_emp*IF_horemp*S_wet_emp_hor
-
 #-----------------------------------
 # Total Cd
 cd0 = (1/optimized_S)*(multiplied_engine*2 + multiplied_fus + multiplied_wing + multiplied_horizontal + multiplied_vertical) + deltaCD_wave
 
-# if __name__ == "__main__":
-#     print(f"The parasitic drag of the airplane is {cd0}") 
+if __name__ == "__main__":
+    print(f"The parasitic drag of the airplane is {cd0}") 
+    print(M_DD)
