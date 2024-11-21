@@ -50,17 +50,21 @@ class WingBox():
 
         x = (weights)/sum(A)
     
-    def I_stiffeners(self, type: str, dimensions: list):
+    def I_stiffeners(self, type: str, dimensions: dict):
         type = ["L", "I"]
         
         """
         dimensions: changes in base of the used stringer
-        L type stringer: [base, height, thickness base, thickness height]
+        L type stringer: {base, height, thickness base, thickness height}
         I type stringer: [base, top, web height, thickness top, thickness web, thickness bottom]
         """
         if type == "L":
-            I_xx = (1/12)*dimensions[2]**3*dimensions[4]
+            x = (dimensions["base"]*(dimensions["thickness base"]**2)/2)/(dimensions["base"]*dimensions["height"]*dimensions["thickness base"]*dimensions["thickness height"])
+            y = (dimensions["height"]**2 * dimensions["thickness height"]/2) / (dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"])
+            
+            I_xx = 0 
             I_yy = 0
+            A = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
         
         elif type == "I":
             pass
