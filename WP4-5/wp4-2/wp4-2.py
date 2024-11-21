@@ -8,7 +8,6 @@ class WingBox():
         self.c_t = c_t
         self.c_r = c_r
         self.t = t
-        
     
     def chord(self, z):
         c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
@@ -95,14 +94,3 @@ class WingBox():
     def Deflection(Self, DeflectionSlope):
         deflect = sp.integrate.quad(DeflectionSlope,0,(b/2-d/2))
         return deflect
-
-
-        
-        
-
-
-
-
-wingbox = WingBox()
-
-wingbox.chor
