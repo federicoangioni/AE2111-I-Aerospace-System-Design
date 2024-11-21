@@ -2,15 +2,24 @@ import scipy as sc
 import numpy as np
 
 class WingBox():
-    def __init__(self):
-        pass
+    def __init__(self, c_t, c_r):
+        self.c_t = c_t
+        self.c_r = c_r
+        
     
-    def chord(self, z, c_r, c_t):
-        c = c_r - c_r*(1-(c_t/c_r))*z
+    def chord(self, z):
+        c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
         return(c)
 
-    
-    def Polar(self, t, alpha): # t : thickness,
+    def geometry(self, z):
+        a = 0.1013 * self.chord(z)
+        b = 0.0728 * self.chord(z)
+        h = 0.55 * self.chord(z)
+        return a, b, h
+        
+    def Polar(self, t, alpha, z): # t : thickness,
+        a, b, h = self.geometry(z)
+        
         A = 0.55 * self.chord() * (0.0728 * self.chord() + 0.1013 * self.chord())/2
         S = 0.0728 * self.chord() + 0.1013 * self.chord() + 2 * 0.55*c*np.cos(np.radians(alpha))
         J = (4 * t * A**2)/S 
@@ -63,3 +72,4 @@ class WingBox():
 
 wingbox = WingBox()
 
+wingbox.chor
