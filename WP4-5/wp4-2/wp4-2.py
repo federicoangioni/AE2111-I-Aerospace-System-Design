@@ -11,7 +11,7 @@ class WingBox():
     
     def chord(self, z):
         c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
-        return(c)
+        return c
 
     def geometry(self, z):
         a = 0.1013 * self.chord(z)
@@ -19,7 +19,7 @@ class WingBox():
         h = 0.55 * self.chord(z)
         return a, b, h
         
-    def Torsion(self, z, T): # T : torsion,
+    def rotation (self, z, T): # T : torsion,
         a, b, h = self.geometry(z)
         
         A = h * ( a + b ) / 2
@@ -28,6 +28,8 @@ class WingBox():
         thetadot = (T * S) / (4 * A * self.t * G)
 
         theta = sc.integrate.quad(thetadot, 0, z)
+
+        return theta
     
     def Centroid(self, c, t, alpha, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
         A = [0.0728*c*t, 0.1013*c*t, 0.55*c*np.sin(np.radians(alpha))*t, 0.55*c*np.sin(np.radians(alpha))*t] #Areas of the components
@@ -74,9 +76,6 @@ class WingBox():
         x = (-1)*Moment/(I*E)
         return x
 
-    def RotationFunc(self, Torsion, J ):
-        x = Torsion/(J*G)
-        return x
 
     def DeflectionSlope(Self, DeflectionFunc, z):
         deflectionSlope = sp.integrate.quad(DeflectionFunc,0,z)
@@ -87,10 +86,6 @@ class WingBox():
         return deflect
 
 
-    def RotationAngle(Self, RotationFunc):
-        Rotation = sp.integrate.quad(RotationFunc,0,(b/2-d/2))
-        return  Rotation
-    
         
         
 
