@@ -91,6 +91,6 @@ class WingBox():
         deflectionSlope = sc.integrate.quad(DeflectionFunc,0,z)
         return deflectionSlope
 
-    def Deflection(Self, DeflectionSlope):
-        deflect = sc.integrate.quad(DeflectionSlope,0,(b/2-d/2))
+    def Deflection(Self, DeflectionSlope, z):
+        deflect = sc.integrate.quad(DeflectionSlope,0,z)
         return deflect
