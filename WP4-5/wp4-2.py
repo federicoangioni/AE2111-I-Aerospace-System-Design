@@ -2,7 +2,7 @@ from scipy import integrate
 import numpy as np
 # from variables import *
 
-#generaL: assumption is symmetric wing box
+#general: assumption is symmetric wing box
 class WingBox():
     def __init__(self, c_r, c_t, t):
         self.c_t = c_t
@@ -78,6 +78,7 @@ class WingBox():
         I type stringer: [base, top, web height, thickness top, thickness web, thickness base]
         distance: tuple, distance from centroid (x, y)
         """
+        
         if type == "L":
             x = (dimensions["base"]*(dimensions["thickness base"]**2)/2)/(dimensions["base"]*dimensions["height"]*dimensions["thickness base"]*dimensions["thickness height"])
             y = (dimensions["height"]**2 * dimensions["thickness height"]/2) / (dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"])
@@ -93,7 +94,7 @@ class WingBox():
         return (distance[0] ** 2 * A, distance[1] ** 2 * A)
     
     def show(self, choice):
-        choice = ['shear', '']
+        choice = ['bending', 'torsion']
         pass
         # moment of inertia I and torsional stiffness J as a function of z
         # bending deflection and twist distribution displacements
