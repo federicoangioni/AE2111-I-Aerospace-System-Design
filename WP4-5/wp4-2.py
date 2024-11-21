@@ -1,10 +1,10 @@
-import scipy as sc
+from scipy import integrate
 import numpy as np
 # from variables import *
 
 #generaL: assumption is symmetric wing box
 class WingBox():
-    def __init__(self, c_t, c_r, t):
+    def __init__(self, c_r, c_t, t):
         self.c_t = c_t
         self.c_r = c_r
         self.t = t
@@ -25,9 +25,9 @@ class WingBox():
         A = h * ( a + b ) / 2
         alpha = np.arctan(((a-b)/2)/h)
         S = a + b + 2 * (h / np.cos(alpha))
-        thetadot = (T * S) / (4 * A * self.t * G)
+        thetadot = lambda z: (T * S) / (4 * A * self.t * G)
 
-        theta = sc.integrate.quad(thetadot, 0, z)
+        theta = integrate.quad(thetadot, 0, z)
 
         return theta
     
@@ -59,7 +59,7 @@ class WingBox():
         I1xx =0
         # I1yy = 1/12*(t*... need to update)
     
-    def I_stiffeners(self, type: str, dimensions: dict, distance: tuple):
+    def I_stiffener(self, type: str, dimensions: dict, distance: tuple):
         type = ["L", "I"]
         
         """
@@ -88,9 +88,14 @@ class WingBox():
 
 
     def DeflectionSlope(Self, DeflectionFunc, z):
-        deflectionSlope = sc.integrate.quad(DeflectionFunc,0,z)
+        deflectionSlope = integrate.quad(DeflectionFunc,0,z)
         return deflectionSlope
 
     def Deflection(Self, DeflectionSlope, z):
-        deflect = sc.integrate.quad(DeflectionSlope,0,z)
+        deflect = integrate.quad(DeflectionSlope,0,z)
         return deflect
+    
+    def show(self):
+        pass
+        # moment of inertia I and torsional stiffness J as a function of z
+        # bending deflection and twist distribution displacements
