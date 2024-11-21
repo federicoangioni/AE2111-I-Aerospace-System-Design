@@ -91,19 +91,6 @@ class WingBox():
         
         # returning only Steiner's terms for now
         return (distance[0] ** 2 * A, distance[1] ** 2 * A)
-
-    def DeflectionFunc(self, Moment, I, E):
-        x = (-1)*Moment/(I*E)
-        return x
-
-   
-    def DeflectionSlope(Self, DeflectionFunc, z):
-        deflectionSlope = integrate.quad(DeflectionFunc,0,z)
-        return deflectionSlope
-
-    def Deflection(Self, DeflectionSlope, z):
-        deflect = integrate.quad(DeflectionSlope,0,z)
-        return deflect
     
     def show(self, choice):
         choice = ['shear', '']
