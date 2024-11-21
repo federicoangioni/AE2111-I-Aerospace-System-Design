@@ -1,6 +1,7 @@
 import scipy as sc
 import numpy as np
 
+#generaL: assumption is symmetric wing box
 class WingBox():
     def __init__(self):
         pass
@@ -38,9 +39,12 @@ class WingBox():
         
         return(x, y)
 
-    def MOMEWB (self,):
+    def MOMEWB (self,): #Moment of inertia for empty wing box
 
-        x = (weights)/sum(A)
+        #Split into 3 section: 1 short vertical bar, 2 long vertical bar, and 3 at an angle
+        #section 1:
+        I1xx =0
+        I1yy = 1/12*(t*... need to update)
     
     def I_stiffeners(self, type: str, dimensions: list):
         type = ["L", "I"]
