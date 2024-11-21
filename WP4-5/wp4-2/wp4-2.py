@@ -1,9 +1,10 @@
 import scipy as sc
 import numpy as np
+import math as math
 
 class WingBox():
     def __init__(self):
-        pass
+        self.a = 
     
     def chord(self, z, c_r, c_t):
         c = c_r - c_r*(1-(c_t/c_r))*z
