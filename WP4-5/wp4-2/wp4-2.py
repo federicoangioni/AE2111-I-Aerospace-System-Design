@@ -19,7 +19,7 @@ class WingBox():
         h = 0.55 * self.chord(z)
         return a, b, h
         
-    def rotation (self, z, T): # T : torsion,
+    def rotation (self, z, T, G): # T : torsion,
         a, b, h = self.geometry(z)
         
         A = h * ( a + b ) / 2
@@ -82,7 +82,7 @@ class WingBox():
         # returning only Steiner's terms for now
         return (distance[0] ** 2 * A, distance[1] ** 2 * A)
 
-    def DeflectionFunc(self, Moment, I ):
+    def DeflectionFunc(self, Moment, I, E):
         x = (-1)*Moment/(I*E)
         return x
 
