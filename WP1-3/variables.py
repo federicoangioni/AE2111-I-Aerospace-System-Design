@@ -56,6 +56,8 @@ climb_gradient_121a = 0.0
 climb_gradient_121b = 0.024
 climb_gradient_121c = 0.012
 climb_gradient_121d = 0.021
+"""
+what is this?
 
 # Values after optimization procedure
 <<<<<<< HEAD:variables.py
@@ -84,7 +86,7 @@ e = 0.6286129716455728
 =======
 >>>>>>> testing-optimization:WP1-3/variables.py
 >>>>>>> d0af7713e6a120f5035bafc1ae4dcc7c9ca0e62f:WP1-3/variables.py
-
+"""
 
 a = math.sqrt(1.4*287*Temperature(cruise_h))
 

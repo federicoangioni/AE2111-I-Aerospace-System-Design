@@ -1,22 +1,36 @@
 import scipy as sc
 import numpy as np
+from variables import *
 
 #generaL: assumption is symmetric wing box
 class WingBox():
-    def __init__(self):
-        pass
+    def __init__(self, c_t, c_r, t):
+        self.c_t = c_t
+        self.c_r = c_r
+        self.t = t
+        
     
-    def chord(self, z, c_r, c_t):
-        c = c_r - c_r*(1-(c_t/c_r))*z
-        return(c)
-    
+    def chord(self, z):
+        c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
+        return c
 
-    
-    def Polar(self, t): # t : thickness,
-        A = 0.55 * self.chord() * (0.0728 * self.chord() + 0.1013 * self.chord())/2
-        S = S
-        J = (4 * t * A**2)/S 
-        return(J)
+    def geometry(self, z):
+        a = 0.1013 * self.chord(z)
+        b = 0.0728 * self.chord(z)
+        h = 0.55 * self.chord(z)
+        return a, b, h
+        
+    def rotation (self, z, T): # T : torsion,
+        a, b, h = self.geometry(z)
+        
+        A = h * ( a + b ) / 2
+        alpha = np.arctan(((a-b)/2)/h)
+        S = a + b + 2 * (h / np.cos(alpha))
+        thetadot = (T * S) / (4 * A * self.t * G)
+
+        theta = sc.integrate.quad(thetadot, 0, z)
+
+        return theta
     
     def Centroid(self, c, t, alpha, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
         A = [0.0728*c*t, 0.1013*c*t, 0.55*c*np.sin(np.radians(alpha))*t, 0.55*c*np.sin(np.radians(alpha))*t] #Areas of the components
@@ -29,13 +43,13 @@ class WingBox():
             Y.append(stringer_y_pos[j])
             j+=1
 
-        while i <= len(X):
+        while i <= len(X): #calculate the weights
             weights_X = A[i]*X[i]
             weights_Y = A[i]*Y[i]
             i+=1
         
-        x = (weights_X)/sum(A)
-        y= (weights_Y)/sum(A)
+        x = (weights_X)/sum(A) #x position of the centroid
+        y= (weights_Y)/sum(A) #y position of the centroid
         
         return(x, y)
 
@@ -46,17 +60,40 @@ class WingBox():
         I1xx =0
         I1yy = 1/12*(t*... need to update)
     
-    def I_stiffeners(self, type: str, dimensions: list):
+    def I_stiffeners(self, type: str, dimensions: dict):
         type = ["L", "I"]
         
         """
         dimensions: changes in base of the used stringer
-        L type stringer: [base, height, thickness base, thickness height]
+        L type stringer: {base, height, thickness base, thickness height}
         I type stringer: [base, top, web height, thickness top, thickness web, thickness bottom]
         """
+        if type == "L":
+            x = (dimensions["base"]*(dimensions["thickness base"]**2)/2)/(dimensions["base"]*dimensions["height"]*dimensions["thickness base"]*dimensions["thickness height"])
+            y = (dimensions["height"]**2 * dimensions["thickness height"]/2) / (dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"])
+            
+            I_xx = 0 
+            I_yy = 0
+            A = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
         
-    
-        
+        elif type == "I":
+            pass
+
+
+    def DeflectionFunc(self, Moment, I ):
+        x = (-1)*Moment/(I*E)
+        return x
+
+
+    def DeflectionSlope(Self, DeflectionFunc, z):
+        deflectionSlope = sp.integrate.quad(DeflectionFunc,0,z)
+        return deflectionSlope
+
+    def Deflection(Self, DeflectionSlope):
+        deflect = sp.integrate.quad(DeflectionSlope,0,(b/2-d/2))
+        return deflect
+
+
         
         
 
@@ -65,3 +102,4 @@ class WingBox():
 
 wingbox = WingBox()
 
+wingbox.chor

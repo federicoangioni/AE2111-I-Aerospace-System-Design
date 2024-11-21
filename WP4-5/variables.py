@@ -4,5 +4,10 @@ b = 26.9 #wingspan
 d = 2.74 #fuselage diameter
 alpha =1.48414 #in degrees
 
-E = 
-G =
+
+#material properties Aluminum 2024-T81
+E = 72400000000 #Young modulus [pa]
+G = 28000000000 #shear modulus [pa]
+rho = 2780 #density [kg/m^3]
+tsY = 450000000 #tensile strength yield [pa]
+tsU = 485000000 #tensile strength ultimate [pa]
