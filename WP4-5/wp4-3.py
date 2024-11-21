@@ -2,11 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import math
 import ISA
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import variables
+import variables as var
 
 
 # Speeds
@@ -75,51 +71,54 @@ def plotting(speeds, n_upper_clean, n_lower_clean, n_upper_flaps):
     plt.title("V-n diagram")
     plt.show()
 
-if __name__ == "__main__":
-    print("running wp4-3.py")
+def generate_graph(
+        weight_kg,
 
-    # test values
-    number_of_points = 1000
-    #atmosphere
-    density = 1.225
-    R = 287.05
-    Temperature = 288.15
-    gamma = 1.4
-    speed_of_sound = ISA.speed_of_sound(gamma, R, Temperature)
-    gravitaional_acceleration = 9.80665 #m/s^2
-    #aircraft
-    weight_kg = 19593  #kg
-    weight = weight_kg * gravitaional_acceleration  #N
-    M_cr = 0.77
-    speed_cruise = M_cr * speed_of_sound
-    S = 71.57  #m^2
-    Cl_max_clean = 1.41
-    Cl_max_flaps_land = 2.55
+        number_of_points = 1000,
+        density = var.rho0,
+        R = var.R,
+        Temperature = var.T0,
+        gamma = var.gamma,
+        gravitaional_acceleration = var.g,
+        M_cr = 0.77,
+        CL_max_clean = 1.41,
+        CL_max_flaps_land = 2.55,
+        n_min = -1,
+        n_max_flapped = 2,
+        wing_area = 71.57,
+        
+        V_cr = None,
+        speed_of_sound = None,
+        weight = None,
+):
+    speed_of_sound = ISA.speed_of_sound(gamma, R, Temperature) if speed_of_sound is None else speed_of_sound
+    V_cr = M_cr * speed_of_sound if V_cr is None else V_cr
+    weight = weight_kg * gravitaional_acceleration if weight is None else weight
 
-    # test outputs
-    speed_stall_clean = speed_from_lift(weight, density, S, Cl_max_clean)
-    speed_stall_flaps = speed_from_lift(weight, density, S, Cl_max_flaps_land)
     max_n = n_max_formula(weight_kg)
+    speed_stall_clean = speed_from_lift(weight, density, wing_area, CL_max_clean)
+    speed_stall_flaps = speed_from_lift(weight, density, wing_area, CL_max_flaps_land)
 
-    speeds = np.linspace(0, dive_speed_formula(speed_cruise), number_of_points)
-    n_upper_clean = V_n_line_upper_clean(speeds, max_n, speed_stall_clean, speed_cruise)
-    n_lower_clean = V_n_line_lower_clean(speeds, -1, speed_stall_clean, speed_cruise)
-    n_upper_flaps = V_n_line_upper_flaps(speeds, 2, speed_stall_flaps, speed_stall_clean)
-    speeds = np.append(speeds, dive_speed_formula(speed_cruise))
+    speeds = np.linspace(0, dive_speed_formula(V_cr), number_of_points)
+    n_upper_clean = V_n_line_upper_clean(speeds, max_n, speed_stall_clean, V_cr)
+    n_lower_clean = V_n_line_lower_clean(speeds, n_min, speed_stall_clean, V_cr)
+    n_upper_flaps = V_n_line_upper_flaps(speeds, n_max_flapped, speed_stall_flaps, speed_stall_clean)
+
+    speeds = np.append(speeds, dive_speed_formula(V_cr))
     n_upper_clean = np.append(n_upper_clean, 0)
     n_lower_clean = np.append(n_lower_clean, 0)
 
-    print(f"""\
-    speed_stall_clean:  {speed_stall_clean}
-    speed_stall_flaps:  {speed_stall_flaps}
-    v_dive:             {dive_speed_formula(speed_cruise)} 
-    n_max:              {max_n}
-    speeds:             {n_upper_clean} 
-    length n_upper:     {len(n_upper_clean)}
-    length n_lower:     {len(n_lower_clean)}
-    length speeds:      {len(speeds)}
-    """)
-
     plotting(speeds, n_upper_clean, n_lower_clean, n_upper_flaps)
+
+    
+    
+
+if __name__ == "__main__":
+    print("running wp4-3.py")
+    weight_kg = 19593  #kg
+
+
+    generate_graph(weight_kg)
+
 
         
