@@ -1,6 +1,5 @@
 import scipy as sc
 import numpy as np
-from variables import *
 
 class WingBox():
     def __init__(self, c_t, c_r, t):
