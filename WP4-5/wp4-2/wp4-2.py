@@ -1,10 +1,12 @@
 import scipy as sc
 import numpy as np
+from variables import *
 
 class WingBox():
-    def __init__(self, c_t, c_r):
+    def __init__(self, c_t, c_r, t):
         self.c_t = c_t
         self.c_r = c_r
+        self.t = t
         
     
     def chord(self, z):
@@ -17,13 +19,15 @@ class WingBox():
         h = 0.55 * self.chord(z)
         return a, b, h
         
-    def Polar(self, t, alpha, z): # t : thickness,
+    def Torsion(self, z, T): # T : torsion,
         a, b, h = self.geometry(z)
         
-        A = 0.55 * self.chord() * (0.0728 * self.chord() + 0.1013 * self.chord())/2
-        S = 0.0728 * self.chord() + 0.1013 * self.chord() + 2 * 0.55*c*np.cos(np.radians(alpha))
-        J = (4 * t * A**2)/S 
-        return(J)
+        A = h * ( a + b ) / 2
+        alpha = np.arctan(((a-b)/2)/h)
+        S = a + b + 2 * (h / np.cos(alpha))
+        thetadot = (T * S) / (4 * A * self.t * G)
+
+        theta = sc.integrate.quad(thetadot, 0, z)
     
     def Centroid(self, c, t, alpha, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
         A = [0.0728*c*t, 0.1013*c*t, 0.55*c*np.sin(np.radians(alpha))*t, 0.55*c*np.sin(np.radians(alpha))*t] #Areas of the components
