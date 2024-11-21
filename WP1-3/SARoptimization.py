@@ -3,7 +3,9 @@ from scipy.optimize import minimize
 from ambiance import Atmosphere
 import sympy as sp
 from planform import LESweep, V_inf, taper_ratio
-from variables import MTOW
+from variablesold import MTOW
+import pandas as pd
+
 # Atmosphere initialization
 atmosphere = Atmosphere(10668)
 
@@ -12,6 +14,7 @@ mlw = 0.886 * mtow  # Maximum landing weight in kg
 rho = atmosphere.density  # Air density
 q = 0.5 * rho * V_inf**2  # Dynamic pressure
 
+df = pd.DataFrame([])
 # Fixed parameters
 tr = taper_ratio  # Taper ratio
 # Function to calculate sweep at a given x/c location
@@ -179,11 +182,10 @@ Cldes_M0 = Cldes_M077 * np.sqrt(1 - 0.77**2)
 optimized_b = np.sqrt(optimized_AR*optimized_S) # m
 
 if __name__ == "__main__":
-#     # Print results
-#     print("Optimized Aspect Ratio (AR):", optimized_AR)
-#     print("Minimum drag coefficient:", optimized_cd)
-#     print("Optimized wing surface area:", optimized_S)
-#     print("Optimized lift coefficient (CL):", optimized_CL)
-#     print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
-#     print("Optimized efficiency factor (e):", optimized_e)
+    print("Optimized Aspect Ratio (AR):", optimized_AR)
+    print("Minimum drag coefficient:", optimized_cd)
+    print("Optimized wing surface area:", optimized_S)
+    print("Optimized lift coefficient (CL):", optimized_CL)
+    print("Airfoil lift coefficient then must be (Cldes)", Cldes_M0)
+    print("Optimized efficiency factor (e):", optimized_e)
     print("The optimized SAR value is:", SAR)
