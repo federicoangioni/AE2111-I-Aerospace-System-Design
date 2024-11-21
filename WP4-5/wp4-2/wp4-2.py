@@ -40,13 +40,13 @@ class WingBox():
             Y.append(stringer_y_pos[j])
             j+=1
 
-        while i <= len(X):
+        while i <= len(X): #calculate the weights
             weights_X = A[i]*X[i]
             weights_Y = A[i]*Y[i]
             i+=1
         
-        x = (weights_X)/sum(A)
-        y= (weights_Y)/sum(A)
+        x = (weights_X)/sum(A) #x position of the centroid
+        y= (weights_Y)/sum(A) #y position of the centroid
         
         return(x, y)
 
@@ -68,6 +68,29 @@ class WingBox():
         
         elif type == "I":
             pass
+
+
+    def DeflectionFunc(self, Moment, I ):
+        x = (-1)*Moment/(I*E)
+        return x
+
+    def RotationFunc(self, Torsion, J ):
+        x = Torsion/(J*G)
+        return x
+
+    def DeflectionSlope(Self, DeflectionFunc, z):
+        deflectionSlope = sp.integrate.quad(DeflectionFunc,0,z)
+        return deflectionSlope
+
+    def Deflection(Self, DeflectionSlope):
+        deflect = sp.integrate.quad(DeflectionSlope,0,(b/2-d/2))
+        return deflect
+
+
+    def RotationAngle(Self, RotationFunc):
+        Rotation = sp.integrate.quad(RotationFunc,0,(b/2-d/2))
+        return  Rotation
+    
         
         
 
