@@ -95,7 +95,8 @@ class WingBox():
         deflect = integrate.quad(DeflectionSlope,0,z)
         return deflect
     
-    def show(self):
+    def show(self, choice):
+        choice = ['shear', ]
         pass
         # moment of inertia I and torsional stiffness J as a function of z
         # bending deflection and twist distribution displacements
