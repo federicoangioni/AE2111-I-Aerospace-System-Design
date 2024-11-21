@@ -1,6 +1,6 @@
 import scipy as sc
 import numpy as np
-from variables import *
+# from variables import *
 
 #generaL: assumption is symmetric wing box
 class WingBox():
@@ -58,15 +58,16 @@ class WingBox():
         #Split into 3 section: 1 short vertical bar, 2 long vertical bar, and 3 at an angle
         #section 1:
         I1xx =0
-        I1yy = 1/12*(t*... need to update)
+        # I1yy = 1/12*(t*... need to update)
     
-    def I_stiffeners(self, type: str, dimensions: dict):
+    def I_stiffeners(self, type: str, dimensions: dict, distance: tuple):
         type = ["L", "I"]
         
         """
         dimensions: changes in base of the used stringer
         L type stringer: {base, height, thickness base, thickness height}
-        I type stringer: [base, top, web height, thickness top, thickness web, thickness bottom]
+        I type stringer: [base, top, web height, thickness top, thickness web, thickness base]
+        distance: tuple, distance from centroid (x, y)
         """
         if type == "L":
             x = (dimensions["base"]*(dimensions["thickness base"]**2)/2)/(dimensions["base"]*dimensions["height"]*dimensions["thickness base"]*dimensions["thickness height"])
@@ -77,8 +78,10 @@ class WingBox():
             A = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
         
         elif type == "I":
-            pass
-
+            A = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
+        
+        # returning only Steiner's terms for now
+        return (distance[0] ** 2 * A, distance[1] ** 2 * A)
 
     def DeflectionFunc(self, Moment, I ):
         x = (-1)*Moment/(I*E)
