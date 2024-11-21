@@ -8,7 +8,8 @@ class WingBox():
         self.c_t = c_t
         self.c_r = c_r
         self.t = t
-    
+        
+        
     def chord(self, z):
         c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
         return c
@@ -19,7 +20,7 @@ class WingBox():
         h = 0.55 * self.chord(z)
         return a, b, h
         
-    def rotation (self, z, T, G): # T : torsion,
+    def torsion (self, z, T, G): # T : torsion,
         a, b, h = self.geometry(z)
         
         A = h * ( a + b ) / 2
@@ -30,6 +31,15 @@ class WingBox():
         theta = integrate.quad(thetadot, 0, z)
 
         return theta
+    
+    def bending (self, z, M, E):
+        I = self.MOMEWB()
+        v_double_dot = lambda z: M/(-E*I)
+        
+        vdot = integrate.quad(v_double_dot, 0, z)
+        v = integrate.quad(vdot, 0, z)
+        
+        return v
     
     def Centroid(self, c, t, alpha, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
         A = [0.0728*c*t, 0.1013*c*t, 0.55*c*np.sin(np.radians(alpha))*t, 0.55*c*np.sin(np.radians(alpha))*t] #Areas of the components
@@ -86,7 +96,7 @@ class WingBox():
         x = (-1)*Moment/(I*E)
         return x
 
-
+   
     def DeflectionSlope(Self, DeflectionFunc, z):
         deflectionSlope = integrate.quad(DeflectionFunc,0,z)
         return deflectionSlope
@@ -96,7 +106,7 @@ class WingBox():
         return deflect
     
     def show(self, choice):
-        choice = ['shear', ]
+        choice = ['shear', '']
         pass
         # moment of inertia I and torsional stiffness J as a function of z
         # bending deflection and twist distribution displacements
