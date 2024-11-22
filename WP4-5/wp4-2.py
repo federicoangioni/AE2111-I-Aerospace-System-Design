@@ -113,15 +113,29 @@ class WingBox():
         
         z = np.linspace(0, halfspan) # range of z values to show the plot
         
+        I_xx = 0 # defining the moment of inertia
+        
+        J = 0 
+        
         if choice == type[0]: 
             # bending diagram is chosen
+            
+            temp_v = []
             for i in z:
                 v = self.bending(z = i, M = load, E = modulus)
                 
-                temp_dict = []
+                temp_v.append(v)
+            
+            self.deflections = pd.concat([self.deflections, ])
                 
                 
             
             
         # moment of inertia I and torsional stiffness J as a function of z
         # bending deflection and twist distribution displacements
+        
+df = pd.DataFrame(columns=['gino'])
+
+df = pd.concat([df, pd.Series([1, 2, 3])], ignore_index=True)
+
+print(df)
