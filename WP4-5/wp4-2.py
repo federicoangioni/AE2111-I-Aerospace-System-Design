@@ -1,6 +1,5 @@
 from scipy import integrate
 import numpy as np
-# from variables import *
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -11,7 +10,7 @@ class WingBox():
         self.c_r = c_r # root chord [m]
         self.t = t     # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
         self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
-                                                   'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
+                                                    'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
         
     def chord(self, z): 
         # returns the chord at any position z
@@ -117,25 +116,38 @@ class WingBox():
         
         J = 0 
         
+        self.deflections['Load [Nm]'] = 0
+        self.deflections['z location [m]'] = z
+        
+        self.deflections['Moment of Inertia I [m^4]'] = 0
+        self.deflections['Polar moment of Inertia J [m^4 (??)]'] = 0
+            
         if choice == type[0]: 
             # bending diagram is chosen
             
             temp_v = []
+            
             for i in z:
+                # iterating through each value of z and evaluating the displacement at that point
                 v = self.bending(z = i, M = load, E = modulus)
                 
                 temp_v.append(v)
             
-            self.deflections = pd.concat([self.deflections, ])
+            
+            self.deflections['Displacement [m]'] = temp_v
+            self.deflections['Rotation [rad]'] = np.zeros(len(z))
+            
+        elif choice == type[1]: 
+            # Torque diagram is chosen
+            
+            temp_theta = []
+            
+            for i in z:
+                # iterating through each value of z and evaluating the rotation at that point
+                theta = self.torsion(z = i, T = load, G = modulus)
                 
-                
+                temp_theta.append(v)
             
             
-        # moment of inertia I and torsional stiffness J as a function of z
-        # bending deflection and twist distribution displacements
-        
-df = pd.DataFrame(columns=['gino'])
-
-df = pd.concat([df, pd.Series([1, 2, 3])], ignore_index=True)
-
-print(df)
+            self.deflections['Displacement [m]'] = np.zeros(len(z))
+            self.deflections['Rotation [rad]'] = temp_theta
