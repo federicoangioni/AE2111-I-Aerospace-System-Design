@@ -1,30 +1,35 @@
 from scipy import integrate
 import numpy as np
 # from variables import *
+import matplotlib.pyplot as plt
+import pandas as pd
 
 #general: assumption is symmetric wing box
 class WingBox():
-    def __init__(self, c_r, c_t, t):
-        self.c_t = c_t
-        self.c_r = c_r
-        self.t = t
+    def __init__(self, c_r: int, c_t: int, t: int):
+        self.c_t = c_t # tip chord [m]
+        self.c_r = c_r # root chord [m]
+        self.t = t     # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
+        self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
+                                                   'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
         
-        
-    def chord(self, z):
+    def chord(self, z): 
+        # returns the chord at any position z
         c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
         return c
 
-    def geometry(self, z):
-        a = 0.1013 * self.chord(z)
-        b = 0.0728 * self.chord(z)
-        h = 0.55 * self.chord(z)
+    def geometry(self, z: int):
+        # returns the wing box geometry (side lenghts) at any position z
+        a = 0.1013 * self.chord(z) # trapezoid longer  [m]
+        b = 0.0728 * self.chord(z) # trapezoid shorter [m]
+        h = 0.55 * self.chord(z)   # trapezoid height  [m]
         return a, b, h
-        
-    def torsion (self, z, T, G): # T : torsion,
+    
+    def torsion (self, z, T: int, G): # T : torsion, 
         a, b, h = self.geometry(z)
         
-        A = h * ( a + b ) / 2
-        alpha = np.arctan(((a-b)/2)/h)
+        A = h * (a + b) / 2
+        alpha = np.arctan((a - b) / (2 * h))
         S = a + b + 2 * (h / np.cos(alpha))
         thetadot = lambda z: (T * S) / (4 * A * self.t * G)
 
@@ -41,10 +46,14 @@ class WingBox():
         
         return v
     
-    def Centroid(self, c, t, alpha, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
-        A = [0.0728*c*t, 0.1013*c*t, 0.55*c*np.sin(np.radians(alpha))*t, 0.55*c*np.sin(np.radians(alpha))*t] #Areas of the components
-        X = [0, 0.55*c, 0.5*0.55*c*np.cos(np.radians(alpha)), 0.5*0.55*c*np.cos(np.radians(alpha))] # X positions of the components
-        Y = [0, 0, 0.5*0.1013*c-0.5*0.55*c*np.sin(np.radians(alpha)), -0.5*0.1013*c+0.5*0.55*c*np.sin(np.radians(alpha))] # Y positions of the components
+    def centroid(self, z, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
+        
+        a, b, h = self.geometry(z)
+        alpha = np.arctan(((a-b)/2)/h)
+        
+        A = [b*self.t, a*self.t, h*np.sin(alpha)*self.t, h*np.sin(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique, oblique]
+        X = [0, h, 0.5*h*np.cos(alpha), 0.5*h*np.cos(alpha)]                     # X positions of the components
+        Y = [0, 0, 0.5*a*-0.5*h*np.sin(alpha), -0.5*a+0.5*h*np.sin(alpha)]       # Y positions of the components
 
         while j <= len(stringer_x_pos): #include the contributions of the stringers
             A.append(stringer_area[j])
@@ -57,10 +66,10 @@ class WingBox():
             weights_Y = A[i]*Y[i]
             i+=1
         
-        x = (weights_X)/sum(A) #x position of the centroid
-        y= (weights_Y)/sum(A) #y position of the centroid
+        x = weights_X/sum(A) #x position of the centroid
+        y= weights_Y/sum(A)  #y position of the centroid
         
-        return(x, y)
+        return x, y
 
     def MOMEWB (self,): #Moment of inertia for empty wing box
 
@@ -93,8 +102,26 @@ class WingBox():
         # returning only Steiner's terms for now
         return (distance[0] ** 2 * A, distance[1] ** 2 * A)
     
-    def show(self, choice):
-        choice = ['bending', 'torsion']
-        pass
+    def show(self, load, modulus, halfspan, choice: str): 
+        """
+        load: int function representing the internal load of the wing [N]
+        modulus: either E or G depending on the analysis [N/m2]
+        halfspan: halfspan length [m]
+        choice: 'bending' or 'torsion', string input
+        """
+        type = ['bending', 'torsion']
+        
+        z = np.linspace(0, halfspan) # range of z values to show the plot
+        
+        if choice == type[0]: 
+            # bending diagram is chosen
+            for i in z:
+                v = self.bending(z = i, M = load, E = modulus)
+                
+                temp_dict = []
+                
+                
+            
+            
         # moment of inertia I and torsional stiffness J as a function of z
         # bending deflection and twist distribution displacements
