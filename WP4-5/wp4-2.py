@@ -5,10 +5,10 @@ import pandas as pd
 
 #general: assumption is symmetric wing box
 class WingBox():
-    def __init__(self, c_r: int, c_t: int, t: int):
-        self.c_t = c_t # tip chord [m]
-        self.c_r = c_r # root chord [m]
-        self.t = t     # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
+    def __init__(self, t: int, c_r: int, c_t: int, tr:int = None):
+        self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
+        self.c_r = c_r                              # root chord [m]
+        self.t = t                                  # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
         self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
                                                     'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
         

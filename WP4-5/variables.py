@@ -6,11 +6,11 @@ alpha =1.48414 #in degrees
 
 
 #material properties Aluminum 2024-T81
-E = 72400000000 #Young modulus [pa]
-G = 28000000000 #shear modulus [pa]
+E = 72400000000 #Young modulus [Pa]
+G = 28000000000 #shear modulus [Pa]
 rho = 2780 #density [kg/m^3]
-tsY = 450000000 #tensile strength yield [pa]
-tsU = 485000000 #tensile strength ultimate [pa]
+tsY = 450000000 #tensile strength yield [Pa]
+tsU = 485000000 #tensile strength ultimate [Pa]
 
 # Atmospheric properties
 rho0 = 1.225 #kg/m^3
