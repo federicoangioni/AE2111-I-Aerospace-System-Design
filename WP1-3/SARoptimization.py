@@ -3,7 +3,7 @@ from scipy.optimize import minimize
 from ambiance import Atmosphere
 import sympy as sp
 from planform import LESweep, V_inf, taper_ratio
-from variablesold import MTOW
+from variables import MTOW
 import pandas as pd
 
 # Atmosphere initialization
