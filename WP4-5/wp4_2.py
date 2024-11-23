@@ -70,8 +70,10 @@ class WingBox():
         
         return x, y
 
-    def MOMEWB (self,z ,t, h, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
+    def MOMEWB (self, z, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
         a, b, h = self.geometry(z)
+        alpha = np.arctan(((a-b)/2)/h)
+        
         ci1= h - x
         ci2= x
         ci3= np.cos(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2) - y
@@ -79,22 +81,22 @@ class WingBox():
 
         #Split into 3 section: 1 is the short vertical bar, 2 is the long vertical bar, and 3 are the bars at an angle
         #section 1:
-        I1xx = (t*b**3)/12 + 0 #I know it's silly
-        I1yy = 0 + (t*b)*ci1**2
+        I1xx = (self.t*b**3)/12 + 0 #I know it's silly
+        I1yy = 0 + (self.t*b)*ci1**2
 
         #section 2:
-        I2xx = (t*a**3)/12 + 0
-        I2yy = 0 + (t*a)*ci2**2
+        I2xx = (self.t*a**3)/12 + 0
+        I2yy = 0 + (self.t*a)*ci2**2
 
         #section 3 (so both bars): #bar at angle practically same as bar: 0.5501845713 chord
-        I3xx= 2/12*t*(np.sin(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*t)*cj3**2
-        I3yy= 2/12*t*(np.cos(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*t)*ci3**2
+        I3xx= 2/12*self.t*(np.sin(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*cj3**2
+        I3yy= 2/12*self.t*(np.cos(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*ci3**2
 
         #Total moments of inertia of wing box:
         I_wingbox_xx = I1xx+I2xx+I3xx
         I_wingbox_yy = I1yy+I2yy+I3yy
 
-        return(I_wingbox_xx,I_wingbox_yy)
+        return I_wingbox_xx, I_wingbox_yy
     
     def I_stiffener(self, type: str, dimensions: dict, distance: tuple):
         type = ["L", "I"]

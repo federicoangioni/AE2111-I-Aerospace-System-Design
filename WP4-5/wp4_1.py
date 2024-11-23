@@ -67,18 +67,18 @@ class Aerodynamics():
         plt.show()
 
 class InternalForces():
-    def __init__(self, c_r, c_t, wingspan, density, airspeed, distributions, tr = None):
+    def __init__(self, density, airspeed, distributions, c_r, wingspan, c_t = None, tr = None):
         """
         
         """
         self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
         self.c_r = c_r 
         self.wingspan = wingspan
-        self.q = 0.5 * density ** airspeed ** 2
+        self.q = 0.5 * density * airspeed ** 2
         
         self.g_cl = distributions[0]
-        self.g_cm = distributions[1]
-        self.g_cd = distributions[2]
+        self.g_cd = distributions[1]
+        self.g_cm = distributions[2]
         
         self.z_points = np.linspace(0, self.wingspan / 2)
                 
