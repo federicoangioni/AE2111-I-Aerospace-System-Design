@@ -4,6 +4,8 @@ from scipy.interpolate import interp1d
 import sympy as sp
 import os
 
+# authors: Medhansh, Teodor
+ 
 class Aerodynamics():
     def __init__(self,  folder: str, aoa: int, wingspan: int):
         self.files = [os.path.join(folder, file) for file in os.listdir(folder)] # makes a list with all the files in the XFLR folder

@@ -4,10 +4,12 @@ from wp4_2 import WingBox
 
 xflr_files = 'XFLRdata/XFLR5sims'
 
-aoa = int(input('choose aoa '))
+# change this to any angle of attack you'd like to use
+aoa = 5
 
 aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= b)
-g_cl, g_cd, g_cm = aerodynamics.coefficients(False)
+
+g_cl, g_cd, g_cm = aerodynamics.coefficients(return_list= False)
 
 # plotting of aerodynamic curves
 aerodynamics.show()

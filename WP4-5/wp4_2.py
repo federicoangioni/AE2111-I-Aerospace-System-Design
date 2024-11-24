@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# authors: Federico, Ben, Anita, Wilson
+
 #general: assumption is symmetric wing box
 class WingBox():
     def __init__(self, t: int, c_r: int, c_t: int, tr:int = None):
