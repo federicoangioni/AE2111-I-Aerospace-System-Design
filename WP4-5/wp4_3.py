@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import math
-import ISA
+from ISA import AtmosphericConditions as ISA
 import variables as var
 
 
@@ -58,17 +58,19 @@ def V_n_line_upper_flaps(speeds, n_max_flaps, speed_stall_flaps, speed_stall_cle
 
     
 class V_n_diagram():
-    def __init__(self, weight_kg, density, temperature, CL_max_clean, CL_max_flapped, wing_area = 71.57, cruise_mach = 0.77) -> None:
+    def __init__(self, weight_kg, altitude, CL_max_clean, CL_max_flapped, wing_area = 71.57, cruise_mach = 0.77):
         self.weight_kg = weight_kg
         self.weight = weight_kg * var.g
-        self.density = density
-        self.temperature = temperature
-        self.speed_of_sound = ISA.speed_of_sound(var.gamma, var.R, temperature)
         self.CL_max_clean = CL_max_clean
         self.CL_max_flapped = CL_max_flapped
         self.n_min = -1
         self.n_max_flapped = 2
         self.wing_area = wing_area
+        self.altitude = altitude
+        Atm = ISA(altitude)
+        self.density = Atm.get_density()
+        self.temperature = Atm.get_temperature()
+        self.speed_of_sound = Atm.speed_of_sound(Atm.get_temperature())
         self.V_cr = cruise_mach * self.speed_of_sound
 
     def generate_points(self, number_of_points = 1000):
@@ -111,6 +113,13 @@ class V_n_diagram():
         n_max_formula = 2.1 + (2400 / ((kg_to_lbs * weight_kg) + 1000))
         return min(2.5,max(n_max_formula, 3.8))
 
+class LoadCases():
+    def __init__(self):
+        pass
+
+    """
+    input point -> a list of dictionaries loadcases for the wingbox [{speed: int, weight: int, n: float, altitude_fl: float},{}]
+    """
 
 
 if __name__ == "__main__":
