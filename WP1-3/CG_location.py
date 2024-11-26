@@ -72,4 +72,4 @@ OEW_WF = (((OEW_mass_fraction * OEW_cg_length)+(fuel_mass_fraction * fuel_cg_len
 if __name__ == "__main__":
     pass
     # print(f"The different CG locations are {OEW_WP, OEW_WP_WF, OEW_WF} m")
-    # print(f"x position of the main wing LEMAC is {X_LEMAC}")
+    print(f"x position of the main wing LEMAC is {X_LEMAC}")
