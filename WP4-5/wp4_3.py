@@ -1,8 +1,12 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import math
-import ISA
+from ISA import AtmosphericConditions as ISA
 import variables as var
+
+
+def Prandtl_Glauert_correction(Mach, CL):
+    return CL / math.sqrt(1 - Mach ** 2)     
 
 
 # Speeds
@@ -12,25 +16,18 @@ def speed_from_lift(Lift, rho, S, Cl):
 def dive_speed_formula(speed_cruise, factor = 1.25):
     return speed_cruise * factor
 
+def design_flap_speed(MLW, density, wing_area, CL_max_flapped):
+    # TODO: check for the other minimums
+    return 1.8 * speed_from_lift(MLW, density, wing_area, CL_max_flapped)
 
-# Load Factors as function of Speed
-# Line B
-def n_max_formula(weight_kg):
-    kg_to_lbs = 2.20462
-    n_max_formula = 2.1 + (2400 / ((kg_to_lbs * weight_kg) + 1000))
-    return min(2.5,max(n_max_formula, 3.8))
-
-# Line A, G, F
 def n_stall_speed(speed, stall_speed):
     return (speed / stall_speed) ** 2
 
-# Line D
 def n_linear_lower_part(speed, cruise_speed, dive_speed):
     return (1 / (dive_speed - cruise_speed)) * (speed - dive_speed)
 
 
-# Lines
-# upper clean
+# Points
 def V_n_line_upper_clean(speeds, n_max, speed_stall_clean, speed_cruise):
     dive_speed = dive_speed_formula(speed_cruise)
     list = [
@@ -51,74 +48,223 @@ def V_n_line_lower_clean(speeds, n_min, speed_stall_clean, speed_cruise):
     ]
     return np.array(list)
 
-def V_n_line_upper_flaps(speeds, n_max_flaps, speed_stall_flaps, speed_stall_clean):
+def V_n_line_upper_flaps(speeds, n_max_flaps, speed_stall_flaps, speed_design_flap):
     list = [
         n_stall_speed(speed, speed_stall_flaps) if n_stall_speed(speed, speed_stall_flaps) <= n_max_flaps 
         else n_max_flaps  
         for speed in speeds 
-        if speed <= speed_stall_clean * math.sqrt(n_max_flaps)
+        if speed <= speed_design_flap
     ]
     return np.array(list)
 
 
-def plotting(speeds, n_upper_clean, n_lower_clean, n_upper_flaps):
-    plt.plot(speeds, n_lower_clean)
-    plt.plot(speeds, n_upper_clean)
-    plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps)
-    plt.grid()
-    plt.xlabel("Speed [m/s]")
-    plt.ylabel("Load factor")
-    plt.title("V-n diagram")
-    plt.show()
-
-def generate_graph(
-        weight_kg,
-
-        number_of_points = 1000,
-        density = var.rho0,
-        R = var.R,
-        Temperature = var.T0,
-        gamma = var.gamma,
-        gravitaional_acceleration = var.g,
-        M_cr = 0.77,
-        CL_max_clean = 1.41,
-        CL_max_flaps_land = 2.55,
-        n_min = -1,
-        n_max_flapped = 2,
-        wing_area = 71.57,
+    
+class VelocityLoadFactorDiagram():
+    def __init__(self, 
+            weight_kg: float, 
+            MLW_kg: float,
+            MTO_kg: float,
+            altitude: float, 
+            CL_max_clean: float, 
+            CL_max_flapped: float, 
+            wing_area = 71.57, 
+            cruise_mach = 0.77,
+            LE_sweep = 27.7
+            ):
         
-        V_cr = None,
-        speed_of_sound = None,
-        weight = None,
-):
-    speed_of_sound = ISA.speed_of_sound(gamma, R, Temperature) if speed_of_sound is None else speed_of_sound
-    V_cr = M_cr * speed_of_sound if V_cr is None else V_cr
-    weight = weight_kg * gravitaional_acceleration if weight is None else weight
+        self.weight_kg = weight_kg
+        self.weight = weight_kg * var.g
+        self.MLW_kg = MLW_kg
+        self.MLW = MLW_kg * var.g
+        self.MTO_kg = MTO_kg
+        self.MTO = MTO_kg * var.g
+        self.CL_max_clean = CL_max_clean
+        self.CL_max_flapped = CL_max_flapped
+        self.n_min = -1
+        self.n_max_flapped = 2
+        self.wing_area = wing_area
+        self.LE_sweep = LE_sweep
+        self.altitude = altitude
+        Atm = ISA(altitude)
+        self.density = Atm.get_density()
+        self.temperature = Atm.get_temperature()
+        self.speed_of_sound = Atm.get_speed_of_sound()
+        self.cruise_mach = cruise_mach
+        self.V_cr = cruise_mach * self.speed_of_sound
+        self.generate_points()
 
-    max_n = n_max_formula(weight_kg)
-    speed_stall_clean = speed_from_lift(weight, density, wing_area, CL_max_clean)
-    speed_stall_flaps = speed_from_lift(weight, density, wing_area, CL_max_flaps_land)
+    def generate_points(self, number_of_points = 10000):
+        self.max_n = max_n = self.n_max_formula()
+        weight = self.weight
+        density = self.density
+        wing_area = self.wing_area
+        V_cr = self.V_cr
+        n_min = self.n_min
+        n_max_flapped = self.n_max_flapped
 
-    speeds = np.linspace(0, dive_speed_formula(V_cr), number_of_points)
-    n_upper_clean = V_n_line_upper_clean(speeds, max_n, speed_stall_clean, V_cr)
-    n_lower_clean = V_n_line_lower_clean(speeds, n_min, speed_stall_clean, V_cr)
-    n_upper_flaps = V_n_line_upper_flaps(speeds, n_max_flapped, speed_stall_flaps, speed_stall_clean)
+        CL_max_clean = Prandtl_Glauert_correction(self.cruise_mach * math.cos(math.radians(self.LE_sweep)), self.CL_max_clean)
+        CL_max_flapped = Prandtl_Glauert_correction(self.cruise_mach * math.cos(math.radians(self.LE_sweep)), self.CL_max_flapped)
 
-    speeds = np.append(speeds, dive_speed_formula(V_cr))
-    n_upper_clean = np.append(n_upper_clean, 0)
-    n_lower_clean = np.append(n_lower_clean, 0)
+        speed_stall_clean = speed_from_lift(weight, density, wing_area, CL_max_clean)
+        speed_stall_flaps = speed_from_lift(weight, density, wing_area, CL_max_flapped)
+        speed_design_flap = design_flap_speed(self.MLW, density, wing_area, CL_max_flapped)
 
-    plotting(speeds, n_upper_clean, n_lower_clean, n_upper_flaps)
+        self.speed_stall_clean = speed_stall_clean
+        self.speed_stall_flaps = speed_stall_flaps
+        self.speed_design_flap = speed_design_flap
+        
 
+        speeds = np.linspace(0, dive_speed_formula(V_cr), number_of_points)
+        n_upper_clean = V_n_line_upper_clean(speeds, max_n, speed_stall_clean, V_cr)
+        n_lower_clean = V_n_line_lower_clean(speeds, n_min, speed_stall_clean, V_cr)
+        n_upper_flaps = V_n_line_upper_flaps(speeds, n_max_flapped, speed_stall_flaps, speed_design_flap)
+
+        speeds = np.append(speeds, dive_speed_formula(V_cr))
+        n_upper_clean = np.append(n_upper_clean, 0)
+        n_lower_clean = np.append(n_lower_clean, 0)
+        n_upper_flaps = np.append(n_upper_flaps, 0)
+
+        self.speeds = speeds
+        self.n_upper_clean = n_upper_clean
+        self.n_lower_clean = n_lower_clean
+        self.n_upper_flaps = n_upper_flaps
     
+    def show(self):
+        speeds = self.speeds
+        n_upper_clean = self.n_upper_clean
+        n_lower_clean = self.n_lower_clean
+        n_upper_flaps = self.n_upper_flaps
+
+        plt.plot(speeds, n_lower_clean)
+        plt.plot(speeds, n_upper_clean)
+        plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps)
+        plt.grid()
+        plt.xlabel("Equivalent air speed [m/s]")
+        plt.ylabel("Load factor")
+        plt.title(f"V-n diagram altitude: {self.altitude}m, weight: {self.weight_kg}kg")
+        plt.show()
     
+    def save(self, path: str):
+        speeds = self.speeds
+        n_upper_clean = self.n_upper_clean
+        n_lower_clean = self.n_lower_clean
+        n_upper_flaps = self.n_upper_flaps
+
+        plt.plot(speeds, n_lower_clean)
+        plt.plot(speeds, n_upper_clean)
+        plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps)
+        plt.grid()
+        plt.xlabel("Equivalent air speed [m/s]")
+        plt.ylabel("Load factor")
+        plt.title(f"V-n diagram altitude: {self.altitude}m, weight: {self.weight_kg}kg")
+        plt.savefig(path)
+
+    def n_max_formula(self):
+        weight_kg = self.MTO_kg
+        kg_to_lbs = 2.20462
+        n_max_formula = 2.1 + (2400 / ((kg_to_lbs * weight_kg) + 1000))
+        return min(2.5,max(n_max_formula, 3.8))
+    
+    def get_speeds(self):
+        return self.speeds
+    
+    def get_n_upper_clean(self):
+        return self.n_upper_clean
+    
+    def get_n_lower_clean(self):
+        return self.n_lower_clean
+    
+    def get_n_upper_flaps(self):
+        return self.n_upper_flaps
+    
+    def get_weight(self):
+        return self.weight
+    
+    def get_stall_speeds(self):
+        return self.speed_stall_clean, self.speed_stall_flaps
+    
+    def get_cruise_speed(self):
+        return self.V_cr
+    
+    def get_dive_speed(self):
+        return dive_speed_formula(self.V_cr)
+    
+    def get_max_n_flaps(self):
+        return self.n_max_flapped
+    
+    def get_max_n_clean(self):
+        return self.max_n
+    
+    def get_min_n(self):
+        return self.n_min
+
+class LoadCases():
+    def __init__(self, Vn: VelocityLoadFactorDiagram):
+        self.Vn = Vn
+        self.speeds = Vn.get_speeds()
+        self.n_upper_clean = Vn.get_n_upper_clean()
+        self.n_lower_clean = Vn.get_n_lower_clean()
+        self.n_upper_flaps = Vn.get_n_upper_flaps()
+
+        self.max_n_flaps = Vn.get_max_n_flaps()
+        self.max_n_clean = Vn.get_max_n_clean()
+        self.min_n = Vn.get_min_n()
+
+        self.speed_stall_clean, self.speed_stall_flap = Vn.get_stall_speeds()
+        self.speed_cruise = Vn.get_cruise_speed()
+        self.speed_dive = Vn.get_dive_speed()
+
+        self.flaps_infliction_point = self.speed_stall_flap * math.sqrt(self.max_n_flaps)
+        self.clean_upper_infliction_point = self.speed_stall_clean * math.sqrt(self.max_n_clean)
+        self.clean_lower_infliction_point = self.speed_stall_clean * math.sqrt(abs(self.min_n))
+        
+        
+        self.critical_load_cases = np.array([
+            self.case_given_speed_given_n(self.speed_stall_clean, flaps="TO"), # stall speed n = 1
+            # TODO: check for approach speed
+            # self.case_given_speed_given_n(self.speed_approach, flaps="TO"), # approach speed n = 1
+            self.case_given_speed_given_n(self.speed_dive), # dive speed n = 1
+            self.case_given_speed(self.flaps_infliction_point, self.n_upper_flaps), # flap inflection point (n=2)
+            self.case_last_of_line(self.n_upper_flaps), # flap design speed (n=2?)
+            # TODO: check for approach speed
+            # self.case_given_speed(self.speed_approach, self.n_upper_clean), # clean upper approach speed
+            self.case_given_speed(self.clean_upper_infliction_point, self.n_upper_clean), # clean upper inflection point
+            self.case_last_of_line(self.n_upper_clean), # clean upper dive speed
+            self.case_given_speed_given_n(self.n_upper_clean), # clean upper end at n=0
+            self.case_given_speed(self.speed_cruise, self.n_lower_clean), # Clean lower cruise speed
+            self.case_given_speed(self.clean_lower_infliction_point, self.n_lower_clean) # Clean lower inflection point (n=-1)
+        ])
+
+    def case_given_speed_given_n(self, speed: float, n=1, flaps = "Clean"):
+        speed = self.speeds[np.where(self.speeds >= speed)[0][0]]
+        load_factor = n
+        weight = self.Vn.get_weight()
+        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps}
+    
+    def case_given_speed(self, speed: float, line: np.ndarray, flaps = "Clean"):
+        speed = self.speeds[np.where(self.speeds >= speed)[0][0]]
+        load_factor = line[np.where(self.speeds >= speed)[0][0]]
+        weight = self.Vn.get_weight()
+        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps}
+    
+    def case_last_of_line(self, line: np.ndarray, flaps = "Clean"):
+        load_factor = line[-2]
+        speed = self.speeds[len(line) - 2]
+        weight = self.Vn.get_weight()
+        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps}
+    
+    def get_load_cases(self):
+        return self.critical_load_cases
+
 
 if __name__ == "__main__":
     print("running wp4-3.py")
     weight_kg = 19593  #kg
+    CL_max_clean = 1.41
+    CL_max_flapped = 2.55
 
 
-    generate_graph(weight_kg)
-
-
-        
+    Vn1 = VelocityLoadFactorDiagram(weight_kg, weight_kg, weight_kg, 0, CL_max_clean, CL_max_flapped)
+    Vn1.show()
+    load_cases = LoadCases(Vn1)
+    print(load_cases.get_load_cases())

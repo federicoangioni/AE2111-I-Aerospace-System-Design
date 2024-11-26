@@ -1,7 +1,9 @@
 from scipy import integrate
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
+import pandas as pd 
+import math as math
+
 
 # authors: Federico, Ben, Anita, Winston
 
@@ -21,16 +23,17 @@ class WingBox():
 
     def geometry(self, z: int):
         # returns the wing box geometry (side lenghts) at any position z
-        a = 0.1013 * self.chord(z) # trapezoid longer  [m]
-        b = 0.0728 * self.chord(z) # trapezoid shorter [m]
-        h = 0.55 * self.chord(z)   # trapezoid height  [m]
-        return a, b, h
+        a = 0.1013 * self.chord(z)      # trapezoid longer  [m]
+        b = 0.0728 * self.chord(z)      # trapezoid shorter [m]
+        h = 0.55 * self.chord(z)        # trapezoid height  [m]
+        alpha = np.arctan(((a-b)/2)/h)  # angle angle [rad]
+        return a, b, h, alpha
     
     def torsion (self, z, T: int, G): # T : torsion, 
-        a, b, h = self.geometry(z)
+        a, b, h, alpha = self.geometry(z)
         
         A = h * (a + b) / 2
-        alpha = np.arctan((a - b) / (2 * h))
+        #alpha = np.arctan((a - b) / (2 * h))
         S = a + b + 2 * (h / np.cos(alpha))
         thetadot = lambda z: (T * S) / (4 * A * self.t * G)
 
@@ -49,8 +52,8 @@ class WingBox():
     
     def centroid(self, z, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
         
-        a, b, h = self.geometry(z)
-        alpha = np.arctan(((a-b)/2)/h)
+        a, b, h, alpha = self.geometry(z)
+       # alpha = np.arctan(((a-b)/2)/h)
         
         A = [b*self.t, a*self.t, h*np.sin(alpha)*self.t, h*np.sin(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique, oblique]
         X = [0, h, 0.5*h*np.cos(alpha), 0.5*h*np.cos(alpha)]                     # X positions of the components
@@ -73,8 +76,8 @@ class WingBox():
         return x, y
 
     def MOMEWB (self, z, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
-        a, b, h = self.geometry(z)
-        alpha = np.arctan(((a-b)/2)/h)
+        a, b, h, alpha = self.geometry(z)
+        # old version: alpha = np.arctan(((a-b)/2)/h)
         
         ci1= h - x
         ci2= x
