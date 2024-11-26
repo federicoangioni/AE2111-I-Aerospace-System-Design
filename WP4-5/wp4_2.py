@@ -177,3 +177,6 @@ class WingBox():
             
             self.deflections['Displacement [m]'] = np.zeros(len(z))
             self.deflections['Rotation [rad]'] = temp_theta
+            
+            fig, ax = plt.subplots(1, 2)
+            ax[0].title("")
