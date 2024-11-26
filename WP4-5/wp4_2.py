@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# authors: Federico, Ben, Anita, Wilson
+# authors: Federico, Ben, Anita, Winston
 
 #general: assumption is symmetric wing box
 class WingBox():
