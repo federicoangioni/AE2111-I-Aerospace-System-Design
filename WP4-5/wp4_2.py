@@ -125,7 +125,7 @@ class WingBox():
             A = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
         
         # returning only Steiner's terms for now
-        return (distance[0] ** 2 * A, distance[1] ** 2 * A)
+        return distance[0] ** 2 * A, distance[1] ** 2 * A
     
     def show(self, load, modulus, halfspan, choice: str): 
         """
