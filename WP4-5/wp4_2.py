@@ -55,9 +55,9 @@ class WingBox():
         a, b, h, alpha = self.geometry(z)
        # alpha = np.arctan(((a-b)/2)/h)
         
-        A = [b*self.t, a*self.t, h*np.sin(alpha)*self.t, h*np.sin(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique, oblique]
-        X = [0, h, 0.5*h*np.cos(alpha), 0.5*h*np.cos(alpha)]                     # X positions of the components
-        Y = [0, 0, 0.5*a*-0.5*h*np.sin(alpha), -0.5*a+0.5*h*np.sin(alpha)]       # Y positions of the components
+        A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
+        X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
+        Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
 
         while j <= len(stringer_x_pos): #include the contributions of the stringers
             A.append(stringer_area[j])
