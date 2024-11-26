@@ -82,7 +82,7 @@ class WingBox():
         
         ci1= h - x
         ci2= x
-        ci3= np.cos(alpha)*((h/np.cos(alpha)))/2) - x
+        ci3= np.cos(alpha)*(((h/np.cos(alpha)))/2) - x
         cj3= (b/2)+ np.sin(alpha)*((h/np.cos(alpha))/2)
 
         #Split into 3 section: 1 is the short vertical bar, 2 is the long vertical bar, and 3 are the bars at an angle
@@ -154,10 +154,10 @@ class WingBox():
                I_yy_stringers_steiner += I_yy_sub
 
          # Double the total contributions because we have two bars
-         I_xx_stringers_steiner *= 2
-         I_yy_stringers_steiner *= 2
+        I_xx_stringers_steiner *= 2
+        I_yy_stringers_steiner *= 2
 
-         return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
+        return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
         
 
     def show(self, load, modulus, halfspan, choice: str): 
