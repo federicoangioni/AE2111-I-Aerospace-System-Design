@@ -26,8 +26,9 @@ class WingBox():
         a = 0.1013 * self.chord(z)      # trapezoid longer  [m]
         b = 0.0728 * self.chord(z)      # trapezoid shorter [m]
         h = 0.55 * self.chord(z)        # trapezoid height  [m]
-        alpha = np.arctan(((a-b)/2)/h)  # angle between oblique and horizontal [rad]
-        return a, b, h, alpha
+        alpha = np.arctan(((a-b)/2)/h)  # angle angle [rad]
+        num_stringers = 1               # number of strings
+        return a, b, h, alpha, num_stringers
     
     def torsion (self, z, T: int, G): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
@@ -81,8 +82,8 @@ class WingBox():
         
         ci1= h - x
         ci2= x
-        ci3= np.cos(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2) - x
-        cj3= (b/2)+ np.sin(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2)
+        ci3= np.cos(alpha)*((h/np.cos(alpha)))/2) - x
+        cj3= (b/2)+ np.sin(alpha)*((h/np.cos(alpha))/2)
 
         #Split into 3 section: 1 is the short vertical bar, 2 is the long vertical bar, and 3 are the bars at an angle
         #section 1:
@@ -94,8 +95,8 @@ class WingBox():
         I2yy = 0 + (self.t*a)*ci2**2
 
         #section 3 (so both bars): #bar at angle practically same as bar: 0.5501845713 chord
-        I3xx= (2/12)*self.t*(np.sin(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*cj3**2
-        I3yy= (2/12)*self.t*(np.cos(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*ci3**2
+        I3xx= (2/12)*self.t*(np.sin(alpha)**2)*((h/np.cos(alpha))**3) +2*((h/np.cos(alpha))*self.t)*cj3**2
+        I3yy= (2/12)*self.t*(np.cos(alpha)**2)*((h/np.cos(alpha))**3) +2*((h/np.cos(alpha))*self.t)*ci3**2
 
         #Total moments of inertia of wing box:
         I_wingbox_xx = I1xx+I2xx+I3xx
@@ -119,14 +120,46 @@ class WingBox():
             
             I_xx = 0 
             I_yy = 0
-            A = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
+            Area_string = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
         
         elif type == "I":
-            A = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
+            Area_string = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
         
         # returning only Steiner's terms for now
-        return distance[0] ** 2 * A, distance[1] ** 2 * A
+        return (distance[0] ** 2 * Area_string, distance[1] ** 2 * Area_string)
     
+
+    def MOM_addition_Stringers(self, h, num_stringers, alpha, b, Area_string, x , y):
+        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
+
+        # For each bar, calculate contributions
+        I_xx_stringers_steiner, I_yy_stringers_steiner = 0, 0
+        for i in range(1, num_stringers+1):
+
+               # Distance along the inclined bar
+               distance_along_bar = i * stringer_spacing
+
+               # Position of the stringer in the global coordinate system (origin is at the long vertical bar)
+               x_pos_string = h - (distance_along_bar * np.cos(alpha))         
+               y_pos_string = (b/2) + (distance_along_bar * np.sin(alpha))
+               """
+               Note: position is now on the bars, we may need to adjust this a little based on the assumption
+               """
+               # Contribution to moments of inertia using parallel axis theorem
+               I_xx_sub = Area_string * (y_pos_string - y) ** 2
+               I_yy_sub = Area_string * (x_pos_string - x) ** 2
+
+               # Add contributions to total
+               I_xx_stringers_steiner += I_xx_sub
+               I_yy_stringers_steiner += I_yy_sub
+
+         # Double the total contributions because we have two bars
+         I_xx_stringers_steiner *= 2
+         I_yy_stringers_steiner *= 2
+
+         return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
+        
+
     def show(self, load, modulus, halfspan, choice: str): 
         """
         load: int function representing the internal load of the wing [N]
@@ -177,6 +210,4 @@ class WingBox():
             
             self.deflections['Displacement [m]'] = np.zeros(len(z))
             self.deflections['Rotation [rad]'] = temp_theta
-            
-            fig, ax = plt.subplots(1, 2)
-            ax[0].title("")
+

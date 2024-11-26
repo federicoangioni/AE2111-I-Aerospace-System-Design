@@ -1,7 +1,6 @@
 from variables import *
 from wp4_1 import Aerodynamics, InternalForces
 from wp4_2 import WingBox
-from wp4_3 import VelocityLoadFactorDiagram, LoadCases
 
 xflr_files = 'XFLRdata/XFLR5sims'
 
