@@ -5,9 +5,9 @@ import pandas as pd
 import math as math
 
 
-# authors: Federico, Ben, Anita, Winston
+# authors: Federicobabe, Ben, Anita, Winston
 
-#general: assumption is symmetric wing box
+#general: assumption is symmetric wing box utilised
 class WingBox():
     def __init__(self, t: int, c_r: int, c_t: int, tr:int = None):
         self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
