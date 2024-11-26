@@ -26,9 +26,6 @@ def n_stall_speed(speed, stall_speed):
 def n_linear_lower_part(speed, cruise_speed, dive_speed):
     return (1 / (dive_speed - cruise_speed)) * (speed - dive_speed)
 
-def approach_speed(speed_stall_clean):
-    return 1.3 * speed_stall_clean
-
 
 # Points
 def V_n_line_upper_clean(speeds, n_max, speed_stall_clean, speed_cruise):
@@ -111,7 +108,6 @@ class VelocityLoadFactorDiagram():
         speed_stall_clean = speed_from_lift(weight, density, wing_area, CL_max_clean)
         speed_stall_flaps = speed_from_lift(weight, density, wing_area, CL_max_flapped)
         speed_design_flap = design_flap_speed(self.MLW, density, wing_area, CL_max_flapped)
-        self.approach_speed = approach_speed(speed_stall_clean)
 
         self.speed_stall_clean = speed_stall_clean
         self.speed_stall_flaps = speed_stall_flaps
@@ -125,7 +121,6 @@ class VelocityLoadFactorDiagram():
         speeds = np.append(speeds, dive_speed_formula(V_cr))
         n_upper_clean = np.append(n_upper_clean, 0)
         n_lower_clean = np.append(n_lower_clean, 0)
-        n_upper_flaps = np.append(n_upper_flaps, 0)
 
         self.speeds = speeds
         self.n_upper_clean = n_upper_clean
@@ -201,8 +196,8 @@ class VelocityLoadFactorDiagram():
     def get_min_n(self):
         return self.n_min
     
-    def get_approach_speed(self):
-        return self.approach_speed
+    def get_altitude(self):
+        return self.altitude
 
 class LoadCases():
     def __init__(self, Vn: VelocityLoadFactorDiagram):
@@ -219,7 +214,6 @@ class LoadCases():
         self.speed_stall_clean, self.speed_stall_flap = Vn.get_stall_speeds()
         self.speed_cruise = Vn.get_cruise_speed()
         self.speed_dive = Vn.get_dive_speed()
-        self.speed_approach = Vn.get_approach_speed()
 
         self.flaps_infliction_point = self.speed_stall_flap * math.sqrt(self.max_n_flaps)
         self.clean_upper_infliction_point = self.speed_stall_clean * math.sqrt(self.max_n_clean)
@@ -227,40 +221,61 @@ class LoadCases():
         
         
         self.critical_load_cases = np.array([
-            self.case_given_speed_given_n(self.speed_stall_clean, flaps="TO"), # stall speed n = 1
-            self.case_given_speed_given_n(self.speed_approach), # approach speed n = 1
-            self.case_given_speed_given_n(self.speed_dive), # dive speed n = 1
-            self.case_given_speed(self.flaps_infliction_point, self.n_upper_flaps, flaps="TO"), # flap inflection point (n=2)
-            self.case_last_of_line(self.n_upper_flaps, flaps="TO"), # flap design speed (n=2?)
-            self.case_given_speed(self.speed_approach, self.n_upper_clean), # clean upper approach speed
-            self.case_given_speed(self.clean_upper_infliction_point, self.n_upper_clean), # clean upper inflection point
-            self.case_last_of_line(self.n_upper_clean), # clean upper dive speed
-            self.case_given_speed_given_n(self.n_upper_clean), # clean upper end at n=0
-            self.case_given_speed(self.speed_cruise, self.n_lower_clean), # Clean lower cruise speed
-            self.case_given_speed(self.clean_lower_infliction_point, self.n_lower_clean) # Clean lower inflection point (n=-1)
+            self.case_given_speed_given_n(self.speed_stall_clean, flaps="TO", description="Stall Speed clean at n=1"), # stall speed n = 1
+            self.case_given_speed_given_n(self.clean_upper_infliction_point, description="Manouvering speed at n=1"), # manouvering speed n = 1
+            self.case_given_speed_given_n(self.speed_dive, description="Dive speed at n=1"), # dive speed n = 1
+            self.case_last_of_line(self.n_upper_clean, description="Dive speed"), # clean upper dive speed
+            self.case_last_of_line(self.n_upper_flaps, flaps="TO", description="Flap design speed"), # flap design speed (n=2?)
+            self.case_given_speed(self.flaps_infliction_point, self.n_upper_flaps, flaps="TO", description="Flap inflection point"), # flap inflection point (n=2)
+            self.case_given_speed(self.clean_upper_infliction_point, self.n_upper_clean, description="Manouvering speed"), # clean upper inflection point(manouvering speed)
+            self.case_given_speed(self.speed_cruise, self.n_lower_clean, description="Cruise Speed negative load"), # Clean lower cruise speed
+            self.case_given_speed(self.clean_lower_infliction_point, self.n_lower_clean, description="Inflection point negative load") # Clean lower inflection point (n=-1)
         ])
 
-    def case_given_speed_given_n(self, speed: float, n=1, flaps = "Clean"):
+    def case_given_speed_given_n(self, speed: float, n=1., flaps = "Clean", description = ""):
         speed = self.speeds[np.where(self.speeds >= speed)[0][0]]
         load_factor = n
         weight = self.Vn.get_weight()
-        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps}
+        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps, "altitude": self.Vn.get_altitude(), "description": description}
     
-    def case_given_speed(self, speed: float, line: np.ndarray, flaps = "Clean"):
+    def case_given_speed(self, speed: float, line: np.ndarray, flaps = "Clean", description = ""):
         speed = self.speeds[np.where(self.speeds >= speed)[0][0]]
         load_factor = line[np.where(self.speeds >= speed)[0][0]]
         weight = self.Vn.get_weight()
-        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps}
+        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps, "altitude": self.Vn.get_altitude(), "description": description}
     
-    def case_last_of_line(self, line: np.ndarray, flaps = "Clean"):
+    def case_last_of_line(self, line: np.ndarray, flaps = "Clean", description = ""):
         load_factor = line[-2]
         speed = self.speeds[len(line) - 2]
         weight = self.Vn.get_weight()
-        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps}
+        return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps, "altitude": self.Vn.get_altitude(), "description": description}
     
+    def show(self):
+        speeds = self.speeds
+        n_upper_clean = self.n_upper_clean
+        n_lower_clean = self.n_lower_clean
+        n_upper_flaps = self.n_upper_flaps
+
+        plt.plot(speeds, n_lower_clean)
+        plt.plot(speeds, n_upper_clean)
+        plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps)
+        
+        plt.axhline(1, color="grey", ls="--")
+        plt.axhline(0, color="black", linewidth=1.5)
+        
+        for case in self.critical_load_cases:
+            plt.scatter(case["speed"], case["load_factor"], color="black", zorder=5)
+
+        plt.grid()
+
+        plt.xlabel("Equivalent air speed [m/s]")
+        plt.ylabel("Load factor")
+        plt.title(f"V-n diagram altitude: {self.Vn.get_altitude()}m, weight: {self.Vn.get_weight()}kg")
+        plt.show()
+
     def get_load_cases(self):
         return self.critical_load_cases
-
+    
 
 if __name__ == "__main__":
     print("running wp4-3.py")
@@ -271,10 +286,10 @@ if __name__ == "__main__":
 
 
     Vn1 = VelocityLoadFactorDiagram(MTOW_kg, MLW_kg, MTOW_kg, 0, CL_max_clean, CL_max_flapped)
-    Vn1.show()
-
     LC1 = LoadCases(Vn1)
     print(LC1.get_load_cases())
+
+    LC1.show()
     
 
 
