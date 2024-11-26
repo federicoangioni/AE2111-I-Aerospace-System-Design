@@ -63,27 +63,33 @@ class VelocityLoadFactorDiagram():
     def __init__(self, 
             weight_kg: float, 
             MLW_kg: float,
+            MTO_kg: float,
             altitude: float, 
             CL_max_clean: float, 
             CL_max_flapped: float, 
             wing_area = 71.57, 
-            cruise_mach = 0.77
+            cruise_mach = 0.77,
+            LE_sweep = 27.7
             ):
         
         self.weight_kg = weight_kg
         self.weight = weight_kg * var.g
         self.MLW_kg = MLW_kg
         self.MLW = MLW_kg * var.g
+        self.MTO_kg = MTO_kg
+        self.MTO = MTO_kg * var.g
         self.CL_max_clean = CL_max_clean
         self.CL_max_flapped = CL_max_flapped
         self.n_min = -1
         self.n_max_flapped = 2
         self.wing_area = wing_area
+        self.LE_sweep = LE_sweep
         self.altitude = altitude
         Atm = ISA(altitude)
         self.density = Atm.get_density()
         self.temperature = Atm.get_temperature()
         self.speed_of_sound = Atm.get_speed_of_sound()
+        self.cruise_mach = cruise_mach
         self.V_cr = cruise_mach * self.speed_of_sound
         self.generate_points()
 
@@ -92,11 +98,12 @@ class VelocityLoadFactorDiagram():
         weight = self.weight
         density = self.density
         wing_area = self.wing_area
-        CL_max_clean = self.CL_max_clean
-        CL_max_flapped = self.CL_max_flapped
         V_cr = self.V_cr
         n_min = self.n_min
         n_max_flapped = self.n_max_flapped
+
+        CL_max_clean = Prandtl_Glauert_correction(self.cruise_mach * math.cos(math.radians(self.LE_sweep)), self.CL_max_clean)
+        CL_max_flapped = Prandtl_Glauert_correction(self.cruise_mach * math.cos(math.radians(self.LE_sweep)), self.CL_max_flapped)
 
         speed_stall_clean = speed_from_lift(weight, density, wing_area, CL_max_clean)
         speed_stall_flaps = speed_from_lift(weight, density, wing_area, CL_max_flapped)
@@ -153,7 +160,7 @@ class VelocityLoadFactorDiagram():
         plt.savefig(path)
 
     def n_max_formula(self):
-        weight_kg = self.weight_kg
+        weight_kg = self.MTO_kg
         kg_to_lbs = 2.20462
         n_max_formula = 2.1 + (2400 / ((kg_to_lbs * weight_kg) + 1000))
         return min(2.5,max(n_max_formula, 3.8))
@@ -257,7 +264,7 @@ if __name__ == "__main__":
     CL_max_flapped = 2.55
 
 
-    Vn1 = VelocityLoadFactorDiagram(weight_kg, weight_kg, 0, CL_max_clean, CL_max_flapped)
+    Vn1 = VelocityLoadFactorDiagram(weight_kg, weight_kg, weight_kg, 0, CL_max_clean, CL_max_flapped)
     Vn1.show()
     load_cases = LoadCases(Vn1)
     print(load_cases.get_load_cases())
