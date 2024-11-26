@@ -157,7 +157,7 @@ class WingBox():
          I_xx_stringers_steiner *= 2
          I_yy_stringers_steiner *= 2
 
-         return I_xx_stringers, I_yy_stringers # double-check if this is correct, we need to double it as we have 2 bars
+         return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
         
 
     def show(self, load, modulus, halfspan, choice: str): 
