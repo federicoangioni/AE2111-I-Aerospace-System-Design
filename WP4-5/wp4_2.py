@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 import math as math
 
-# authors: Federico, Ben, Anita, Wilson
+
+# authors: Federico, Ben, Anita, Winston
 
 #general: assumption is symmetric wing box
 class WingBox():
@@ -54,9 +55,9 @@ class WingBox():
         a, b, h, alpha = self.geometry(z)
        # alpha = np.arctan(((a-b)/2)/h)
         
-        A = [b*self.t, a*self.t, h*np.sin(alpha)*self.t, h*np.sin(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique, oblique]
-        X = [0, h, 0.5*h*np.cos(alpha), 0.5*h*np.cos(alpha)]                     # X positions of the components
-        Y = [0, 0, 0.5*a*-0.5*h*np.sin(alpha), -0.5*a+0.5*h*np.sin(alpha)]       # Y positions of the components
+        A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
+        X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
+        Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
 
         while j <= len(stringer_x_pos): #include the contributions of the stringers
             A.append(stringer_area[j])
@@ -75,8 +76,8 @@ class WingBox():
         return x, y
 
     def MOMEWB (self, z, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
-        a, b, h = self.geometry(z)
-        alpha = np.arctan(((a-b)/2)/h)
+        a, b, h, alpha = self.geometry(z)
+        # old version: alpha = np.arctan(((a-b)/2)/h)
         
         ci1 = h - x
         ci2 = x
