@@ -133,7 +133,7 @@ class WingBox():
         stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
 
         # For each bar, calculate contributions
-        I_xx_stringers, I_yy_stringers = 0, 0
+        I_xx_stringers_steiner, I_yy_stringers_steiner = 0, 0
         for i in range(1, num_stringers+1):
 
                # Distance along the inclined bar
@@ -144,18 +144,18 @@ class WingBox():
                y_pos_string = (b/2) + (distance_along_bar * np.sin(alpha))
                """
                Note: position is now on the bars, we may need to adjust this a little based on the assumption
-               """"
+               """
                # Contribution to moments of inertia using parallel axis theorem
                I_xx_sub = Area_string * (y_pos_string - y) ** 2
                I_yy_sub = Area_string * (x_pos_string - x) ** 2
 
                # Add contributions to total
-               I_xx_stringers += I_xx_sub
-               I_yy_stringers += I_yy_sub
+               I_xx_stringers_steiner += I_xx_sub
+               I_yy_stringers_steiner += I_yy_sub
 
          # Double the total contributions because we have two bars
-         I_xx_stringers *= 2
-         I_yy_stringers *= 2
+         I_xx_stringers_steiner *= 2
+         I_yy_stringers_steiner *= 2
 
          return I_xx_stringers, I_yy_stringers # double-check if this is correct, we need to double it as we have 2 bars
         
