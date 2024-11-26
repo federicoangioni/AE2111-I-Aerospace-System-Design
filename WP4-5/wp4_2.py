@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+
 # authors: Federico, Ben, Anita, Wilson
 
 #general: assumption is symmetric wing box
@@ -73,8 +74,8 @@ class WingBox():
         return x, y
 
     def MOMEWB (self, z, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
-        a, b, h = self.geometry(z)
-        alpha = np.arctan(((a-b)/2)/h)
+        a, b, h, alpha = self.geometry(z)
+        # old version: alpha = np.arctan(((a-b)/2)/h)
         
         ci1= h - x
         ci2= x
