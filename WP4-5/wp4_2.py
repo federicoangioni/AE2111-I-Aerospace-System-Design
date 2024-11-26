@@ -5,9 +5,9 @@ import pandas as pd
 import math as math
 
 
-# authors: Federico, Ben, Anita, Winston
+# authors: Federicobabe, Ben, Anita, Winston
 
-#general: assumption is symmetric wing box
+#general: assumption is symmetric wing box utilised
 class WingBox():
     def __init__(self, t: int, c_r: int, c_t: int, tr:int = None):
         self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
@@ -26,7 +26,7 @@ class WingBox():
         a = 0.1013 * self.chord(z)      # trapezoid longer  [m]
         b = 0.0728 * self.chord(z)      # trapezoid shorter [m]
         h = 0.55 * self.chord(z)        # trapezoid height  [m]
-        alpha = np.arctan(((a-b)/2)/h)  # angle angle [rad]
+        alpha = np.arctan(((a-b)/2)/h)  # angle between oblique and horizontal [rad]
         return a, b, h, alpha
     
     def torsion (self, z, T: int, G): # T : torsion, 
