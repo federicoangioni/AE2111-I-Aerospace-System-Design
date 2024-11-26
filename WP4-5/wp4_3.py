@@ -239,7 +239,7 @@ class LoadCases():
             self.case_last_of_line(self.n_upper_flaps, flaps="TO", description="Flap design speed", label="VF"), # flap design speed (n=2?)
             self.case_given_speed(self.flaps_infliction_point, self.n_upper_flaps, flaps="TO", description="Flap inflection point", label="IPF"), # flap inflection point (n=2)
             self.case_given_speed(self.clean_upper_infliction_point, self.n_upper_clean, description="Manouvering speed", label="VA"), # clean upper inflection point(manouvering speed)
-            self.case_given_speed(self.speed_cruise, self.n_lower_clean, description="Cruise Speed negative load", label="VCNeg"), # Clean lower cruise speed
+            self.case_given_speed(self.speed_cruise, self.n_lower_clean, description="Cruise Speed negative load", label="VCNeg", left_value=1), # Clean lower cruise speed
             self.case_given_speed(self.clean_lower_infliction_point, self.n_lower_clean, description="Inflection point negative load", label="IPNeg") # Clean lower inflection point (n=-1)
         ])
 
@@ -249,9 +249,9 @@ class LoadCases():
         weight = self.Vn.get_weight()
         return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps, "altitude": self.Vn.get_altitude(), "description": description}
     
-    def case_given_speed(self, speed: float, line: np.ndarray, flaps = "Clean", description = "", label = ""):
-        speed = self.speeds[np.where(self.speeds >= speed)[0][0]]
-        load_factor = line[np.where(self.speeds >= speed)[0][0]]
+    def case_given_speed(self, speed: float, line: np.ndarray, flaps = "Clean", description = "", label = "", left_value = 0):
+        speed = self.speeds[np.where(self.speeds >= speed - left_value)[0][0]]
+        load_factor = line[np.where(self.speeds >= speed - left_value)[0][0]]
         weight = self.Vn.get_weight()
         return {"load_factor": load_factor, "speed": speed, "weight": weight, "flaps": flaps, "altitude": self.Vn.get_altitude(), "description": description}
     
@@ -313,16 +313,22 @@ class LoadCases():
 if __name__ == "__main__":
     print("running wp4-3.py")
     MTOW_kg = 19593  #kg
-    MLW_kg = 0.886 * MTOW_kg
+    weights_kg = [19593, 19593+6355, 35688] # OEW | OEW + MPW | OEW + MPW + Fuel (AKA MTOW)
+    altitudes_m = [0, 35000 * 0.3048]
+    critical_cases = np.empty(0)
     CL_max_clean = 1.41
     CL_max_flapped = 2.55
 
+    for altitude in altitudes_m:
+        for weight in weights_kg:
+            VND = VelocityLoadFactorDiagram(weight, 0.886*weights_kg[2], weights_kg[2], altitude, CL_max_clean, CL_max_flapped)
 
-    Vn1 = VelocityLoadFactorDiagram(MTOW_kg, MLW_kg, MTOW_kg, 0, CL_max_clean, CL_max_flapped)
-    LC1 = LoadCases(Vn1)
-    print(LC1.get_load_cases())
+            LC = LoadCases(VND)
+            LC.show(show=False, save=True)
+            critical_cases = np.append(critical_cases, LC.get_load_cases())
 
-    LC1.show(save=True)
+    with open("VNDiagram/critical_cases.txt", "w") as file:
+        file.write(str(critical_cases))
     
 
 
