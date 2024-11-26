@@ -81,7 +81,7 @@ class WingBox():
         
         ci1= h - x
         ci2= x
-        ci3= np.cos(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2) - y
+        ci3= np.cos(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2) - x
         cj3= (b/2)+ np.sin(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2)
 
         #Split into 3 section: 1 is the short vertical bar, 2 is the long vertical bar, and 3 are the bars at an angle
