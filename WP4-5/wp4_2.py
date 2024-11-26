@@ -5,9 +5,9 @@ import pandas as pd
 import math as math
 
 
-# authors: Federico, Ben, Anita, Winston
+# authors: Federicobabe, Ben, Anita, Winston
 
-#general: assumption is symmetric wing box
+#general: assumption is symmetric wing box utilised
 class WingBox():
     def __init__(self, t: int, c_r: int, c_t: int, tr:int = None):
         self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
@@ -26,7 +26,7 @@ class WingBox():
         a = 0.1013 * self.chord(z)      # trapezoid longer  [m]
         b = 0.0728 * self.chord(z)      # trapezoid shorter [m]
         h = 0.55 * self.chord(z)        # trapezoid height  [m]
-        alpha = np.arctan(((a-b)/2)/h)  # angle angle [rad]
+        alpha = np.arctan(((a-b)/2)/h)  # angle between oblique and horizontal [rad]
         return a, b, h, alpha
     
     def torsion (self, z, T: int, G): # T : torsion, 
@@ -81,7 +81,7 @@ class WingBox():
         
         ci1= h - x
         ci2= x
-        ci3= np.cos(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2) - y
+        ci3= np.cos(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2) - x
         cj3= (b/2)+ np.sin(np.radians(alpha))*((h/np.cos(np.radians(alpha)))/2)
 
         #Split into 3 section: 1 is the short vertical bar, 2 is the long vertical bar, and 3 are the bars at an angle
@@ -94,8 +94,8 @@ class WingBox():
         I2yy = 0 + (self.t*a)*ci2**2
 
         #section 3 (so both bars): #bar at angle practically same as bar: 0.5501845713 chord
-        I3xx= 2/12*self.t*(np.sin(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*cj3**2
-        I3yy= 2/12*self.t*(np.cos(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*ci3**2
+        I3xx= (2/12)*self.t*(np.sin(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*cj3**2
+        I3yy= (2/12)*self.t*(np.cos(np.radians(alpha))**2)*((h/np.cos(np.radians(alpha)))**3) +2*((h/np.cos(np.radians(alpha)))*self.t)*ci3**2
 
         #Total moments of inertia of wing box:
         I_wingbox_xx = I1xx+I2xx+I3xx

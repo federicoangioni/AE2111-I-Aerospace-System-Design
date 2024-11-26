@@ -26,6 +26,9 @@ def n_stall_speed(speed, stall_speed):
 def n_linear_lower_part(speed, cruise_speed, dive_speed):
     return (1 / (dive_speed - cruise_speed)) * (speed - dive_speed)
 
+def approach_speed(speed_stall_clean):
+    return 1.3 * speed_stall_clean
+
 
 # Points
 def V_n_line_upper_clean(speeds, n_max, speed_stall_clean, speed_cruise):
@@ -108,12 +111,12 @@ class VelocityLoadFactorDiagram():
         speed_stall_clean = speed_from_lift(weight, density, wing_area, CL_max_clean)
         speed_stall_flaps = speed_from_lift(weight, density, wing_area, CL_max_flapped)
         speed_design_flap = design_flap_speed(self.MLW, density, wing_area, CL_max_flapped)
+        self.approach_speed = approach_speed(speed_stall_clean)
 
         self.speed_stall_clean = speed_stall_clean
         self.speed_stall_flaps = speed_stall_flaps
         self.speed_design_flap = speed_design_flap
         
-
         speeds = np.linspace(0, dive_speed_formula(V_cr), number_of_points)
         n_upper_clean = V_n_line_upper_clean(speeds, max_n, speed_stall_clean, V_cr)
         n_lower_clean = V_n_line_lower_clean(speeds, n_min, speed_stall_clean, V_cr)
@@ -157,7 +160,7 @@ class VelocityLoadFactorDiagram():
         plt.xlabel("Equivalent air speed [m/s]")
         plt.ylabel("Load factor")
         plt.title(f"V-n diagram altitude: {self.altitude}m, weight: {self.weight_kg}kg")
-        plt.savefig(path)
+        plt.savefig(path, dpi=300)
 
     def n_max_formula(self):
         weight_kg = self.MTO_kg
@@ -197,6 +200,9 @@ class VelocityLoadFactorDiagram():
     
     def get_min_n(self):
         return self.n_min
+    
+    def get_approach_speed(self):
+        return self.approach_speed
 
 class LoadCases():
     def __init__(self, Vn: VelocityLoadFactorDiagram):
@@ -213,6 +219,7 @@ class LoadCases():
         self.speed_stall_clean, self.speed_stall_flap = Vn.get_stall_speeds()
         self.speed_cruise = Vn.get_cruise_speed()
         self.speed_dive = Vn.get_dive_speed()
+        self.speed_approach = Vn.get_approach_speed()
 
         self.flaps_infliction_point = self.speed_stall_flap * math.sqrt(self.max_n_flaps)
         self.clean_upper_infliction_point = self.speed_stall_clean * math.sqrt(self.max_n_clean)
@@ -221,13 +228,11 @@ class LoadCases():
         
         self.critical_load_cases = np.array([
             self.case_given_speed_given_n(self.speed_stall_clean, flaps="TO"), # stall speed n = 1
-            # TODO: check for approach speed
-            # self.case_given_speed_given_n(self.speed_approach, flaps="TO"), # approach speed n = 1
+            self.case_given_speed_given_n(self.speed_approach), # approach speed n = 1
             self.case_given_speed_given_n(self.speed_dive), # dive speed n = 1
-            self.case_given_speed(self.flaps_infliction_point, self.n_upper_flaps), # flap inflection point (n=2)
-            self.case_last_of_line(self.n_upper_flaps), # flap design speed (n=2?)
-            # TODO: check for approach speed
-            # self.case_given_speed(self.speed_approach, self.n_upper_clean), # clean upper approach speed
+            self.case_given_speed(self.flaps_infliction_point, self.n_upper_flaps, flaps="TO"), # flap inflection point (n=2)
+            self.case_last_of_line(self.n_upper_flaps, flaps="TO"), # flap design speed (n=2?)
+            self.case_given_speed(self.speed_approach, self.n_upper_clean), # clean upper approach speed
             self.case_given_speed(self.clean_upper_infliction_point, self.n_upper_clean), # clean upper inflection point
             self.case_last_of_line(self.n_upper_clean), # clean upper dive speed
             self.case_given_speed_given_n(self.n_upper_clean), # clean upper end at n=0
@@ -259,12 +264,17 @@ class LoadCases():
 
 if __name__ == "__main__":
     print("running wp4-3.py")
-    weight_kg = 19593  #kg
+    MTOW_kg = 19593  #kg
+    MLW_kg = 0.886 * MTOW_kg
     CL_max_clean = 1.41
     CL_max_flapped = 2.55
 
 
-    Vn1 = VelocityLoadFactorDiagram(weight_kg, weight_kg, weight_kg, 0, CL_max_clean, CL_max_flapped)
+    Vn1 = VelocityLoadFactorDiagram(MTOW_kg, MLW_kg, MTOW_kg, 0, CL_max_clean, CL_max_flapped)
     Vn1.show()
-    load_cases = LoadCases(Vn1)
-    print(load_cases.get_load_cases())
+
+    LC1 = LoadCases(Vn1)
+    print(LC1.get_load_cases())
+    
+
+
