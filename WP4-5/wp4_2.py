@@ -5,7 +5,7 @@ import pandas as pd
 import math as math
 
 
-# authors: Federicobabe, Ben, Anita, Winston
+# authors: Federicobabe, Benthelad, Anitawalking, Winstondaking
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
@@ -23,19 +23,18 @@ class WingBox():
 
     def geometry(self, z: int):
         # returns the wing box geometry (side lenghts) at any position z
-        a = 0.1013 * self.chord(z)      # trapezoid longer  [m]
-        b = 0.0728 * self.chord(z)      # trapezoid shorter [m]
-        h = 0.55 * self.chord(z)        # trapezoid height  [m]
-        alpha = np.arctan(((a-b)/2)/h)  # angle angle [rad]
-        num_stringers = 1               # number of strings
-        return a, b, h, alpha, num_stringers
+        a = 0.1013 * self.chord(z)        # trapezoid longer  [m]
+        b = 0.0728 * self.chord(z)        # trapezoid shorter [m]
+        h = 0.55 * self.chord(z)          # trapezoid height  [m]
+        alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
+        num_stringers = 1                 # number of strings
+        A = h * (a + b) / 2               # Area of cross section [m^2]
+        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
+        return a, b, h, A, S, alpha, num_stringers
     
     def torsion (self, z, T: int, G): # T : torsion, 
-        a, b, h, alpha = self.geometry(z)
+        a, b, h, alpha, A, S = self.geometry(z)
         
-        A = h * (a + b) / 2
-        #alpha = np.arctan((a - b) / (2 * h))
-        S = a + b + 2 * (h / np.cos(alpha))
         thetadot = lambda z: (T * S) / (4 * A * self.t * G)
 
         theta = integrate.quad(thetadot, 0, z)
