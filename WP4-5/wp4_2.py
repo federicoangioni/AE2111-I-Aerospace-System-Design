@@ -54,9 +54,7 @@ class WingBox():
         plt.plot([0, h], [-b/2, -a/2])
         
         plt.show()
-        
-        
-        
+        plt.clf()        
       
     def bending (self, z, M, E):
         I = self.MOMEWB()
