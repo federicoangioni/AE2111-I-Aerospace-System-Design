@@ -3,16 +3,18 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import sympy as sp
 import os
+from scipy.integrate import cumtrapz
 
 # authors: Medhansh, Teodor
  
 class Aerodynamics():
     def __init__(self,  folder: str, aoa: int, wingspan: int):
         self.files = [os.path.join(folder, file) for file in os.listdir(folder)] # makes a list with all the files in the XFLR folder
-        self.aoa = aoa
+        self.aoa = aoa + 1 
         self.wingspan = wingspan
         
     def coefficients(self, return_list: bool):
+        print(self.files[self.aoa])
         ylst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(0,), invalid_raise=False)
         Cllst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(3,), invalid_raise=False)
         Cdlst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(5,), invalid_raise=False)
@@ -69,7 +71,7 @@ class Aerodynamics():
         plt.show()
 
 class InternalForces():
-    def __init__(self, density, airspeed, distributions, c_r, wingspan, c_t = None, tr = None):
+    def __init__(self, density, airspeed, distributions, c_r, wingspan, engine_z_loc, c_t = None, tr = None):
         """
         
         """
@@ -77,15 +79,20 @@ class InternalForces():
         self.c_r = c_r 
         self.wingspan = wingspan
         self.q = 0.5 * density * airspeed ** 2
+        self.engine_z = engine_z_loc
+        
+        self.z_points = np.linspace(0, self.wingspan / 2, 1000)
         
         self.g_cl = distributions[0]
         self.g_cd = distributions[1]
         self.g_cm = distributions[2]
+       
+        self.lift_dist, self.torque_dist, self.drag_dist = self.applied_distributions() # this is ok
         
-        self.z_points = np.linspace(0, self.wingspan / 2)
+        
                 
     # This is the main function
-    def distributions(self):
+    def applied_distributions(self):
         z = sp.symbols("z")
         chord_dist_z = self.c_t + ((self.c_r - self.c_t) / (0 - self.wingspan / 2)) * (z - self.wingspan / 2)
         
@@ -103,11 +110,72 @@ class InternalForces():
         Torque_dist = interp1d(self.z_points, T_z, kind='cubic', fill_value="extrapolate")
         Drag_dist = interp1d(self.z_points, D_z, kind='cubic', fill_value="extrapolate")
 
-        return Lift_dist, Torque_dist, Drag_dist, L_z, T_z, D_z
+        return Lift_dist, Torque_dist, Drag_dist
     
-    def show(self):
+    def force_diagrams(self, engine_mass, wingbox_height, fuel_tank_length, fuel_density):
+        z = sp.symbols("z")
+
+        # Engine weight
+        eng_weight = -engine_mass * 9.81
+
+        # Wing weight distribution
+        # I assumed that the net wing weight will act at 25% of the half wingspan
+        Wing_weight_distribution = -(-211.69 * z + 2372.62)
+        Total_Wing_weight_force = sp.integrate(Wing_weight_distribution, (z, 0, self.wingspan / 2))
+        Total_Wing_weight_force_z_loc = 0.25 * self.wingspan / 2
+        Wing_struc_shear = sp.integrate(Wing_weight_distribution, (z, 0, z))
+
+        # Fuel weight distribution -> NEEDS TO BE ADJUSTED
+        # I'm assuming that the fuel is distributed throughout the entire wing (it is
+        # significantly higher than the required fuel as well)
+        A_root = (self.c_r * wingbox_height) * (self.c_r * 0.14) # Im using wingbox areas at the root and tip chord
+        A_tip = (self.c_t * wingbox_height) * (self.c_t * 0.14)
+        Fuel_weight_distribution = -(A_root - ((A_root - A_tip) / fuel_tank_length) * z) * fuel_density
+        Total_Fuel_force = (sp.integrate(Fuel_weight_distribution, (z, 0, fuel_tank_length)))
+        Total_Fuel_force_z_loc = sp.integrate(z * Fuel_weight_distribution, (z, 0, fuel_tank_length)) / sp.integrate(Fuel_weight_distribution, (z, 0, fuel_tank_length))
+        Fuel_shear = sp.integrate(Fuel_weight_distribution, (z, 0, z))
+
+        # Aerodynamic load
+        coefficients = np.polyfit(self.z_points, self.lift_dist(self.z_points), deg=16)  # Co-efficients for polynomial approximation of lift
+        Lift_load_distribution = sum(c * z ** i for i, c in enumerate(reversed(coefficients)))
+        Total_lift_force = sp.integrate(Lift_load_distribution, (z, 0, self.wingspan / 2))
+        Total_lift_force_z_loc = sp.integrate(z * Lift_load_distribution, (z, 0, self.wingspan / 2)) / sp.integrate(Lift_load_distribution, (z, 0, self.wingspan / 2))
+        Lift_shear = sp.integrate(Lift_load_distribution, (z, 0, z))
+
+        # Reactions
+        reaction_force = -(Total_Fuel_force + Total_lift_force + Total_Wing_weight_force + eng_weight)
+        reaction_moment = (Total_Fuel_force * Total_Fuel_force_z_loc + Total_lift_force * Total_lift_force_z_loc + Total_Wing_weight_force * Total_Wing_weight_force_z_loc + eng_weight * self.engine_z)
+
+        shear_distribution = []
+
+        for i in self.z_points:
+            if i < self.engine_z:
+                shear_value = (reaction_force + Lift_shear + Wing_struc_shear + Fuel_shear).subs(z, i).evalf()
+            else:
+                shear_value = (reaction_force + Lift_shear + Wing_struc_shear + Fuel_shear + eng_weight).subs(z, i).evalf()
+
+            shear_distribution.append(shear_value)
+
+        shear_distribution = np.array(shear_distribution, dtype=float)
+
+        moment_distribution = cumtrapz(shear_distribution, self.z_points, initial=0)
+        moment_distribution = np.array(moment_distribution, dtype=float)
+        moment_distribution = moment_distribution + reaction_moment
+
+        shear_list = list(shear_distribution)
+        moment_list = list(moment_distribution)
+        
+        g_shear = interp1d(self.z_points, shear_list, kind='cubic', fill_value="extrapolate")
+        g_moment = interp1d(self.z_points, moment_list, kind='cubic', fill_value="extrapolate")
+        # shear list is okay
+        return shear_list , moment_list, g_shear, g_moment
+    
+    def show(self, engine_mass, wingbox_height, fuel_tank_length, fuel_density):
         # subplots
-        self.lift_dist, self.torque_dist, self.drag_dist = self.distributions()
+        shear, moment, g_shear, g_moment = self.force_diagrams(engine_mass= engine_mass, wingbox_height= wingbox_height, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
+        shear = [0] + shear
+        moment = [0] + moment
+        self.z_points = [0] + list(self.z_points)
         
         fig, axs = plt.subplots(1, 3, figsize=(18, 6))
 
@@ -143,85 +211,30 @@ class InternalForces():
 
         plt.tight_layout()
         plt.show()
+        plt.clf()
 
+        
+        print(len(self.z_points))
+        # Plot Load Distribution
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.z_points, shear, label='Shear Force Distribution', color='blue', linewidth=2)
+        plt.axhline(0, color="black", linewidth=0.8)
+        plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
+        plt.ylabel("Shear Force [N]", fontsize=12)
+        plt.title("Shear Force Distribution Along the Wing Span", fontsize=14)
+        plt.grid(True)
+        plt.legend(fontsize=10)
+        plt.show()
 
-
-# Shear Force Calculation
-def Force_diagrams(wing_span, engine_mass, engine_z_loc, c_r, c_t, wing_box_minimum_width_to_chord_ratio, fuel_tank_length, fuel_density, L_z):
-    z = sp.symbols("z")
-    span_sections = np.linspace(0, wing_span / 2, 900)
-
-    # Engine weight
-    eng_weight = -engine_mass * 9.81
-
-    # Wing weight distribution
-    # I assumed that the net wing weight will act at 25% of the half wingspan
-    Wing_weight_distribution = -(-211.69 * z + 2372.62)
-    Total_Wing_weight_force = sp.integrate(Wing_weight_distribution, (z, 0, wing_span / 2))
-    Total_Wing_weight_force_z_loc = 0.25 * wing_span / 2
-    Wing_struc_shear = sp.integrate(Wing_weight_distribution, (z, 0, z))
-
-    # Fuel weight distribution -> NEEDS TO BE ADJUSTED
-    # I'm assuming that the fuel is distributed throughout the entire wing (it is
-    # significantly higher than the required fuel as well)
-    A_root = (c_r * wing_box_minimum_width_to_chord_ratio) * (c_r * 0.14) # Im using wingbox areas at the root and tip chord
-    A_tip = (c_t * wing_box_minimum_width_to_chord_ratio) * (c_t * 0.14)
-    Fuel_weight_distribution = -(A_root - ((A_root - A_tip) / fuel_tank_length) * z) * fuel_density
-    Total_Fuel_force = (sp.integrate(Fuel_weight_distribution, (z, 0, fuel_tank_length)))
-    Total_Fuel_force_z_loc = sp.integrate(z * Fuel_weight_distribution, (z, 0, fuel_tank_length)) / sp.integrate(Fuel_weight_distribution, (z, 0, fuel_tank_length))
-    Fuel_shear = sp.integrate(Fuel_weight_distribution, (z, 0, z))
-
-    # Aerodynamic load
-    coefficients = np.polyfit(z_points, L_z, deg=16)  # Co-efficients for polynomial approximation of lift
-    Lift_load_distribution = sum(c * z ** i for i, c in enumerate(reversed(coefficients)))
-    Total_lift_force = sp.integrate(Lift_load_distribution, (z, 0, wing_span / 2))
-    Total_lift_force_z_loc = sp.integrate(z * Lift_load_distribution, (z, 0, wing_span / 2)) / sp.integrate(Lift_load_distribution, (z, 0, wing_span / 2))
-    Lift_shear = sp.integrate(Lift_load_distribution, (z, 0, z))
-
-    # Reactions
-    reaction_force = -(Total_Fuel_force + Total_lift_force + Total_Wing_weight_force + eng_weight)
-    reaction_moment = (Total_Fuel_force * Total_Fuel_force_z_loc + Total_lift_force * Total_lift_force_z_loc + Total_Wing_weight_force * Total_Wing_weight_force_z_loc + eng_weight * engine_z_loc)
-
-    shear_distribution = []
-
-    for i in span_sections:
-        if i < engine_z_loc:
-            shear_value = (reaction_force + Lift_shear + Wing_struc_shear + Fuel_shear).subs(z, i).evalf()
-        else:
-            shear_value = (reaction_force + Lift_shear + Wing_struc_shear + Fuel_shear + eng_weight).subs(z, i).evalf()
-
-        shear_distribution.append(shear_value)
-
-    shear_distribution = np.array(shear_distribution, dtype=float)
-
-    moment_distribution = cumtrapz(shear_distribution, span_sections, initial=0)
-    moment_distribution = np.array(moment_distribution, dtype=float)
-    moment_distribution = moment_distribution + reaction_moment
-
-    return [0] + list(span_sections), [0] + list(shear_distribution), [0] + list(moment_distribution), engine_z_loc
-
-
-# Calculate shear
-shear = Force_diagrams(26.9, 2306, 4.351, 4.33, 1.33, 0.6, 13.45, 800, Distributions(4.33, 1.334, 26.9, 1.225, 66.26, Cllst, Cmlst, Cdlst)[0](z_points))
-
-# Plot Load Distribution
-plt.figure(figsize=(12, 6))
-plt.plot(shear[0], shear[1], label='Shear Force Distribution', color='blue', linewidth=2)
-plt.axhline(0, color="black", linewidth=0.8)
-plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
-plt.ylabel("Shear Force [N]", fontsize=12)
-plt.title("Shear Force Distribution Along the Wing Span", fontsize=14)
-plt.grid(True)
-plt.legend(fontsize=10)
-plt.show()
-
-# Plot moment Distribution
-plt.figure(figsize=(12, 6))
-plt.plot(shear[0], shear[2], label='Bending Moment Distribution', color='blue', linewidth=2)
-plt.axhline(0, color="black", linewidth=0.8)
-plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
-plt.ylabel("Bending Moment [kNm]", fontsize=12)
-plt.title("Moment Distribution Along the Wing Span", fontsize=14)
-plt.grid(True)
-plt.legend(fontsize=10)
-plt.show()
+        # Plot moment Distribution
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.z_points, moment, label='Bending Moment Distribution', color='blue', linewidth=2)
+        plt.axhline(0, color="black", linewidth=0.8)
+        plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
+        plt.ylabel("Bending Moment [kNm]", fontsize=12)
+        plt.title("Moment Distribution Along the Wing Span", fontsize=14)
+        plt.grid(True)
+        plt.legend(fontsize=10)
+        plt.show()
+        
+    
