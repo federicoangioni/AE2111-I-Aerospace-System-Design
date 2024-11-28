@@ -5,7 +5,7 @@ import pandas as pd
 import math as math
 
 
-# authors: Federicobabe, Benthelad, Anitawalking, Winstondaking
+# authors: Federicobabe, Benthelad, Anitawalking, Wilsondaking
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
@@ -28,13 +28,13 @@ class WingBox():
         h = 0.55 * self.chord(z)          # trapezoid height  [m]
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
         num_stringers = 1                 # number of strings
-        A = h * (a + b) / 2               # Area of cross section [m^2]
-        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
-        return a, b, h, A, S, alpha, num_stringers
+        return a, b, h, alpha, num_stringers
     
     def torsion (self, z, T: int, G): # T : torsion, 
         a, b, h, alpha, A, S = self.geometry(z)
-        
+        A = h * (a + b) / 2               # Area of cross section [m^2]
+        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
+    
         thetadot = lambda z: (T * S) / (4 * A * self.t * G)
 
         theta = integrate.quad(thetadot, 0, z)
