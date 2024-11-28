@@ -312,7 +312,6 @@ class LoadCases():
 
 if __name__ == "__main__":
     print("running wp4-3.py")
-    MTOW_kg = 19593  #kg
     weights_kg = [19593, 19593+6355, 35688] # OEW | OEW + MPW | OEW + MPW + Fuel (AKA MTOW)
     altitudes_m = [0, 35000 * 0.3048]
     critical_cases = np.empty(0)
@@ -324,11 +323,13 @@ if __name__ == "__main__":
             VND = VelocityLoadFactorDiagram(weight, 0.886*weights_kg[2], weights_kg[2], altitude, CL_max_clean, CL_max_flapped)
 
             LC = LoadCases(VND)
-            LC.show(show=False, save=True)
+            # LC.show(show=False, save=True)
             critical_cases = np.append(critical_cases, LC.get_load_cases())
+
 
     with open("VNDiagram/critical_cases.txt", "w") as file:
         file.write(str(critical_cases))
-    
+
+
 
 
