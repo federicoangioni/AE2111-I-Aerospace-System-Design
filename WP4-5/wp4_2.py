@@ -159,6 +159,20 @@ class WingBox():
 
         return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
         
+    def torsion (self, z, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
+        a, b, h, alpha = self.geometry(z)
+        A = h * (a + b) / 2               # Area of cross section [m^2]
+        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
+        
+        r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
+        stein = Area_string * (r**2)
+        J = ((4*t*A**2)/S) + stein
+
+        thetadot = lambda z: (T) / (J * G)
+
+        theta = integrate.quad(thetadot, 0, z)
+
+        return theta, J
 
     def show(self, load, modulus, halfspan, choice: str): 
         """
@@ -210,4 +224,17 @@ class WingBox():
             
             self.deflections['Displacement [m]'] = np.zeros(len(z))
             self.deflections['Rotation [rad]'] = temp_theta
+
+
+        def StringerPosition(self):
+        a, b, h, A, S, alpha, num_stringers = self.geometry(self, 1)
+        
+        stringer_per_side = num_stringers/2
+        
+        X_pos = []
+        Y_pos = []
+        
+        for i in range(1, stringer_per_side+2):
+            X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
+            Y_pos.append(i*h/(np.sin(alpha)*(stringer_per_side+1)))
 
