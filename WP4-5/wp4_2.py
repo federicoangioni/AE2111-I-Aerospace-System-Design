@@ -27,9 +27,20 @@ class WingBox():
         b = 0.0728 * self.chord(z)        # trapezoid shorter [m]
         h = 0.55 * self.chord(z)          # trapezoid height  [m]
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
-        num_stringers = 1                 # number of strings
+        num_stringers = 1                 # number of strings: Important!: use number of stringers on one side of bar (not total)
         return a, b, h, alpha, num_stringers
-      
+    
+    def torsion (self, z, T: int, G): # T : torsion, 
+        a, b, h, alpha, A, S = self.geometry(z)
+        A = h * (a + b) / 2               # Area of cross section [m^2]
+        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
+    
+        thetadot = lambda z: (T * S) / (4 * A * self.t * G)
+
+        theta = integrate.quad(thetadot, 0, z)
+
+        return theta
+    
     def bending (self, z, M, E):
         I = self.MOMEWB()
         v_double_dot = lambda z: M/(-E*I)
@@ -217,7 +228,7 @@ class WingBox():
             self.deflections['Rotation [rad]'] = temp_theta
 
 
-        def StringerPosition(self):
+    def StringerPosition(self):
         a, b, h, A, S, alpha, num_stringers = self.geometry(self, 1)
         
         stringer_per_side = num_stringers/2
@@ -226,6 +237,7 @@ class WingBox():
         Y_pos = []
         
         for i in range(1, stringer_per_side+2):
+            X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
             X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
             Y_pos.append(-a/2+(i*h/(np.sin(alpha)*(stringer_per_side+1))))
 
