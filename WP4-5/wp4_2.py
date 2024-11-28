@@ -9,7 +9,7 @@ import math as math
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
-    def __init__(self, t: int, c_r: int, c_t: int, stringers: list, tr:int = None):
+    def __init__(self, t: int, c_r: int, c_t: int, wingspan: int, stringers: list, tr:int = None):
         """
         stringers: list [number of stringers, percentage of span until they continue, type, dimensions(in a further list) dict type], must be an integer for the code to work
         dimensions: dict type changes in base of the used stringer
@@ -23,6 +23,7 @@ class WingBox():
         self.t = t                                  # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
         self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
                                                     'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
+        self.wingspan = wingspan
         
         
     def chord(self, z): 
@@ -132,7 +133,7 @@ class WingBox():
 
         return theta
 
-    def show(self, load, modulus, halfspan, choice: str): 
+    def show(self, load, modulus, choice: str): 
         """
         load: int function representing the internal load of the wing [N]
         modulus: either E or G depending on the analysis [N/m2]
