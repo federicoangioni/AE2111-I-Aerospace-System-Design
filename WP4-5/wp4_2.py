@@ -153,9 +153,10 @@ class WingBox():
         A = h * (a + b) / 2               # Area of cross section [m^2]
         S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
         
-        r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
-        stein = Area_string * (r**2)
-        J = ((4*t*A**2)/S) + stein
+        #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
+        # stein = Area_string * (r**2)
+        
+        J = ((4*t*A**2)/S) 
 
         thetadot = lambda z: (T) / (J * G)
 
