@@ -329,7 +329,4 @@ if __name__ == "__main__":
 
     with open("VNDiagram/critical_cases.txt", "w") as file:
         file.write(str(critical_cases))
-
-
-
-
+    
