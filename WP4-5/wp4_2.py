@@ -113,6 +113,24 @@ class WingBox():
         J = ((4*t*A**2)/S)
         return J
     
+    def Jplots(self, z, t):
+        t = [0.001, 0.002, 0.003, 0.004, 0.005]
+        y1 = self.J(z, t[0])
+        y2 = self.J(z, t[1])
+        y3 = self.J(z, t[2])
+        y4 = self.J(z, t[3])
+        y5 = self.J(z, t[4])
+        x = z
+        plt.xlim(0, 1)
+        plt.plot(x, y1)
+        plt.plot(x, y2)
+        plt.plot(x, y3)
+        plt.plot(x, y4)
+        plt.plot(x, y5)
+        plt.grid(True)
+        plt.show
+        return plt.gcf()
+    
     def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
        
         thetadot = lambda z: (T) / (J * G)
