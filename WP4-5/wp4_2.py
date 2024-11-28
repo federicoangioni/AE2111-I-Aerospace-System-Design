@@ -9,26 +9,32 @@ import math as math
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
-    def __init__(self, t: int, c_r: int, c_t: int, wingspan: int, stringers: list, tr:int = None):
+    def __init__(self, t: int, c_r: int, c_t: int, wingspan: int, intersection: int, tr:int = None):
         """
         stringers: list [number of stringers, percentage of span until they continue, type, dimensions(in a further list) dict type], must be an integer for the code to work
         dimensions: dict type changes in base of the used stringer
         L type stringer: {'base':, 'height':, 'thickness base':, 'thickness height':} [m]
         I type stringer: {'base':, 'top':, 'web height':, 'thickness top':, 'thickness web':, 'thickness base':} [m]
         distance: tuple, distance from centroid (x, y)
+        intersection is the percentage of the wingspan where the wing cuts the fuselage
         
         """
-        self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
-        self.c_r = c_r                              # root chord [m]
-        self.t = t                                  # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
+        self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]        
+                             
+        self.c_r = c_r - c_r*(1-(self.c_t /c_r))*intersection # redefining chord root
+        
+        self.t = t   # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
+        
         self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
                                                     'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
         self.wingspan = wingspan
         
+        self.tiplocation = self.wingspan/2 - (self.wingspan/2) * intersection
         
-    def chord(self, z): 
-        # returns the chord at any position z
-        c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
+        
+    def chord(self, z): #TESTED OK
+        # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
+        c = self.c_r - self.c_r * (1 - (self.c_t / self.c_r)) * (z / ((self.wingspan / 2)))
         return c
 
     def geometry(self, z: int):
@@ -116,12 +122,13 @@ class WingBox():
     
     def Jplots(self, z):
         ts = [0.001, 0.002, 0.003, 0.004, 0.005]
+        z = np.linspace(0, self.tiplocation)
         
-        plt.xlim(0, 1)
         for t in range(len(ts)):
             plt.plot(z, self.polar(z, ts[t]))        
         
         plt.grid(True)
+        plt.legend()
         plt.show()
         return plt.gcf()
     
@@ -142,7 +149,7 @@ class WingBox():
         """
         type = ['bending', 'torsion']
         
-        z = np.linspace(0, halfspan) # range of z values to show the plot
+        z = np.linspace(0, self.tiplocation) # range of z values to show the plot
         
         self.deflections['Load [Nm]'] = 0
         self.deflections['z location [m]'] = z
