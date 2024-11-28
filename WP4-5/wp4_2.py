@@ -166,7 +166,7 @@ class WingBox():
 
         return (I_total_xx, I_total_yy)
 
-    def torsion (self, z, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
+    def polar (self, z, t): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
         S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
