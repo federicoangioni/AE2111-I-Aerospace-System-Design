@@ -29,18 +29,7 @@ class WingBox():
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
         num_stringers = 1                 # number of strings
         return a, b, h, alpha, num_stringers
-    
-    def torsion (self, z, T: int, G): # T : torsion, 
-        a, b, h, alpha, A, S = self.geometry(z)
-        A = h * (a + b) / 2               # Area of cross section [m^2]
-        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
-    
-        thetadot = lambda z: (T * S) / (4 * A * self.t * G)
-
-        theta = integrate.quad(thetadot, 0, z)
-
-        return theta
-    
+      
     def bending (self, z, M, E):
         I = self.MOMEWB()
         v_double_dot = lambda z: M/(-E*I)
@@ -158,6 +147,17 @@ class WingBox():
 
         return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
         
+    def torsion (self, z, T: int, G): # T : torsion, 
+        a, b, h, alpha = self.geometry(z)
+        A = h * (a + b) / 2               # Area of cross section [m^2]
+        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
+        J = ((4*t*A**2)/S) + stein
+
+        thetadot = lambda z: (T) / (J * G)
+
+        theta = integrate.quad(thetadot, 0, z)
+
+    return theta
 
     def show(self, load, modulus, halfspan, choice: str): 
         """
