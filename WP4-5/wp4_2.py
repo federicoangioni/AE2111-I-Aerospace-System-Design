@@ -225,5 +225,7 @@ class WingBox():
         
         for i in range(1, stringer_per_side+2):
             X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
-            Y_pos.append(i*h/(np.sin(alpha)*(stringer_per_side+1)))
+            Y_pos.append(-a/2+(i*h/(np.sin(alpha)*(stringer_per_side+1))))
+
+        return X_pos, Y_pos
 
