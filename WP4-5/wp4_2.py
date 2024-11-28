@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 import math as math
-import variables as var
 
 
 # authors: Federicobabe, Benthelad, Anitawalking, Wilsondaking
@@ -31,6 +30,16 @@ class WingBox():
         num_stringers = 1                 # number of strings: Important!: use number of stringers on one side of bar (not total)
         return a, b, h, alpha, num_stringers
     
+    def torsion (self, z, T: int, G): # T : torsion, 
+        a, b, h, alpha, A, S = self.geometry(z)
+        A = h * (a + b) / 2               # Area of cross section [m^2]
+        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
+    
+        thetadot = lambda z: (T * S) / (4 * A * self.t * G)
+
+        theta = integrate.quad(thetadot, 0, z)
+
+        return theta
     
     def bending (self, z, M, E):
         I = self.MOMEWB()
@@ -148,9 +157,16 @@ class WingBox():
         I_xx_stringers_steiner *= 2
         I_yy_stringers_steiner *= 2
 
-        return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string # double-check if this is correct, we need to double it as we have 2 bars
+        return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
+        
+    def MOM_total (self, I_wingbox_xx, I_wingbox_yy, I_xx_stringers_steiner, I_yy_stringers_steiner): #total Moment of Intertia (so empty wing box and stringers)
 
-    def polar(self, z, t): 
+        I_total_xx = I_wingbox_xx + I_xx_stringers_steiner
+        I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
+
+        return (I_total_xx, I_total_yy)
+
+    def polar (self, z, t): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
         S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
@@ -159,25 +175,6 @@ class WingBox():
         J = ((4*t*A**2)/S)
         return J
     
-    def Jplots(self, z, t):
-        t = [0.001, 0.002, 0.003, 0.004, 0.005]
-        y1 = self.J(z, t[0])
-        y2 = self.J(z, t[1])
-        y3 = self.J(z, t[2])
-        y4 = self.J(z, t[3])
-        y5 = self.J(z, t[4])
-        x = z
-        plt.xlim(0, 1)
-        plt.plot(x, y1)
-        plt.plot(x, y2)
-        plt.plot(x, y3)
-        plt.plot(x, y4)
-        plt.plot(x, y5)
-        plt.grid(True)
-        plt.show
-        return plt.gcf()
-
-
     def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
        
         thetadot = lambda z: (T) / (J * G)
@@ -246,7 +243,7 @@ class WingBox():
         X_pos = []
         Y_pos = []
         
-        for i in range(1, stringer_per_side+2):
+        for i in range(1, stringer_per_side+1):
             X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
             X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
             Y_pos.append(-a/2+(i*h/(np.sin(alpha)*(stringer_per_side+1))))
