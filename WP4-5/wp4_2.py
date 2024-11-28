@@ -147,22 +147,23 @@ class WingBox():
         I_yy_stringers_steiner *= 2
 
         return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string # double-check if this is correct, we need to double it as we have 2 bars
-        
-    def torsion (self, z, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
+
+    def polar(self,z, t): 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
-        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
-        
+        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
         #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
         # stein = Area_string * (r**2)
-        
-        J = ((4*t*A**2)/S) 
-
+        J = ((4*t*A**2)/S)
+        return J
+    
+    def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
+       
         thetadot = lambda z: (T) / (J * G)
 
         theta = integrate.quad(thetadot, 0, z)
 
-        return theta, J
+        return theta
 
     def show(self, load, modulus, halfspan, choice: str): 
         """
