@@ -126,7 +126,8 @@ class WingBox():
             Area_string = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
         
         # returning only Steiner's terms for now
-        return (distance[0] ** 2 * Area_string, distance[1] ** 2 * Area_string)
+        #old version: return (#distance[0] ** 2 * #Area_string, distance[1] ** 2 * Area_string)
+        return (Area_string)
     
 
     def MOM_addition_Stringers(self, h, num_stringers, alpha, b, Area_string, x , y):
