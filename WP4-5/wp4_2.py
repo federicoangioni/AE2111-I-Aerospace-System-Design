@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 import math as math
+import variables as var
 
 
 # authors: Federicobabe, Benthelad, Anitawalking, Wilsondaking
@@ -30,16 +31,6 @@ class WingBox():
         num_stringers = 1                 # number of strings: Important!: use number of stringers on one side of bar (not total)
         return a, b, h, alpha, num_stringers
     
-    def torsion (self, z, T: int, G): # T : torsion, 
-        a, b, h, alpha, A, S = self.geometry(z)
-        A = h * (a + b) / 2               # Area of cross section [m^2]
-        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
-    
-        thetadot = lambda z: (T * S) / (4 * A * self.t * G)
-
-        theta = integrate.quad(thetadot, 0, z)
-
-        return theta
     
     def bending (self, z, M, E):
         I = self.MOMEWB()
@@ -159,7 +150,7 @@ class WingBox():
 
         return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string # double-check if this is correct, we need to double it as we have 2 bars
 
-    def polar(self,z, t): 
+    def polar(self, z, t): 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
         S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
@@ -168,6 +159,25 @@ class WingBox():
         J = ((4*t*A**2)/S)
         return J
     
+    def Jplots(self, z, t):
+        t = [0.001, 0.002, 0.003, 0.004, 0.005]
+        y1 = self.J(z, t[0])
+        y2 = self.J(z, t[1])
+        y3 = self.J(z, t[2])
+        y4 = self.J(z, t[3])
+        y5 = self.J(z, t[4])
+        x = z
+        plt.xlim(0, 1)
+        plt.plot(x, y1)
+        plt.plot(x, y2)
+        plt.plot(x, y3)
+        plt.plot(x, y4)
+        plt.plot(x, y5)
+        plt.grid(True)
+        plt.show
+        return plt.gcf()
+
+
     def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
        
         thetadot = lambda z: (T) / (J * G)
