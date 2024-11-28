@@ -9,12 +9,21 @@ import math as math
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
-    def __init__(self, t: int, c_r: int, c_t: int, tr:int = None):
+    def __init__(self, t: int, c_r: int, c_t: int, stringers: list, tr:int = None):
+        """
+        stringers: list [number of stringers, percentage of span until they continue, type, dimensions(in a further list) dict type], must be an integer for the code to work
+        dimensions: dict type changes in base of the used stringer
+        L type stringer: {'base':, 'height':, 'thickness base':, 'thickness height':} [m]
+        I type stringer: {'base':, 'top':, 'web height':, 'thickness top':, 'thickness web':, 'thickness base':} [m]
+        distance: tuple, distance from centroid (x, y)
+        
+        """
         self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
         self.c_r = c_r                              # root chord [m]
         self.t = t                                  # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
         self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
                                                     'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
+        
         
     def chord(self, z): 
         # returns the chord at any position z
@@ -27,8 +36,7 @@ class WingBox():
         b = 0.0728 * self.chord(z)        # trapezoid shorter [m]
         h = 0.55 * self.chord(z)          # trapezoid height  [m]
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
-        num_stringers = 1                 # number of strings
-        return a, b, h, alpha, num_stringers
+        return a, b, h, alpha
       
     def bending (self, z, M, E):
         I = self.MOMEWB()
@@ -39,28 +47,25 @@ class WingBox():
         
         return v
     
-    def centroid(self, z, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
-        
+    def centroid(self, z, stringers): # c-chord, t-thickness, alpha
         a, b, h, alpha = self.geometry(z)
-       # alpha = np.arctan(((a-b)/2)/h)
-        
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometric(self, z, stringers)
         A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
         X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
         Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
 
-        while j <= len(stringer_x_pos): #include the contributions of the stringers
-            A.append(stringer_area[j])
-            X.append(stringer_x_pos[j])
-            Y.append(stringer_y_pos[j])
-            j+=1
 
-        while i <= len(X): #calculate the weights
+        for i in range(len(x_stringers)):
+            A.append(area_stringer[i])
+            X.append(x_stringers[i])
+            Y.append(y_stringers[i])
+
+        for i in range(len(x)):
             weights_X = A[i]*X[i]
             weights_Y = A[i]*Y[i]
-            i+=1
         
         x = weights_X/sum(A) #x position of the centroid
-        y= weights_Y/sum(A)  #y position of the centroid
+        y = weights_Y/sum(A)  #y position of the centroid
         
         return x, y
 
@@ -91,62 +96,6 @@ class WingBox():
         I_wingbox_yy = I1yy+I2yy+I3yy
 
         return I_wingbox_xx, I_wingbox_yy
-    
-    def I_stiffener(self, type: str, dimensions: dict, distance: tuple):
-        type = ["L", "I"]
-        
-        """
-        dimensions: changes in base of the used stringer
-        L type stringer: {base, height, thickness base, thickness height}
-        I type stringer: [base, top, web height, thickness top, thickness web, thickness base]
-        distance: tuple, distance from centroid (x, y)
-        """
-        
-        if type == "L":
-            x = (dimensions["base"]*(dimensions["thickness base"]**2)/2)/(dimensions["base"]*dimensions["height"]*dimensions["thickness base"]*dimensions["thickness height"])
-            y = (dimensions["height"]**2 * dimensions["thickness height"]/2) / (dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"])
-            
-            I_xx = 0 
-            I_yy = 0
-            Area_string = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
-        
-        elif type == "I":
-            Area_string = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
-        
-        # returning only Steiner's terms for now
-        #old version: return (#distance[0] ** 2 * #Area_string, distance[1] ** 2 * Area_string)
-        return (Area_string)
-    
-
-    def MOM_addition_Stringers(self, h, num_stringers, alpha, b, Area_string, x , y):
-        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
-
-        # For each bar, calculate contributions
-        I_xx_stringers_steiner, I_yy_stringers_steiner = 0, 0
-        for i in range(1, num_stringers+1):
-
-               # Distance along the inclined bar
-               distance_along_bar = i * stringer_spacing
-
-               # Position of the stringer in the global coordinate system (origin is at the long vertical bar)
-               x_pos_string = h - (distance_along_bar * np.cos(alpha))         
-               y_pos_string = (b/2) + (distance_along_bar * np.sin(alpha))
-               """
-               Note: position is now on the bars, we may need to adjust this a little based on the assumption
-               """
-               # Contribution to moments of inertia using parallel axis theorem
-               I_xx_sub = Area_string * (y_pos_string - y) ** 2
-               I_yy_sub = Area_string * (x_pos_string - x) ** 2
-
-               # Add contributions to total
-               I_xx_stringers_steiner += I_xx_sub
-               I_yy_stringers_steiner += I_yy_sub
-
-         # Double the total contributions because we have two bars
-        I_xx_stringers_steiner *= 2
-        I_yy_stringers_steiner *= 2
-
-        return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string # double-check if this is correct, we need to double it as we have 2 bars
         
     def torsion (self, z, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
@@ -215,20 +164,69 @@ class WingBox():
             self.deflections['Displacement [m]'] = np.zeros(len(z))
             self.deflections['Rotation [rad]'] = temp_theta
 
+    def stringer_geometric(self, z, stringers):
+        a, b, h, alpha = self.geometry(self, z)
+        
+        # defining the variables for the stringers
+        if type(stringers) != list or len(stringers) == 3:
+            raise Exception("Insert the value in a list of length 2")
+        if stringers[0] % 2 != 0: 
+            raise Exception("Please Insert an even number")
+        else:
+            stringer_per_side = stringers[0]/2
+            stringers_span = stringers[1]
+            stringers_type = stringers[2]
+            dimensions = stringers[3]
+        
+        if stringers_type == "L":
+            area_stringer = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
+        
+        elif stringers_type == "I":
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
+        
+        x_stringers = []
+        y_stringers = []
+        
+        for i in range(1, stringer_per_side + 2):
+            x_stringers.append(i * h / (np.cos(alpha) * (stringer_per_side + 1)))
+            x_stringers.append(i * h / (np.cos(alpha) * (stringer_per_side + 1)))
+            y_stringers.append(- a / 2 + (i * h / (np.sin(alpha) * (stringer_per_side + 1))))
+            y_stringers.append(a / 2 -(i * h / (np.sin(alpha) * (stringer_per_side + 1))))
+            
+        return x_stringers, y_stringers, area_stringer, stringers_span
 
-    def StringerPosition(self):
-        a, b, h, A, S, alpha, num_stringers = self.geometry(self, 1)
+    def stringer_I(self, z, stringers):
+        a, b, h, alpha = self.geometry(self, z)
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometric(z, stringers)
+        x, y = self.centroid(z, stringers)
+        num_stringers = stringers[0]
         
-        stringer_per_side = num_stringers/2
-        
-        X_pos = []
-        Y_pos = []
-        
-        for i in range(1, stringer_per_side+2):
-            X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
-            X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
-            Y_pos.append(-a/2+(i*h/(np.sin(alpha)*(stringer_per_side+1))))
-            Y_pos.append(a/2-(i*h/(np.sin(alpha)*(stringer_per_side+1))))
+        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
 
-        return X_pos, Y_pos
+        # For each bar, calculate contributions
+        I_xx_stringers_steiner, I_yy_stringers_steiner = 0, 0
+        for i in range(1, num_stringers+1):
+
+               # Distance along the inclined bar
+               distance_along_bar = i * stringer_spacing
+
+               # Position of the stringer in the global coordinate system (origin is at the long vertical bar)
+               x_pos_string = h - (distance_along_bar * np.cos(alpha))         
+               y_pos_string = (b/2) + (distance_along_bar * np.sin(alpha))
+               """
+               Note: position is now on the bars, we may need to adjust this a little based on the assumption
+               """
+               # Contribution to moments of inertia using parallel axis theorem
+               I_xx_sub = area_stringer * (y_pos_string - y) ** 2
+               I_yy_sub = area_stringer * (x_pos_string - x) ** 2
+
+               # Add contributions to total
+               I_xx_stringers_steiner += I_xx_sub
+               I_yy_stringers_steiner += I_yy_sub
+
+         # Double the total contributions because we have two bars
+        I_xx_stringers_steiner *= 2
+        I_yy_stringers_steiner *= 2
+        
+        return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string
 
