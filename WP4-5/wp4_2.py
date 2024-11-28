@@ -215,7 +215,7 @@ class WingBox():
             self.deflections['Rotation [rad]'] = temp_theta
 
 
-        def StringerPosition(self):
+    def StringerPosition(self):
         a, b, h, A, S, alpha, num_stringers = self.geometry(self, 1)
         
         stringer_per_side = num_stringers/2
@@ -225,7 +225,9 @@ class WingBox():
         
         for i in range(1, stringer_per_side+2):
             X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
+            X_pos.append(i*h/(np.cos(alpha)*(stringer_per_side+1)))
             Y_pos.append(-a/2+(i*h/(np.sin(alpha)*(stringer_per_side+1))))
+            Y_pos.append(a/2-(i*h/(np.sin(alpha)*(stringer_per_side+1))))
 
         return X_pos, Y_pos
 
