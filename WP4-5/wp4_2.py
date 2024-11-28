@@ -159,6 +159,13 @@ class WingBox():
 
         return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
         
+    def MOM_total (self, I_wingbox_xx, I_wingbox_yy, I_xx_stringers_steiner, I_yy_stringers_steiner): #total Moment of Intertia (so empty wing box and stringers)
+
+        I_total_xx = I_wingbox_xx + I_xx_stringers_steiner
+        I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
+
+        return (I_total_xx, I_total_yy)
+
     def torsion (self, z, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
