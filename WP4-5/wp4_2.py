@@ -113,22 +113,15 @@ class WingBox():
         J = ((4*t*A**2)/S)
         return J
     
-    def Jplots(self, z, t):
-        t = [0.001, 0.002, 0.003, 0.004, 0.005]
-        y1 = self.J(z, t[0])
-        y2 = self.J(z, t[1])
-        y3 = self.J(z, t[2])
-        y4 = self.J(z, t[3])
-        y5 = self.J(z, t[4])
-        x = z
+    def Jplots(self, z):
+        ts = [0.001, 0.002, 0.003, 0.004, 0.005]
+        
         plt.xlim(0, 1)
-        plt.plot(x, y1)
-        plt.plot(x, y2)
-        plt.plot(x, y3)
-        plt.plot(x, y4)
-        plt.plot(x, y5)
+        for t in range(len(ts)):
+            plt.plot(z, self.polar(z, ts[t]))        
+        
         plt.grid(True)
-        plt.show
+        plt.show()
         return plt.gcf()
     
     def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
@@ -150,10 +143,6 @@ class WingBox():
         
         z = np.linspace(0, halfspan) # range of z values to show the plot
         
-        I_xx = 0 # defining the moment of inertia
-        
-        J = 0 
-        
         self.deflections['Load [Nm]'] = 0
         self.deflections['z location [m]'] = z
         
@@ -170,7 +159,6 @@ class WingBox():
                 v = self.bending(z = i, M = load, E = modulus)
                 
                 temp_v.append(v)
-            
             
             self.deflections['Displacement [m]'] = temp_v
             self.deflections['Rotation [rad]'] = np.zeros(len(z))
@@ -221,7 +209,7 @@ class WingBox():
             
         return x_stringers, y_stringers, area_stringer, stringers_span
 
-    def stringer_I(self, z, stringers):
+    def stringer_I(self, z, stringers): # check this again, too many functions in one
         a, b, h, alpha = self.geometry(self, z)
         x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometric(z, stringers)
         x, y = self.centroid(z, stringers)
