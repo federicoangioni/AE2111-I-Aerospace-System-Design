@@ -2,7 +2,7 @@ from variables import *
 from wp4_1 import Aerodynamics, InternalForces
 from wp4_2 import WingBox
 import numpy as np
-
+import matplotlib.pyplot as plt
 xflr_files = 'XFLRdata\\XFLR5sims'
 
 load_factor = 2.5
@@ -29,12 +29,16 @@ g_shear, g_moment, g_torque, g_axial = internal_forces.internal_force_diagrams(e
                                         fuel_tank_length=fuel_tank_length, fuel_density=fuel_density, return_list=False)
 
 
+z = np.linspace(0, 12.08, 100)
+
+
+
 # Plotting the internal distribution functions
 # internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
 t = 0.001 # m
 
 wingbox = WingBox(t= t, c_r= c_r, c_t = None, wingspan=b, intersection= intersection, tr= tr, t1=0.001, t2= 0.001)
-
+print(wingbox.z)
 
 print(wingbox.torsion(z=wingbox.z, T= g_torque, G= G))
 

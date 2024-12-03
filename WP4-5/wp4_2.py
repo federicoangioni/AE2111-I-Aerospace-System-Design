@@ -1,4 +1,5 @@
 from scipy import integrate
+from scipy.integrate import cumulative_trapezoid
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
@@ -32,7 +33,7 @@ class WingBox():
         
         self.t1, self.t2 = t1, t2
         
-        self.z = np.linspace(0, self.wingspan/2, 20) # as of now only 200 points
+        self.z = np.linspace(0, 12.08, 100) # as of now only 10 points
         
         print(f"Wing span modified goes from 0 to {np.round(self.wingspan/2, 3)}")
             
@@ -191,15 +192,19 @@ class WingBox():
         plt.show()
         return plt.gcf()
     
-    def torsion (self, z, T: int, G): # T : torsion, 
+    def torsion (self, z, T: int, G): # T : torsion,
+         
         # T is defined with z fro 0 to b/2 in m
-        print(T(self.z))
+        
         thetadot = lambda z: (T(z)) / (self.polar(z) * G)
+        
         thetas = []
-        for i in range(len(z)):
-            theta, error = integrate.quad(thetadot, 0, i)
+        plt.plot(z, thetadot(z))
+        plt.show()
+        
+        theta, error = integrate.quad(thetadot, z, initial= 0)
             
-            thetas.append(theta)
+        thetas.append(theta)
             
         # if theta > np.deg2rad(abs(10)):
         #     print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))
