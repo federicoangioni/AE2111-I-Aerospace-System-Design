@@ -34,7 +34,7 @@ class WingBox():
         
         self.t1, self.t2 = t1, t2
         
-        self.z = np.linspace(0, 12.08, 100) # as of now only 10 points
+        self.z = np.linspace(0, self.wingspan/2, 100) # as of now only 10 points
         
         print(f"Wing span modified goes from 0 to {np.round(self.wingspan/2, 3)}")
             
@@ -193,11 +193,15 @@ class WingBox():
         plt.show()
         return plt.gcf()
     
-    def torsion (self, z, T: int, G): # T : torsion,
+    def torsion (self, z, T: int, G, plot= False, save= False): # ok
+        """
+        
+        """
          
         # T is defined with z fro 0 to b/2 in m
         thetadot = lambda x: (T(x)) / (self.polar(x) * G)
         
+        # interpolating the orginal function to avoid discontinuities along the integration
         thetad = interp1d(z, thetadot(z), kind='cubic', fill_value="extrapolate")
         
         thetas = []
@@ -211,6 +215,14 @@ class WingBox():
         #     print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))
         # else:
         #     print("Wing Tip Max. Rotation Allowed", "Displacement =", np.rad2deg(theta))
+            
+        if plot:
+            plt.plot(z, thetas)
+            plt.xlabel("Span wise position [m]")
+            plt.ylabel(r"$\theta$ [rad]")
+            plt.grid()
+            plt.show()
+            
         return thetas
 
     def show(self, load, modulus, choice: str): 
