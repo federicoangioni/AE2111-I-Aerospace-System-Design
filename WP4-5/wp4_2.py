@@ -54,7 +54,18 @@ class WingBox():
         plt.plot([0, h], [-b/2, -a/2])
         
         plt.show()
-        plt.clf()        
+        plt.clf()    
+
+    
+    def Spar(self, z):
+        a, b, h, alpha = self.geometry(z)
+        Point_area_flange  =
+        Flange_spar_position_x = [0,h/2,h/2,0]
+        Flange_spar_position_y = [a/2, b/2, -b/2, -a/2]
+
+        return Flange_spar_position_x, Flange_spar_position_y ,
+
+          
       
     def bending (self, z, M, E):
         I = self.MOM_total()
