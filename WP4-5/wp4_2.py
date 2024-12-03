@@ -9,7 +9,7 @@ import math as math
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
-    def __init__(self, t: int, c_r: int, c_t: int, wingspan: int, intersection: int, tr:int = None):
+    def __init__(self, t: int, c_r: int, c_t: int, wingspan: int, intersection: int,  t1, t2, tr:int = None,):
         """
         c_r is chord root at the half of the fuselage
         stringers: list [number of stringers, percentage of span until they continue, type, dimensions(in a further list) dict type], must be an integer for the code to work
@@ -29,6 +29,8 @@ class WingBox():
         self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
                                                     'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
         self.wingspan = (wingspan- intersection * wingspan)
+        
+        self.t1, self.t2 = t1, t2
         
         self.z = np.linspace(0, self.wingspan/2, 20) # as of now only 200 points
         
@@ -167,10 +169,10 @@ class WingBox():
 
         return (I_total_xx, I_total_yy)
 
-    def polar (self, z, t1, t2): # T : torsion, 
+    def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
-        denom = (b/t1) + 2*((h/np.cos(alpha))/t2) + (a/t1) #t1 is spar thickness, t2 is thickness of horizontal portion
+        denom = (b/self.t1) + 2*((h/np.cos(alpha))/self.t2) + (a/self.t1) #t1 is spar thickness, t2 is thickness of horizontal portion
         #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
         # stein = Area_string * (r**2)
         J = (4*A**2)/denom
