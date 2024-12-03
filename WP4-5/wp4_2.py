@@ -54,7 +54,19 @@ class WingBox():
         plt.plot([0, h], [-b/2, -a/2])
         
         plt.show()
-        plt.clf()        
+        plt.clf()    
+
+    
+    def Spar(self, Spar_thickenss, multiplication_factor, z):
+        a, b, h, alpha = self.geometry(z)
+        Point_area_flange = Spar_thickenss * multiplication_factor
+        Spar_thickness = Spar_thickenss
+        Flange_spar_position_x = [0,h/2,h/2,0]
+        Flange_spar_position_y = [a/2, b/2, -b/2, -a/2]
+
+        return Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange
+
+          
       
     def bending (self, z, M, E):
         I = self.MOM_total()
@@ -152,16 +164,21 @@ class WingBox():
         plt.show()
         return plt.gcf()
     
-    def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
-       
-        thetadot = lambda z: (T) / (J * G)
-
-        theta = integrate.quad(thetadot, 0, z)
-        if theta > np.deg2rad(abs(10)):
-            print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))
-        else:
-            print("Wing Tip Max. Rotation Allowed", "Displacement =", np.rad2deg(theta))
-        return theta
+    def torsion (self, z, T: int, G): # T : torsion, 
+        # T is defined with z fro 0 to b/2 in m
+        
+        thetadot = lambda z: (T(z)) / (self.polar(z) * G)
+        thetas = []
+        for i in range(len(z)):
+            theta, error = integrate.quad(thetadot, 0, i)
+            
+            thetas.append(theta)
+            
+        # if theta > np.deg2rad(abs(10)):
+        #     print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))
+        # else:
+        #     print("Wing Tip Max. Rotation Allowed", "Displacement =", np.rad2deg(theta))
+        return thetas
 
     def show(self, load, modulus, choice: str): 
         """
