@@ -33,7 +33,7 @@ g_shear, g_moment, g_torque, g_axial = internal_forces.internal_force_diagrams(e
 # internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
 t = 0.001 # m
 
-wingbox = WingBox(t= t, c_r= c_r, c_t = None, wingspan=b, intersection= intersection, tr= tr)
+wingbox = WingBox(t= t, c_r= c_r, c_t = None, wingspan=b, intersection= intersection, tr= tr, t1=0.001, t2= 0.001)
 
 
 print(wingbox.torsion(z=wingbox.z, T= g_torque, G= G))
