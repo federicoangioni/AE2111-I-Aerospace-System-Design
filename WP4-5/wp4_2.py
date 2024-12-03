@@ -11,6 +11,7 @@ import math as math
 class WingBox():
     def __init__(self, t: int, c_r: int, c_t: int, wingspan: int, intersection: int, tr:int = None):
         """
+        c_r is chord root at the half of the fuselage
         stringers: list [number of stringers, percentage of span until they continue, type, dimensions(in a further list) dict type], must be an integer for the code to work
         dimensions: dict type changes in base of the used stringer
         L type stringer: {'base':, 'height':, 'thickness base':, 'thickness height':} [m]
@@ -30,8 +31,7 @@ class WingBox():
         self.wingspan = wingspan
         
         self.tiplocation = self.wingspan/2 - (self.wingspan/2) * intersection
-        
-        
+             
     def chord(self, z): #TESTED OK
         # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
         c = self.c_r - self.c_r * (1 - (self.c_t / self.c_r)) * (z / ((self.wingspan / 2)))
@@ -44,6 +44,17 @@ class WingBox():
         h = 0.55 * self.chord(z)          # trapezoid height  [m]
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
         return a, b, h, alpha
+    
+    def show_geometry(self, z):
+        a, b, h, alpha = self.geometry(z)
+        
+        plt.plot([0, 0], [b/2, -b/2])
+        plt.plot([0, h], [b/2, a/2])
+        plt.plot([h, h], [a/2, -a/2])
+        plt.plot([0, h], [-b/2, -a/2])
+        
+        plt.show()
+        plt.clf()        
       
     def bending (self, z, M, E):
         I = self.MOM_total()
@@ -110,18 +121,6 @@ class WingBox():
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
 
         return (I_total_xx, I_total_yy)
-    
-     def MOMplots(self, z):
-        ts = [0.001, 0.002, 0.003, 0.004, 0.005]
-        z = np.linspace(0, self.tiplocation)
-        
-        for t in range(len(ts)):
-            plt.plot(z, self.MOM_total(z, ts[t]))        
-        
-        plt.grid(True)
-        plt.legend()
-        plt.show()
-        return plt.gcf()
 
     def polar (self, z, t): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
@@ -198,8 +197,8 @@ class WingBox():
             self.deflections['Displacement [m]'] = np.zeros(len(z))
             self.deflections['Rotation [rad]'] = temp_theta
 
-    def stringer_geometric(self, z, stringers):
-        a, b, h, alpha = self.geometry(self, z)
+    def stringer_geometry(self, z, stringers):
+        a, b, h, alpha = self.geometry(z)
         
         # defining the variables for the stringers
         if type(stringers) != list or len(stringers) == 3:
@@ -207,7 +206,7 @@ class WingBox():
         if stringers[0] % 2 != 0: 
             raise Exception("Please Insert an even number")
         else:
-            stringer_per_side = stringers[0]/2
+            stringer_per_side = int(stringers[0]/2)
             stringers_span = stringers[1]
             stringers_type = stringers[2]
             dimensions = stringers[3]
@@ -221,7 +220,7 @@ class WingBox():
         x_stringers = []
         y_stringers = []
         
-        for i in range(1, stringer_per_side + 2):
+        for i in range(1, stringer_per_side+1):
             x_stringers.append(i * h / (np.cos(alpha) * (stringer_per_side + 1)))
             x_stringers.append(i * h / (np.cos(alpha) * (stringer_per_side + 1)))
             y_stringers.append(- a / 2 + (i * h / (np.sin(alpha) * (stringer_per_side + 1))))
