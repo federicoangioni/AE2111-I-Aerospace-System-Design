@@ -309,6 +309,14 @@ class LoadCases():
     def get_load_cases(self):
         return self.critical_load_cases
     
+    def get_critical_cases(self, possible_cases):
+        max_speed_case = max(possible_cases, key=lambda case: (case["speed"], case["load_factor"]))
+        min_load_factor_case = min(possible_cases, key=lambda case: case["load_factor"])
+
+        return max_speed_case, min_load_factor_case
+
+
+    
 
 if __name__ == "__main__":
     print("running wp4-3.py")
@@ -326,6 +334,10 @@ if __name__ == "__main__":
             # LC.show(show=False, save=True)
             possible_cases = np.append(possible_cases, LC.get_load_cases())
 
+    max_clc, min_clc = LC.get_critical_cases(possible_cases)
+    
+    print(max_clc)
+    print(min_clc)
 
     with open("VNDiagram/critical_cases.txt", "w") as file:
         file.write(str(possible_cases))
