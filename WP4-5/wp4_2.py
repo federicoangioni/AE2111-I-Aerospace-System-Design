@@ -57,7 +57,7 @@ class WingBox():
         plt.clf()        
       
     def bending (self, z, M, E):
-        I = self.MOMEWB()
+        I = self.MOM_total()
         v_double_dot = lambda z: M/(-E*I)
         
         vdot = integrate.quad(v_double_dot, 0, z)
@@ -262,4 +262,3 @@ class WingBox():
         I_yy_stringers_steiner *= 2
         
         return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string
-
