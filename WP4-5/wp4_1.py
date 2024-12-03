@@ -327,63 +327,65 @@ class InternalForces():
         plt.show()
 
 
-aerodynamics = Aerodynamics(folder="C:\\Users\medha\OneDrive\Desktop\TU Delft 1st Year\pythonProject1\\venv\XFLROpPoints2", aoa=5, wingspan=26.9, fus_radius=1.47)
-distributions = aerodynamics.coefficients(return_list=False)
+# aerodynamics = Aerodynamics(folder="C:\\Users\medha\OneDrive\Desktop\TU Delft 1st Year\pythonProject1\\venv\XFLROpPoints2", aoa=5, wingspan=26.9, fus_radius=1.47)
+# distributions = aerodynamics.coefficients(return_list=False)
 
-internal_forces = InternalForces(
-    load_factor= 1,
-    half_chord_sweep=22.4645,
-    fus_radius=1.47,
-    density=1.225,            # Air density in kg/m^3
-    airspeed=66.26,               # Airspeed in m/s
-    distributions=distributions,  # From the Aerodynamics class
-    c_r=4.33,                 # Root chord in meters
-    c_t=1.33,
-    wingspan= 26.9,            # Wingspan in meters after shaving off fuselage width
-    engine_z_loc=4.35,        # Engine location along the span (z) in meters
-    engine_length=3.0,        # Length of the engine in meters
-    x_hl=13,                  # Horizontal distance to the engine
-    x_lemac=16.37,            # Horizontal distance to the leading edge of MAC
-    MAC=3.05,                 # Mean Aerodynamic Chord in meters
-    one_engine_thrust=78466,  # Thrust per engine in Newtons
-    fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters
-)
+# internal_forces = InternalForces(
+#     load_factor= 1,
+#     half_chord_sweep=22.4645,
+#     fus_radius=1.47,
+#     density=1.225,            # Air density in kg/m^3
+#     airspeed=66.26,               # Airspeed in m/s
+#     distributions=distributions,  # From the Aerodynamics class
+#     c_r=4.33,                 # Root chord in meters
+#     c_t=1.33,
+#     wingspan= 26.9,            # Wingspan in meters after shaving off fuselage width
+#     engine_z_loc=4.35,        # Engine location along the span (z) in meters
+#     engine_length=3.0,        # Length of the engine in meters
+#     x_hl=13,                  # Horizontal distance to the engine
+#     x_lemac=16.37,            # Horizontal distance to the leading edge of MAC
+#     MAC=3.05,                 # Mean Aerodynamic Chord in meters
+#     one_engine_thrust=78466,  # Thrust per engine in Newtons
+#     fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters
+# )
 
-internal_forces.show(
-    engine_mass=2306,         # Mass of the engine in kilograms
-    wing_box_length=0.55,     # Length of the wingbox relative to chord
-    fuel_tank_length=11.98,   # Length of the fuel tank in meters
-    fuel_density=800        # Density of the fuel in kg/m^3
-)
+# internal_forces.show(
+#     engine_mass=2306,         # Mass of the engine in kilograms
+#     wing_box_length=0.55,     # Length of the wingbox relative to chord
+#     fuel_tank_length=11.98,   # Length of the fuel tank in meters
+#     fuel_density=800        # Density of the fuel in kg/m^3
+# )
 
-# def critical_case_analysis(aoa, load_factor, airspeed, density, one_engine_thrust):
-#     aerodynamics = Aerodynamics(
-#         folder="C:\\Users\medha\OneDrive\Desktop\TU Delft 1st Year\pythonProject1\\venv\XFLROpPoints2", aoa=aoa,
-#         wingspan=26.9, fus_radius=1.47)
-#     distributions = aerodynamics.coefficients(return_list=False)
-#
-#     internal_forces = InternalForces(
-#         load_factor=load_factor,
-#         half_chord_sweep=22.4645,
-#         fus_radius=1.47,
-#         density=density,  # Air density in kg/m^3
-#         airspeed=airspeed,  # Airspeed in m/s
-#         distributions=distributions,  # From the Aerodynamics class
-#         c_r=4.33,  # Root chord in meters
-#         c_t=1.33,
-#         wingspan=26.9,  # Wingspan in meters after shaving off fuselage width
-#         engine_z_loc=4.35,  # Engine location along the span (z) in meters
-#         engine_length=3.0,  # Length of the engine in meters
-#         x_hl=13,  # Horizontal distance to the engine
-#         x_lemac=16.37,  # Horizontal distance to the leading edge of MAC
-#         MAC=3.05,  # Mean Aerodynamic Chord in meters
-#         one_engine_thrust=one_engine_thrust,  # Thrust per engine in Newtons
-#         fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters
-#     )
-#
-#     internal_forces.show(
-#         engine_mass=2306,  # Mass of the engine in kilograms
-#         wing_box_length=0.55,  # Length of the wingbox relative to chord
-#         fuel_tank_length=11.98,  # Length of the fuel tank in meters
-#         fuel_density=800  # Density of the fuel in kg/m^3
-#     )
+def critical_case_analysis(aoa, load_factor, airspeed, density, one_engine_thrust):
+    aerodynamics = Aerodynamics(
+        folder="XFLRdata\XFLR5sims", aoa=aoa,
+        wingspan=26.9, fus_radius=1.47)
+    distributions = aerodynamics.coefficients(return_list=False)
+
+    internal_forces = InternalForces(
+        load_factor=load_factor,
+        half_chord_sweep=22.4645,
+        fus_radius=1.47,
+        density=density,  # Air density in kg/m^3
+        airspeed=airspeed,  # Airspeed in m/s
+        distributions=distributions,  # From the Aerodynamics class
+        c_r=4.33,  # Root chord in meters
+        c_t=1.33,
+        wingspan=26.9,  # Wingspan in meters after shaving off fuselage width
+        engine_z_loc=4.35,  # Engine location along the span (z) in meters
+        engine_length=3.0,  # Length of the engine in meters
+        x_hl=13,  # Horizontal distance to the engine
+        x_lemac=16.37,  # Horizontal distance to the leading edge of MAC
+        MAC=3.05,  # Mean Aerodynamic Chord in meters
+        one_engine_thrust=one_engine_thrust,  # Thrust per engine in Newtons
+        fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters
+    )
+
+    internal_forces.show(
+        engine_mass=2306,  # Mass of the engine in kilograms
+        wing_box_length=0.55,  # Length of the wingbox relative to chord
+        fuel_tank_length=11.98,  # Length of the fuel tank in meters
+        fuel_density=800  # Density of the fuel in kg/m^3
+    )
+    
+critical_case_analysis(aoa= 10, load_factor= 2.5, airspeed= 327.5, density= 1.225, one_engine_thrust= 78466)
