@@ -1,0 +1,54 @@
+[{'load_factor': 1.0, 'speed': np.float64(47.726086822592976), 'weight': 192207.33000000002, 'flaps': 'TO', 'altitude': 0, 'description': 'Stall Speed clean at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(75.4380082034534), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Manouvering speed at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(327.5313261078292), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed at n=1'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(327.5313261078292), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(109.0133266613517), 'weight': 192207.33000000002, 'flaps': 'TO', 'altitude': 0, 'description': 'Flap design speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(50.182817441463584), 'weight': 192207.33000000002, 'flaps': 'TO', 'altitude': 0, 'description': 'Flap inflection point'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(75.4380082034534), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Manouvering speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(261.0358173570648), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(47.726086822592976), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Inflection point negative load'}
+ {'load_factor': 1.0, 'speed': np.float64(54.89974022969515), 'weight': 254549.88, 'flaps': 'TO', 'altitude': 0, 'description': 'Stall Speed clean at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(86.80448186676142), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Manouvering speed at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(327.5313261078292), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed at n=1'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(327.5313261078292), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(109.0133266613517), 'weight': 254549.88, 'flaps': 'TO', 'altitude': 0, 'description': 'Flap design speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(57.74954774758505), 'weight': 254549.88, 'flaps': 'TO', 'altitude': 0, 'description': 'Flap inflection point'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(86.80448186676142), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Manouvering speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(261.0358173570648), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(54.89974022969515), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Inflection point negative load'}
+ {'load_factor': 1.0, 'speed': np.float64(64.39909862266148), 'weight': 350099.28, 'flaps': 'TO', 'altitude': 0, 'description': 'Stall Speed clean at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(101.80691684599792), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Manouvering speed at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(327.5313261078292), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed at n=1'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(327.5313261078292), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(109.0133266613517), 'weight': 350099.28, 'flaps': 'TO', 'altitude': 0, 'description': 'Flap design speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(67.7074958560739), 'weight': 350099.28, 'flaps': 'TO', 'altitude': 0, 'description': 'Flap inflection point'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(101.80691684599792), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Manouvering speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(261.0358173570648), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(64.39909862266148), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Inflection point negative load'}
+ {'load_factor': 1.0, 'speed': np.float64(85.71836796457107), 'weight': 192207.33000000002, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Stall Speed clean at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(135.5280756229715), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Manouvering speed at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(285.413906519396), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed at n=1'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(285.413906519396), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(195.92769820473387), 'weight': 192207.33000000002, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Flap design speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(90.1427259514204), 'weight': 192207.33000000002, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Flap inflection point'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(135.5280756229715), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Manouvering speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(227.3549120339023), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(85.71836796457107), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Inflection point negative load'}
+ {'load_factor': 1.0, 'speed': np.float64(98.64891098420168), 'weight': 254549.88, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Stall Speed clean at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(155.96575509770773), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Manouvering speed at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(285.413906519396), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed at n=1'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(285.413906519396), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(195.92769820473387), 'weight': 254549.88, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Flap design speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(103.72978660780929), 'weight': 254549.88, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Flap inflection point'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(155.96575509770773), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Manouvering speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(227.3549120339023), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(98.64891098420168), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Inflection point negative load'}
+ {'load_factor': 1.0, 'speed': np.float64(115.68982529484067), 'weight': 350099.28, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Stall Speed clean at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(182.91152244987393), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Manouvering speed at n=1'}
+ {'load_factor': 1.0, 'speed': np.float64(285.413906519396), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed at n=1'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(285.413906519396), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(195.92769820473387), 'weight': 350099.28, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Flap design speed'}
+ {'load_factor': np.float64(2.0), 'speed': np.float64(121.65557251581815), 'weight': 350099.28, 'flaps': 'TO', 'altitude': 10668.0, 'description': 'Flap inflection point'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(182.91152244987393), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Manouvering speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(227.3549120339023), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(115.68982529484067), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Inflection point negative load'}]
