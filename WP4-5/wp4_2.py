@@ -148,7 +148,10 @@ class WingBox():
         thetadot = lambda z: (T) / (J * G)
 
         theta = integrate.quad(thetadot, 0, z)
-
+        if theta > np.deg2rad(abs(10)):
+            print("Wing Tip Max. Rotation Exceeded", "Displacement =" np.rad2deg(theta))
+        else:
+            print("Wing Tip Max. Rotation Allowed", "Displacement =" np.rad2deg(theta))
         return theta
 
     def show(self, load, modulus, choice: str): 
