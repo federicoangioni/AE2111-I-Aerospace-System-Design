@@ -93,6 +93,12 @@ class WingBox():
             A.append(area_stringer[i])
             X.append(x_stringers[i])
             Y.append(y_stringers[i])
+        
+        for i in range(len(Flange_spar_position_x)):
+            A.append(Point_area_flange[i])
+            X.append(Flange_spar_position_x[i])
+            Y.append(Flange_spar_position_y[i])
+
 
         for i in range(len(x)):
             weights_X = A[i]*X[i]
