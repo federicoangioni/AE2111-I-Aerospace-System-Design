@@ -126,7 +126,7 @@ class WingBox():
 
         return (I_total_xx, I_total_yy)
     
-    def MOM_total_plots (self, z)
+    def MOM_total_plots (self, z):
         ts = [0.001, 0.002, 0.003, 0.004, 0.005]
         z = np.linspace(0, self.tiplocation)
         
@@ -138,13 +138,13 @@ class WingBox():
         plt.show()
         return plt.gcf()
 
-    def polar (self, z, t): # T : torsion, 
+    def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
         S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
         #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
         # stein = Area_string * (r**2)
-        J = ((4*t*A**2)/S)
+        J = ((4*self.t*A**2)/S)
         return J
     
     def Jplots(self, z):
@@ -159,8 +159,9 @@ class WingBox():
         plt.show()
         return plt.gcf()
     
-    def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
-       
+    def torsion (self, z, T: int, G): # T : torsion, 
+        
+        J = self.polar(z)
         thetadot = lambda z: (T) / (J * G)
 
         theta = integrate.quad(thetadot, 0, z)

@@ -36,6 +36,6 @@ t = 0.005 # m
 
 wingbox = WingBox(t= t, c_r= c_r, c_t = None, wingspan=b, intersection=fus_radius, tr= tr)
 
-wingbox.torsion(z=z, )
+print(wingbox.torsion(z=z, T= g_torque, G= G))
 
 
