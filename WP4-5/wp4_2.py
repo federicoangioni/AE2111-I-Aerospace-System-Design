@@ -126,17 +126,8 @@ class WingBox():
 
         return (I_total_xx, I_total_yy)
     
-    def MOM_total_plots (self, z):
-        ts = [0.001, 0.002, 0.003, 0.004, 0.005]
-        z = np.linspace(0, self.tiplocation)
-        
-        for t in range(len(ts)):
-            plt.plot(z, self.polar(z, ts[t]))        
-        
-        plt.grid(True)
-        plt.legend()
-        plt.show()
-        return plt.gcf()
+    def MOM_total_plots(self, z):
+      
 
     def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)

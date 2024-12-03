@@ -74,7 +74,7 @@ class Aerodynamics():
 
 
 class InternalForces():
-    def __init__(self, load_factor, half_chord_sweep, fus_radius, density, airspeed, distributions, c_r, wingspan, engine_z_loc, engine_length, x_hl, x_lemac, MAC, one_engine_thrust, fan_cowl_diameter, c_t):
+    def __init__(self, load_factor, sound_speed, half_chord_sweep, fus_radius, density, airspeed, distributions, c_r, wingspan, engine_z_loc, engine_length, x_hl, x_lemac, MAC, one_engine_thrust, fan_cowl_diameter, c_t):
         """
 
         """
@@ -94,6 +94,7 @@ class InternalForces():
         self.fan_cowl_diameter = fan_cowl_diameter
         self.load_factor = load_factor
         self.fus_radius = fus_radius
+        self.sound_speed = sound_speed
 
         self.z_points = np.linspace(0, self.wingspan / 2, 1000)
 
@@ -113,9 +114,9 @@ class InternalForces():
         T_z = []
         D_z = []
         for i in self.z_points:
-            L_z.append(self.g_cl(i) * self.q * chord_dist_z.subs(z, i))
-            T_z.append(self.g_cm(i) * self.q * chord_dist_z.subs(z, i))
-            D_z.append(self.g_cd(i) * self.q * chord_dist_z.subs(z, i))
+            L_z.append(self.g_cl(i) * self.q * chord_dist_z.subs(z, i)/ np.sqrt(1-(self.airspeed/self.sound_speed)**2))
+            T_z.append(self.g_cm(i) * self.q * chord_dist_z.subs(z, i)/ np.sqrt(1-(self.airspeed/self.sound_speed)**2))
+            D_z.append(self.g_cd(i) * self.q * chord_dist_z.subs(z, i)/ np.sqrt(1-(self.airspeed/self.sound_speed)**2))
 
         # These are the final scipy functions
         Lift_dist = interp1d(self.z_points, L_z, kind='cubic', fill_value="extrapolate")
@@ -329,12 +330,13 @@ class InternalForces():
         plt.tight_layout()
         plt.show()
 
-
+# change
 # aerodynamics = Aerodynamics(folder="C:\\Users\medha\OneDrive\Desktop\TU Delft 1st Year\pythonProject1\\venv\XFLROpPoints2", aoa=5, wingspan=26.9, fus_radius=1.47)
 # distributions = aerodynamics.coefficients(return_list=False)
 
 # internal_forces = InternalForces(
 #     load_factor= 1,
+#     sound_speed=343,
 #     half_chord_sweep=22.4645,
 #     fus_radius=1.47,
 #     density=1.225,            # Air density in kg/m^3
@@ -349,7 +351,7 @@ class InternalForces():
 #     x_lemac=16.37,            # Horizontal distance to the leading edge of MAC
 #     MAC=3.05,                 # Mean Aerodynamic Chord in meters
 #     one_engine_thrust=78466,  # Thrust per engine in Newtons
-#     fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters
+#     fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters        
 # )
 
 # internal_forces.show(
@@ -367,6 +369,7 @@ class InternalForces():
 
 #     internal_forces = InternalForces(
 #         load_factor=load_factor,
+#         sound_speed=343,
 #         half_chord_sweep=22.4645,
 #         fus_radius=1.47,
 #         density=density,  # Air density in kg/m^3
