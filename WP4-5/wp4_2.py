@@ -59,7 +59,7 @@ class WingBox():
     
     def Spar(self, Spar_thickenss, multiplication_factor, z):
         a, b, h, alpha = self.geometry(z)
-        Point_area_flange = Spar_thickenss * multiplication_factor
+        Point_area_flange = Spar_thickenss**2 * multiplication_factor
         Spar_thickness = Spar_thickenss
         Flange_spar_position_x = [0,h/2,h/2,0]
         Flange_spar_position_y = [a/2, b/2, -b/2, -a/2]
