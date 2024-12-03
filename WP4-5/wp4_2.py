@@ -59,8 +59,7 @@ class WingBox():
         
         plt.show()
         plt.clf()    
-
-    
+ 
     def Spar(self, Spar_thickenss, multiplication_factor, z):
         a, b, h, alpha = self.geometry(z)
         Point_area_flange = Spar_thickenss**2 * multiplication_factor
@@ -68,9 +67,7 @@ class WingBox():
         Flange_spar_position_x = [0,h/2,h/2,0]
         Flange_spar_position_y = [a/2, b/2, -b/2, -a/2]
 
-        return Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange
-
-          
+        return Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange        
       
     def bending (self, z, M, E):
         I = self.MOM_total()
@@ -152,8 +149,7 @@ class WingBox():
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
         denom = (b/self.t1) + 2*((h/np.cos(alpha))/self.t2) + (a/self.t1) #t1 is spar thickness, t2 is thickness of horizontal portion
-        #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
-        # stein = Area_string * (r**2)
+
         J = (4*A**2)/denom
         return J
     
@@ -176,7 +172,7 @@ class WingBox():
     
     def torsion (self, z, T: int, G): # T : torsion, 
         # T is defined with z fro 0 to b/2 in m
-    
+        print(T(self.z))
         thetadot = lambda z: (T(z)) / (self.polar(z) * G)
         thetas = []
         for i in range(len(z)):
