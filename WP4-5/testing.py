@@ -13,3 +13,4 @@ z = np.linspace(0, 1)
 
 wingbox.show_geometry(12.078)
 wingbox.Jplots(z)
+wingbox.MOM_total_plots(z)
