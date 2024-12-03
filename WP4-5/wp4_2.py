@@ -121,6 +121,18 @@ class WingBox():
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
 
         return (I_total_xx, I_total_yy)
+    
+    def MOM_total_plots (self, z)
+        ts = [0.001, 0.002, 0.003, 0.004, 0.005]
+        z = np.linspace(0, self.tiplocation)
+        
+        for t in range(len(ts)):
+            plt.plot(z, self.polar(z, ts[t]))        
+        
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+        return plt.gcf()
 
     def polar (self, z, t): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
