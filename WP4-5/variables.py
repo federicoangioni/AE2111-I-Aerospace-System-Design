@@ -3,6 +3,15 @@ tr = 0.31 #taper ratio
 b = 26.9 #wingspan
 d = 2.74 #fuselage diameter
 alpha =1.48414 #in degrees
+airspeed = 68
+
+# Engine specs
+engine_length = 3.0 # m
+x_hl = 13
+x_lemac = 16.37
+MAC=3.05
+one_engine_thrust= 78466 # in Newtons
+fan_cowl_diameter=1.448,
 
 
 #material properties Aluminum 2024-T81
