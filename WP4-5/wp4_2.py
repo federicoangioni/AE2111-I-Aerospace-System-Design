@@ -262,4 +262,3 @@ class WingBox():
         I_yy_stringers_steiner *= 2
         
         return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string
-
