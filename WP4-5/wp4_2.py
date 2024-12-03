@@ -5,7 +5,7 @@ import pandas as pd
 import math as math
 
 
-# authors: Federicobabe, Benthelad, Anitawalking, Wilsondaking
+# authors: Federico, Ben, Anita, Winston
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
@@ -63,6 +63,10 @@ class WingBox():
         vdot = integrate.quad(v_double_dot, 0, z)
         v = integrate.quad(vdot, 0, z)
         
+        if v > 0.15 * self.wingspan:
+            print("Max Tip Displacement Exceeded", "Displacement =", v )
+        else:
+            print("Max Tip Displacement OK", "Displacement =", v )
         return v
     
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
@@ -121,14 +125,17 @@ class WingBox():
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
 
         return (I_total_xx, I_total_yy)
+    
+    def MOM_total_plots(self, z):
+      
 
-    def polar (self, z, t): # T : torsion, 
+    def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
         S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
         #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
         # stein = Area_string * (r**2)
-        J = ((4*t*A**2)/S)
+        J = ((4*self.t*A**2)/S)
         return J
     
     def Jplots(self, z):
@@ -143,12 +150,16 @@ class WingBox():
         plt.show()
         return plt.gcf()
     
-    def torsion (self, z, J, T: int, G, x_pos_string,y_pos_string, x, y, Area_string ): # T : torsion, 
-       
+    def torsion (self, z, T: int, G): # T : torsion, 
+        
+        J = self.polar(z)
         thetadot = lambda z: (T) / (J * G)
 
         theta = integrate.quad(thetadot, 0, z)
-
+        if theta > np.deg2rad(abs(10)):
+            print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))
+        else:
+            print("Wing Tip Max. Rotation Allowed", "Displacement =", np.rad2deg(theta))
         return theta
 
     def show(self, load, modulus, choice: str): 

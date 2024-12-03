@@ -3,7 +3,20 @@ tr = 0.31 #taper ratio
 b = 26.9 #wingspan
 d = 2.74 #fuselage diameter
 alpha =1.48414 #in degrees
+airspeed = 68
 
+# Engine specs
+engine_length = 3.0 # m
+x_hl = 13
+x_lemac = 16.37
+MAC=3.05
+one_engine_thrust= 78466 # in Newtons
+fan_cowl_diameter=1.448
+
+engine_mass= 2306        # Mass of the engine in kilograms
+wing_box_length= 0.55     # Length of the wingbox relative to chord
+fuel_tank_length= 11.98   # Length of the fuel tank in meters
+fuel_density= 800        # Density of the fuel in kg/m^3
 
 #material properties Aluminum 2024-T81
 E = 72400000000 #Young modulus [Pa]

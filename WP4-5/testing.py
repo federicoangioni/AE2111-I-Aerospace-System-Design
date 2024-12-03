@@ -12,4 +12,5 @@ print(wingbox.stringer_geometry(0, stringers= stringers))
 z = np.linspace(0, 1)
 
 wingbox.show_geometry(12.078)
-# wingbox.Jplots(z)
+wingbox.Jplots(z)
+wingbox.MOM_total_plots(z)
