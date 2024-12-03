@@ -11,7 +11,7 @@ fus_radius = d/2 # m
 engine_z_loc = 4.35 # m
 intersection = (fus_radius)/(b/2)
 # change this to any angle of attack you'd like to use
-aoa = 5
+aoa = 10
 
 # aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= b)
 aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= 26.9, fus_radius=fus_radius)
@@ -34,11 +34,11 @@ z = np.linspace(0, 12.08, 100)
 
 
 # Plotting the internal distribution functions
-# internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
+internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
 t = 0.001 # m
 
 wingbox = WingBox(t= t, c_r= c_r, c_t = None, wingspan=b, intersection= intersection, tr= tr, t1=0.001, t2= 0.001)
-print(wingbox.z)
+
 
 print(wingbox.torsion(z=wingbox.z, T= g_torque, G= G))
 

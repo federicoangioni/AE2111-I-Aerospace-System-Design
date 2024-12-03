@@ -19,8 +19,8 @@ fuel_tank_length= 11.98   # Length of the fuel tank in meters
 fuel_density= 800        # Density of the fuel in kg/m^3
 
 #material properties Aluminum 2024-T81
-E = 72400000000 #Young modulus [Pa]
-G = 28000000000 #shear modulus [Pa]
+E = 72_400_000_000 #Young modulus [Pa]
+G = 28_000_000_000 #shear modulus [Pa]
 rho = 2780 #density [kg/m^3]
 tsY = 450000000 #tensile strength yield [Pa]
 tsU = 485000000 #tensile strength ultimate [Pa]

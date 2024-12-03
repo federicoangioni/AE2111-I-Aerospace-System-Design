@@ -1,9 +1,10 @@
 from scipy import integrate
-from scipy.integrate import cumulative_trapezoid
+from scipy.integrate import cumtrapz
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 import math as math
+from scipy.interpolate import interp1d
 
 
 # authors: Federico, Ben, Anita, Winston
@@ -197,14 +198,23 @@ class WingBox():
         # T is defined with z fro 0 to b/2 in m
         
         thetadot = lambda z: (T(z)) / (self.polar(z) * G)
-        
-        thetas = []
-        plt.plot(z, thetadot(z))
+        plt.plot(z, self.polar(z))
+        plt.show()
+        plt.plot(z, T(z))
         plt.show()
         
-        theta, error = integrate.quad(thetadot, z, initial= 0)
+        
+        thetad = interp1d(z, thetadot(z), kind='cubic', fill_value="extrapolate")
+        thetas = []
+        
+        plt.plot(z, thetad(z))
+        plt.grid()
+        plt.show()
+        
+        for i in range(len(z)):
+            theta, error = integrate.quad(thetad, 0, i)
             
-        thetas.append(theta)
+            thetas.append(theta)
             
         # if theta > np.deg2rad(abs(10)):
         #     print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))

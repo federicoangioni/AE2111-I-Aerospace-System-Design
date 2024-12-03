@@ -12,7 +12,7 @@ class Aerodynamics():
     def __init__(self, folder: str, aoa: int, wingspan: int, fus_radius):
         self.files = [os.path.join(folder, file) for file in
                       os.listdir(folder)]  # makes a list with all the files in the XFLR folder
-        self.aoa = aoa + 1
+        self.aoa = aoa
         self.wingspan = wingspan - 2 * fus_radius
 
     def coefficients(self, return_list: bool):
