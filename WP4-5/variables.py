@@ -3,7 +3,7 @@ tr = 0.31 #taper ratio
 b = 26.9 #wingspan
 d = 2.74 #fuselage diameter
 alpha =1.48414 #in degrees
-airspeed = 68
+airspeed = 327.5313261078292
 
 # Engine specs
 engine_length = 3.0 # m

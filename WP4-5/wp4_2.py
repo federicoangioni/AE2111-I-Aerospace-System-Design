@@ -196,23 +196,14 @@ class WingBox():
     def torsion (self, z, T: int, G): # T : torsion,
          
         # T is defined with z fro 0 to b/2 in m
-        
-        thetadot = lambda z: (T(z)) / (self.polar(z) * G)
-        plt.plot(z, self.polar(z))
-        plt.show()
-        plt.plot(z, T(z))
-        plt.show()
-        
+        thetadot = lambda x: (T(x)) / (self.polar(x) * G)
         
         thetad = interp1d(z, thetadot(z), kind='cubic', fill_value="extrapolate")
+        
         thetas = []
-        
-        plt.plot(z, thetad(z))
-        plt.grid()
-        plt.show()
-        
+
         for i in range(len(z)):
-            theta, error = integrate.quad(thetad, 0, i)
+            theta, error = integrate.quad(thetad, 0, z[i])
             
             thetas.append(theta)
             

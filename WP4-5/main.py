@@ -11,7 +11,7 @@ fus_radius = d/2 # m
 engine_z_loc = 4.35 # m
 intersection = (fus_radius)/(b/2)
 # change this to any angle of attack you'd like to use
-aoa = 10
+aoa = 0
 
 # aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= b)
 aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= 26.9, fus_radius=fus_radius)
@@ -40,5 +40,6 @@ t = 0.001 # m
 wingbox = WingBox(t= t, c_r= c_r, c_t = None, wingspan=b, intersection= intersection, tr= tr, t1=0.001, t2= 0.001)
 
 
-print(wingbox.torsion(z=wingbox.z, T= g_torque, G= G))
+plt.plot(wingbox.z, wingbox.torsion(z=wingbox.z, T= g_torque, G= G))
+plt.show()
 
