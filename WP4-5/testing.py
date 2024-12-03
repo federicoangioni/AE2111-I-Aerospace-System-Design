@@ -26,8 +26,7 @@ stringers = [6, 0.9, 'L', {'base': 10e-3, 'height': 5e-3, 'thickness base': 2e-3
 # print(wingbox.stringer_geometry(0, stringers= stringers))
 
 
-print(wingbox.torsion(z= wingbox.z, T= f2, G= G))
+z = np.linspace(0, 1)
 
-
-
-
+#wingbox.show_geometry(12.078)
+wingbox.Jplots(z)
