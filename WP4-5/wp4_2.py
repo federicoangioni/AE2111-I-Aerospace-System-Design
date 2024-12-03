@@ -64,9 +64,9 @@ class WingBox():
         v = integrate.quad(vdot, 0, z)
         
         if v > 0.15 * self.wingspan:
-            print("Max Tip Displacement Exceeded, Displacement =" v )
+            print("Max Tip Displacement Exceeded", "Displacement =", v )
         else:
-            print("Max Tip Displacement OK, Displacement =" v )
+            print("Max Tip Displacement OK", "Displacement =", v )
         return v
     
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
