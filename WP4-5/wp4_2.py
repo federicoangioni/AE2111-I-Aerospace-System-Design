@@ -64,9 +64,9 @@ class WingBox():
         v = integrate.quad(vdot, 0, z)
         
         if v > 0.15 * self.wingspan:
-            print("Max Tip Displacement Exceeded", "Displacement =", v )
+            print("Max Tip Displacement Exceeded", "Displacement =", v, (v/self.wingspan)*100, "(% Wingspan)" )
         else:
-            print("Max Tip Displacement OK", "Displacement =", v )
+            print("Max Tip Displacement OK", "Displacement =", v , (v/self.wingspan)*100, "(% Wingspan)")
         return v
     
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
@@ -126,24 +126,29 @@ class WingBox():
 
         return (I_total_xx, I_total_yy)
 
-    def polar (self, z, t): # T : torsion, 
+    def polar (self, z, t1, t2): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
-        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
+        denom = (b/t1) + 2*((h/np.cos(alpha))/t2) + (a/t1) #t1 is spar thickness, t2 is thickness of horizontal portion
         #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
         # stein = Area_string * (r**2)
-        J = ((4*t*A**2)/S)
+        J = (4*A**2)/denom
         return J
     
     def Jplots(self, z):
-        ts = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
         z = np.linspace(0, self.tiplocation)
-        
-        for t in range(len(ts)):
-            plt.plot(z, self.polar(z, ts[t]))        
-        
+        for i in range(len(t1)): 
+            for j in range(len(t2)): 
+                plt.plot(z, self.polar(z, t1[i], t2[j]), label=f'Thickness {t1[i]}, {t2[j]}')
+        #for t in range(len(t1), len(t2)):
+            #plt.plot(z, self.polar(z, t1[t], t2[t]), label = f'Thickness: {t1 = t1[t], t2 = t2[2]}')        
         plt.grid(True)
-        plt.legend()
+        plt.legend(title = "Thickness(t)", loc = "upper right")
+        plt.xlabel('z [m]')
+        plt.ylabel("Torsional Stiffness [mm$^4$]")
+        plt.title("Torsional Stiffness for varying Spanwise Locations and Thickness")
         plt.show()
         return plt.gcf()
     
