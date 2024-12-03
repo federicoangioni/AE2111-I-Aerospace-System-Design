@@ -18,7 +18,7 @@ class WingBox():
         I type stringer: {'base':, 'top':, 'web height':, 'thickness top':, 'thickness web':, 'thickness base':} [m]
         distance: tuple, distance from centroid (x, y)
         intersection is the percentage of the wingspan where the wing cuts the fuselage
-        
+        wingspan, PUT ORIGINAL WINGSPAN WITH ORIGIN AT THE MIDDLE OF THE PLANE, as of 03/12 it is at 26.9 m
         """
         self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]        
                              
@@ -28,16 +28,18 @@ class WingBox():
         
         self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
                                                     'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
-        self.wingspan = wingspan
+        self.wingspan = (wingspan- intersection * wingspan)
         
-        self.tiplocation = self.wingspan/2 - (self.wingspan/2) * intersection
-             
-    def chord(self, z): #TESTED OK
+        self.z = np.linspace(0, self.wingspan/2, 20) # as of now only 200 points
+        
+        print(f"Wing span modified goes from 0 to {np.round(self.wingspan/2, 3)}")
+            
+    def chord(self, z): # ok
         # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
         c = self.c_r - self.c_r * (1 - (self.c_t / self.c_r)) * (z / ((self.wingspan / 2)))
         return c
 
-    def geometry(self, z: int):
+    def geometry(self, z: int): # ok
         # returns the wing box geometry (side lenghts) at any position z
         a = 0.1013 * self.chord(z)        # trapezoid longer  [m]
         b = 0.0728 * self.chord(z)        # trapezoid shorter [m]
@@ -151,7 +153,7 @@ class WingBox():
     
     def torsion (self, z, T: int, G): # T : torsion, 
         # T is defined with z fro 0 to b/2 in m
-        
+    
         thetadot = lambda z: (T(z)) / (self.polar(z) * G)
         thetas = []
         for i in range(len(z)):
