@@ -86,6 +86,7 @@ class WingBox():
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
         a, b, h, alpha = self.geometry(z)
         x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometric(self, z, stringers)
+        Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange = Spar(self, Spar_thickenss, multiplication_factor, z)
         A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
         X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
         Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
@@ -97,7 +98,7 @@ class WingBox():
             Y.append(y_stringers[i])
         
         for i in range(len(Flange_spar_position_x)):
-            A.append(Point_area_flange[i])
+            A.append(Point_area_flange)
             X.append(Flange_spar_position_x[i])
             Y.append(Flange_spar_position_y[i])
 
@@ -110,6 +111,26 @@ class WingBox():
         y = weights_Y/sum(A)  #y position of the centroid
         
         return x, y
+    
+        def plot_centroid(self, z_range, stringers):
+            x_vals = []
+            y_vals = []
+        
+            for z in z_range:
+                x, y = self.centroid(z, stringers)
+                x_vals.append(x)
+                y_vals.append(y)
+        
+            plt.figure(figsize=(10, 6))
+            plt.plot(z_range, x_vals, label="Centroid X-Position")
+            plt.plot(z_range, y_vals, label="Centroid Y-Position")
+            plt.xlabel("z (Position along beam)")
+            plt.ylabel("Centroid Position")
+            plt.title("Centroid Positions as a Function of z")
+            plt.legend()
+            plt.grid(True)
+            plt.show()
+   
 
     def MOMEWB (self, z, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
         a, b, h, alpha = self.geometry(z)

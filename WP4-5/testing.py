@@ -30,3 +30,5 @@ z = np.linspace(0, 1)
 
 #wingbox.show_geometry(12.078)
 wingbox.Jplots(z)
+
+plot_centroid(self, z_range, stringers)
