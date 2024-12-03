@@ -63,6 +63,10 @@ class WingBox():
         vdot = integrate.quad(v_double_dot, 0, z)
         v = integrate.quad(vdot, 0, z)
         
+        if v > 0.15 * self.wingspan:
+            print("Max Tip Displacement Exceeded, Displacement =" v )
+        else:
+            print("Max Tip Displacement OK, Displacement =" v )
         return v
     
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
@@ -149,9 +153,9 @@ class WingBox():
 
         theta = integrate.quad(thetadot, 0, z)
         if theta > np.deg2rad(abs(10)):
-            print("Wing Tip Max. Rotation Exceeded", "Displacement =" np.rad2deg(theta))
+            print("Wing Tip Max. Rotation Exceeded, Displacement =" np.rad2deg(theta))
         else:
-            print("Wing Tip Max. Rotation Allowed", "Displacement =" np.rad2deg(theta))
+            print("Wing Tip Max. Rotation Allowed, Displacement =" np.rad2deg(theta))
         return theta
 
     def show(self, load, modulus, choice: str): 
