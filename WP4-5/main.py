@@ -5,19 +5,22 @@ from wp4_2 import WingBox
 xflr_files = 'XFLRdata/XFLR5sims'
 
 load_factor = 2.5
-hchord_sweep = 10
+hchord_sweep = 22.4645
+fus_radius = d/2
+engine_z_loc = 4.35 # m
+
 # change this to any angle of attack you'd like to use
 aoa = 5
 
 # aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= b)
-aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= 26.9, fus_radius=(d/2))
+aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= 26.9, fus_radius=fus_radius)
 
 g_cl, g_cd, g_cm = aerodynamics.coefficients(return_list= False)
 
 
 
-internal_forces = InternalForces(load_factor= load_factor, half_chord_sweep= , fus_radius, density, airspeed, distributions, c_r, 
-                                 wingspan, engine_z_loc, engine_length, x_hl, x_lemac, MAC, one_engine_thrust, fan_cowl_diameter, c_t)
+internal_forces = InternalForces(load_factor= load_factor, half_chord_sweep= hchord_sweep, fus_radius=fus_radius, density=rho0, airspeed= airspeed, distributions= [g_cl, g_cd, g_cm], 
+                                 c_r= c_r, wingspan= b, engine_z_loc= engine_z_loc, engine_length= engine_length, x_hl, x_lemac, MAC, one_engine_thrust, fan_cowl_diameter, c_t)
     
     
     
