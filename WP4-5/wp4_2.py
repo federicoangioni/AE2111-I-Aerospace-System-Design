@@ -5,7 +5,7 @@ import pandas as pd
 import math as math
 
 
-# authors: Federicobabe, Benthelad, Anitawalking, Wilsondaking
+# authors: Federico, Ben, Anita, Winston
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
