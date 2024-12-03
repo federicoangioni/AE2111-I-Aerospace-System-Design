@@ -127,14 +127,13 @@ class WingBox():
         return (I_total_xx, I_total_yy)
     
     def MOM_total_plots(self, z):
-      
+        pass
 
     def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
         S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]  
-        #r = ((x_pos_string - x)**2 + (y_pos_string - y)**2)**0.5 # Distance from a stringer to centroid
-        # stein = Area_string * (r**2)
+    
         J = ((4*self.t*A**2)/S)
         return J
     
@@ -151,16 +150,20 @@ class WingBox():
         return plt.gcf()
     
     def torsion (self, z, T: int, G): # T : torsion, 
+        # T is defined with z fro 0 to b/2 in m
         
-        J = self.polar(z)
-        thetadot = lambda z: (T) / (J * G)
-
-        theta = integrate.quad(thetadot, 0, z)
-        if theta > np.deg2rad(abs(10)):
-            print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))
-        else:
-            print("Wing Tip Max. Rotation Allowed", "Displacement =", np.rad2deg(theta))
-        return theta
+        thetadot = lambda z: (T(z)) / (self.polar(z) * G)
+        thetas = []
+        for i in range(len(z)):
+            theta, error = integrate.quad(thetadot, 0, i)
+            
+            thetas.append(theta)
+            
+        # if theta > np.deg2rad(abs(10)):
+        #     print("Wing Tip Max. Rotation Exceeded", "Displacement =", np.rad2deg(theta))
+        # else:
+        #     print("Wing Tip Max. Rotation Allowed", "Displacement =", np.rad2deg(theta))
+        return thetas
 
     def show(self, load, modulus, choice: str): 
         """

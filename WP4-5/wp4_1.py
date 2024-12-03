@@ -95,7 +95,7 @@ class InternalForces():
         self.load_factor = load_factor
         self.fus_radius = fus_radius
         self.sound_speed = sound_speed
-
+        self.airspeed = airspeed
         self.z_points = np.linspace(0, self.wingspan / 2, 1000)
 
         self.g_cl = distributions[0]
