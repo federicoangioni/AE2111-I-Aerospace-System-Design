@@ -1,15 +1,9 @@
 from variables import *
 from wp4_1 import Aerodynamics, InternalForces
 from wp4_2 import WingBox
-import numpy as np
-import matplotlib.pyplot as plt
+
 xflr_files = 'XFLRdata\\XFLR5sims'
 
-load_factor = 2.5
-hchord_sweep = 22.4645 # m
-fus_radius = d/2 # m
-engine_z_loc = 4.35 # m
-intersection = (fus_radius)/(b/2)
 # change this to any angle of attack you'd like to use
 aoa = 0
 
@@ -17,8 +11,6 @@ aoa = 0
 aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= 26.9, fus_radius=fus_radius)
 
 g_cl, g_cd, g_cm = aerodynamics.coefficients(return_list= False)
-
-
 
 internal_forces = InternalForces(load_factor= load_factor, sound_speed=343, half_chord_sweep= hchord_sweep, fus_radius=fus_radius, density=rho0, airspeed= airspeed, distributions= [g_cl, g_cd, g_cm], 
                                  c_r= c_r, wingspan= b, engine_z_loc= engine_z_loc, engine_length= engine_length, x_hl= x_hl, x_lemac= x_lemac, MAC= MAC, 
@@ -28,16 +20,11 @@ internal_forces = InternalForces(load_factor= load_factor, sound_speed=343, half
 g_shear, g_moment, g_torque, g_axial = internal_forces.internal_force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length, 
                                         fuel_tank_length=fuel_tank_length, fuel_density=fuel_density, return_list=False)
 
-
-z = np.linspace(0, 12.08, 100)
-
-
-
 # Plotting the internal distribution functions
 # internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
 t = 0.001 # m
 
-wingbox = WingBox(t= t, c_r= c_r, c_t = None, wingspan=b, intersection= intersection, tr= tr, t1=0.001, t2= 0.001)
+wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, intersection= intersection, tr= tr, t_spar= 0.001, t_caps= 0.001)
 
-wingbox.torsion(z=wingbox.z, T= g_torque, G= G, plot=True)
+wingbox.show(wingbox.z, load= g_torque, modulus= G, choice= 'torsion', limit= 10, plot= True, degrees= True)
 
