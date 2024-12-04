@@ -242,8 +242,6 @@ class WingBox():
             print("Wing Tip Max. Rotation Exceeded", "Max displacement =", np.degrees(max(self.deflections['Rotation [rad]'])))
         else:
             print("Wing Tip Max. Rotation Allowed", "Max displacement =", np.degrees(max(self.deflections['Rotation [rad]'])))
-        
-        
         # plotting
         if plot and degrees:
             # divide in subplots @todo
