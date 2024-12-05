@@ -21,11 +21,11 @@ g_shear, g_moment, g_torque, g_axial = internal_forces.internal_force_diagrams(e
                                         fuel_tank_length=fuel_tank_length, fuel_density=fuel_density, return_list=False)
 
 # Plotting the internal distribution functions
-internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
+# internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
 
 
 wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.003, t_caps= 0.002)
 
-stringers = [20, 0.9, 'L', {'base': 10e-3, 'height': 10e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
+stringers = [20, 0.9, 'L', {'base': 30e-3, 'height': 30e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 
-wingbox.show(wingbox.z, load= [g_moment, g_torque], modulus= [E, G], choice= 'torsion', limit= 10, plot= True, degrees= True)
+wingbox.show(wingbox.z, loads= [g_moment, g_torque], moduli= [E, G], stringers= stringers, limits=[0, 10], plot= True, degrees= True)
