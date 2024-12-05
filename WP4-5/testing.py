@@ -25,10 +25,10 @@ wingbox = WingBox(c_r = c_r, c_t = None, wingspan= b, area_factor_flanges=12, t_
 stringers = [20, 0.9, 'L', {'base': 10e-3, 'height': 5e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 # print(wingbox.stringer_geometry(0, stringers= stringers))
 
-print(wingbox.centroid(0, stringers))
+# print(wingbox.centroid(0, stringers))
 
 z = np.linspace(0, 12.08)
-wingbox.show_geometry(0, stringers)
+# wingbox.show_geometry(0, stringers)
 # wingbox.Jplots(z)
 
-print(wingbox.bending(z, division_function, E=E, stringers=stringers))
+print(wingbox.bending(z, f2, E=E, stringers=stringers))
