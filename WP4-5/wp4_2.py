@@ -50,16 +50,18 @@ class WingBox():
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
         return a, b, h, alpha
     
-    def show_geometry(self, z): # kinda useless buut may be useful for nice graphs
+    def show_geometry(self, z, stringers): # kinda useless buut may be useful for nice graphs
         a, b, h, alpha = self.geometry(z)
         
-        plt.plot([0, 0], [b/2, -b/2])
-        plt.plot([0, h], [b/2, a/2])
-        plt.plot([h, h], [a/2, -a/2])
-        plt.plot([0, h], [-b/2, -a/2])
-        
+        plt.plot([0, 0], [a/2, -a/2])
+        plt.plot([0, h], [a/2, b/2])
+        plt.plot([h, h], [b/2, -b/2])
+        plt.plot([0, h], [-a/2, -b/2])
+        centroid = self.centroid(z, stringers)
+        plt.scatter(centroid[0], centroid[1])
         plt.show()
         plt.clf()    
+        print(a, b, h, alpha)
  
     def spar_flanges(self, z):
         a, b, h, alpha = self.geometry(z)
@@ -92,13 +94,13 @@ class WingBox():
         flange_spar_pos, point_area_flange = self.spar_flanges(z= z)
         
         area_trapezoid = [b*self.t_spar, a*self.t_spar, h/np.cos(alpha)*self.t_caps, h/np.cos(alpha)*self.t_caps] # Areas of the components [longer side, shorter side, oblique top, oblique bottom]
-        x_trapezoid = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                                            # X positions of the components
+        x_trapezoid = [h, 0, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                                            # X positions of the components
         
         sum_trap_x = 0
         sum_flanges_x = 0
-        for i in range(len(area_stringer)):
+        for i in range(len(area_trapezoid)):
             sum_trap_x += area_trapezoid[i]*x_trapezoid[i]
-            sum_flanges_x += point_area_flange[i]*flange_spar_pos[i][0] # select x pos from tuple
+            sum_flanges_x += point_area_flange*flange_spar_pos[i][0] # select x pos from tuple
 
          #2/3 contribution of stringers to centroid coordinates:
         num_stringers = stringers[0]
@@ -107,7 +109,7 @@ class WingBox():
         weight_x_coordinate_stringer = x_coordinate_stringer * num_stringers * area_stringer #assuming number of stringers is total amount of stringers
         
         #3/3 contribution of spar flanges to centroid coordinates:
-        areas = sum(point_area_flange)*4 + sum(area_trapezoid) + (num_stringers * area_stringer)
+        areas = (point_area_flange)*4 + sum(area_trapezoid) + (num_stringers * area_stringer)
         
         x= (sum_trap_x + sum_flanges_x + weight_x_coordinate_stringer) / areas
         y = 0 # always midway between the two caps, as it's symmetric along x - axis
@@ -296,7 +298,7 @@ class WingBox():
                x_stringers.append(h - (distance_along_bar * np.cos(alpha)))      
                y_stringers.append((b/2) + (distance_along_bar * np.sin(alpha)))
 
-        for i in range(1, stringer_spacing+1): #lowerside
+        for i in range(1, stringer_per_side+1): #lowerside
             distance_along_bar = i * stringer_spacing
             x_stringers.append(h - (distance_along_bar * np.cos(alpha)))
             y_stringers.append(-((b/2) + (distance_along_bar * np.sin(alpha))))  
