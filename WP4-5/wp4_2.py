@@ -279,12 +279,19 @@ class WingBox():
         
         x_stringers = []
         y_stringers = []
+
+        num_stringers = stringers[0]
         
+        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
+
         for i in range(1, stringer_per_side+1):
-            x_stringers.append(i * h / (np.cos(alpha) * (stringer_per_side + 1)))
-            x_stringers.append(i * h / (np.cos(alpha) * (stringer_per_side + 1)))
-            y_stringers.append(- a / 2 + (i * h / (np.sin(alpha) * (stringer_per_side + 1))))
-            y_stringers.append(a / 2 -(i * h / (np.sin(alpha) * (stringer_per_side + 1))))
+               # Distance along the inclined bar
+               distance_along_bar = i * stringer_spacing
+
+               # Position of the stringer in the global coordinate system (origin is at the long vertical bar)
+               x_pos_string = h - (distance_along_bar * np.cos(alpha))         
+               y_pos_string = (b/2) + (distance_along_bar * np.sin(alpha))
+            
             
         return x_stringers, y_stringers, area_stringer, stringers_span
 
