@@ -11,7 +11,7 @@ from scipy.interpolate import interp1d
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
-    def __init__(self, c_r: int, c_t: int, wingspan: int, intersection: int,  t_spar: int, t_caps: int, tr:int = None,):
+    def __init__(self, c_r: int, c_t: int, wingspan: int, intersection: int,  area_factor_flanges :int, t_spar: int, t_caps: int, tr:int = None):
         """
         c_r is chord root at the half of the fuselage
         stringers: list [number of stringers, percentage of span until they continue, type, dimensions(in a further list) dict type], must be an integer for the code to work
@@ -29,9 +29,11 @@ class WingBox():
         self.deflections = pd.DataFrame()
         self.wingspan = (wingspan- intersection * wingspan)
         
-        self.t1, self.t2 = t_spar, t_caps
+        self.t_spar, self.t_caps = t_spar, t_caps
         
         self.z = np.linspace(0, self.wingspan/2, 100) # will be useful to iterate through the functions
+        
+        self.flanges_area_ratio = area_factor_flanges # ratio of height-to-thickness of spar flanges
         
         print(f"Wing span modified goes from 0 to {np.round(self.wingspan/2, 3)}")
             
@@ -48,7 +50,7 @@ class WingBox():
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
         return a, b, h, alpha
     
-    def show_geometry(self, z):
+    def show_geometry(self, z): # kinda useless buut may be useful for nice graphs
         a, b, h, alpha = self.geometry(z)
         
         plt.plot([0, 0], [b/2, -b/2])
@@ -59,16 +61,16 @@ class WingBox():
         plt.show()
         plt.clf()    
  
-    def Spar(self, Spar_thickenss, multiplication_factor, z):
+    def spar_flanges(self, z):
         a, b, h, alpha = self.geometry(z)
-        Point_area_flange = Spar_thickenss**2 * multiplication_factor
-        Spar_thickness = Spar_thickenss
-        Flange_spar_position_x = [0,h/2,h/2,0]
-        Flange_spar_position_y = [a/2, b/2, -b/2, -a/2]
-
-        return Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange        
+        
+        point_area_flange = self.t_spar**2 * self.flanges_area_ratio
+        
+        flange_spar_pos = [(0, a/2), (h, b/2), (h, -b/2), (0, a/2)] # going in counterclockwise from upper right
       
-    def bending (self, z, M, E):
+        return flange_spar_pos, point_area_flange
+
+    def bending(self, z, M, E):
         I = self.MOM_total()
         v_double_dot = lambda z: M/(-E*I)
         
@@ -79,36 +81,35 @@ class WingBox():
             print("Max Tip Displacement Exceeded", "Displacement =", v, (v/self.wingspan)*100, "(% Wingspan)" )
         else:
             print("Max Tip Displacement OK", "Displacement =", v , (v/self.wingspan)*100, "(% Wingspan)")
+            
         return v
     
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
         a, b, h, alpha = self.geometry(z)
-        # x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometric(self, z, stringers)
-        # Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange = Spar(self, Spar_thickenss, multiplication_factor, z)
-        # A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
-        # X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
-        # Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
-
-
-        # for i in range(len(x_stringers)):
-        #     A.append(area_stringer[i])
-        #     X.append(x_stringers[i])
-        #     Y.append(y_stringers[i])
         
-        # for i in range(len(Flange_spar_position_x)):
-        #     A.append(Point_area_flange)
-        #     X.append(Flange_spar_position_x[i])
-        #     Y.append(Flange_spar_position_y[i])
-
-
-        # for i in range(len(x)):
-        #     weights_X = A[i]*X[i]
-        #     weights_Y = A[i]*Y[i]
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(self, z, stringers)
         
-        # x = weights_X/sum(A) #x position of the centroid
-        # y = weights_Y/sum(A)  #y position of the centroid
+        flange_spar_pos, point_area_flange = self.spar_flanges(z= z)
         
-        # return x, y
+        area_trapezoid = [b*self.t_spar, a*self.t_spar, h/np.cos(alpha)*self.t_caps, h/np.cos(alpha)*self.t_caps] # Areas of the components [longer side, shorter side, oblique top, oblique bottom]
+        x_trapezoid = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                                            # X positions of the components
+        
+        sum_trap_x = 0
+        sum_flanges_x = 0
+        for i in range(len(area_stringer)):
+            sum_trap_x += area_trapezoid[i]*x_trapezoid[i]
+            sum_flanges_x += point_area_flange[i]*flange_spar_pos[i][0] # select x pos from tuple
+         
+        
+        areas = sum(point_area_flange)*4 + sum(area_trapezoid)
+        
+        
+        
+        y = 0 # always midway between the two caps, as it's symmetric along x - axis
+        
+        
+        
+        return x, y
     
     def plot_centroid(self, z_range, stringers):
         x_vals = []
