@@ -50,20 +50,18 @@ class WingBox():
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
         return a, b, h, alpha
     
-    def show_geometry(self, z, stringers): # kinda useless buut may be useful for nice graphs
+    def show_geometry(self, z): # ok
         a, b, h, alpha = self.geometry(z)
         
-        plt.plot([0, 0], [a/2, -a/2])
-        plt.plot([0, h], [a/2, b/2])
-        plt.plot([h, h], [b/2, -b/2])
-        plt.plot([0, h], [-a/2, -b/2])
-        centroid = self.centroid(z, stringers)
-        plt.scatter(centroid[0], centroid[1])
+        plt.plot([0, 0], [b/2, -b/2])
+        plt.plot([0, h], [b/2, a/2])
+        plt.plot([h, h], [a/2, -a/2])
+        plt.plot([0, h], [-b/2, -a/2])
+        
         plt.show()
         plt.clf()    
-        print(a, b, h, alpha)
  
-    def spar_flanges(self, z):
+    def spar_flanges(self, z): # ok
         a, b, h, alpha = self.geometry(z)
         
         point_area_flange = self.t_spar**2 * self.flanges_area_ratio
@@ -72,70 +70,53 @@ class WingBox():
       
         return flange_spar_pos, point_area_flange
 
-    def bending(self, z, M, E):
-        I = self.MOM_total()
+    def bending(self, z, M, E, stringers):
+        I = self.MOM_total(z=z, stringers=stringers)
         v_double_dot = lambda z: M/(-E*I)
+        vs = []
         
-        vdot = integrate.quad(v_double_dot, 0, z)
-        v = integrate.quad(vdot, 0, z)
-        
+        for i in range(len(z)):
+            v, error = integrate.quad(v_double_dot, 0, z[i])
+            
+            vs.append(v)
+            
         if v > 0.15 * self.wingspan:
             print("Max Tip Displacement Exceeded", "Displacement =", v, (v/self.wingspan)*100, "(% Wingspan)" )
         else:
             print("Max Tip Displacement OK", "Displacement =", v , (v/self.wingspan)*100, "(% Wingspan)")
             
-        return v
+        return vs
     
-    def centroid(self, z, stringers): # c-chord, t-thickness, alpha
+    def centroid(self, z, stringers): # ok
         a, b, h, alpha = self.geometry(z)
-        
-        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(z, stringers)
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry( z, stringers)
         
         flange_spar_pos, point_area_flange = self.spar_flanges(z= z)
         
         area_trapezoid = [b*self.t_spar, a*self.t_spar, h/np.cos(alpha)*self.t_caps, h/np.cos(alpha)*self.t_caps] # Areas of the components [longer side, shorter side, oblique top, oblique bottom]
-        x_trapezoid = [h, 0, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                                            # X positions of the components
+        x_trapezoid = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                                            # X positions of the components
         
         sum_trap_x = 0
         sum_flanges_x = 0
-        for i in range(len(area_trapezoid)):
+        for i in range(len(area_stringer)):
             sum_trap_x += area_trapezoid[i]*x_trapezoid[i]
-            sum_flanges_x += point_area_flange*flange_spar_pos[i][0] # select x pos from tuple
+            sum_flanges_x += point_area_flange[i]*flange_spar_pos[i][0] # select x pos from tuple
 
          #2/3 contribution of stringers to centroid coordinates:
         num_stringers = stringers[0]
         #Only x-coordinate is relevant: x-coordinate of stringers
-        x_coordinate_stringer = h - (((h/np.cos(alpha)) /2) * np.cos(alpha))
+        x_coordinate_stringer = ((h/np.cos(alpha)) /2) * np.cos(alpha)
         weight_x_coordinate_stringer = x_coordinate_stringer * num_stringers * area_stringer #assuming number of stringers is total amount of stringers
         
         #3/3 contribution of spar flanges to centroid coordinates:
-        areas = (point_area_flange)*4 + sum(area_trapezoid) + (num_stringers * area_stringer)
+        areas = sum(point_area_flange)*4 + sum(area_trapezoid) + (num_stringers * area_stringer)
         
         x= (sum_trap_x + sum_flanges_x + weight_x_coordinate_stringer) / areas
         y = 0 # always midway between the two caps, as it's symmetric along x - axis
         return x, y
-    
-    def plot_centroid(self, z_range, stringers):
-        x_vals = []
-        y_vals = []
-    
-        for z in z_range:
-            x, y = self.centroid(z, stringers)
-            x_vals.append(x)
-            y_vals.append(y)
-    
-        plt.figure(figsize=(10, 6))
-        plt.plot(z_range, x_vals, label="Centroid X-Position")
-        plt.plot(z_range, y_vals, label="Centroid Y-Position")
-        plt.xlabel("z (Position along beam)")
-        plt.ylabel("Centroid Position")
-        plt.title("Centroid Positions as a Function of z")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-   
 
-    def MOMEWB (self, z, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
+    def MOMEWB(self, z, stringers): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
+        x, y = self.centroid(z, stringers= stringers)
         a, b, h, alpha = self.geometry(z)
         # old version: alpha = np.arctan(((a-b)/2)/h)
         
@@ -163,8 +144,10 @@ class WingBox():
 
         return I_wingbox_xx, I_wingbox_yy
         
-    def MOM_total (self, I_wingbox_xx, I_wingbox_yy, I_xx_stringers_steiner, I_yy_stringers_steiner): #total Moment of Intertia (so empty wing box and stringers)
-
+    def MOM_total(self, z, stringers): #total Moment of Intertia (so empty wing box and stringers)
+        I_wingbox_xx, I_wingbox_yy = self.MOMEWB(self, z, stringers)
+        I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string = self.stringer_I(z, stringers)
+        
         I_total_xx = I_wingbox_xx + I_xx_stringers_steiner
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
 
@@ -261,7 +244,6 @@ class WingBox():
         with open('WP4-5/deflections.csv',  'w', encoding = 'utf=8') as file:
             self.deflections.to_csv(file)
 
-
     def stringer_geometry(self, z, stringers):
         a, b, h, alpha = self.geometry(z)
         
@@ -298,7 +280,7 @@ class WingBox():
                x_stringers.append(h - (distance_along_bar * np.cos(alpha)))      
                y_stringers.append((b/2) + (distance_along_bar * np.sin(alpha)))
 
-        for i in range(1, stringer_per_side+1): #lowerside
+        for i in range(1, stringer_spacing+1): #lowerside
             distance_along_bar = i * stringer_spacing
             x_stringers.append(h - (distance_along_bar * np.cos(alpha)))
             y_stringers.append(-((b/2) + (distance_along_bar * np.sin(alpha))))  

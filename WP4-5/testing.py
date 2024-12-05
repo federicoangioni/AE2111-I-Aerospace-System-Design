@@ -27,8 +27,8 @@ stringers = [20, 0.9, 'L', {'base': 10e-3, 'height': 5e-3, 'thickness base': 2e-
 
 print(wingbox.centroid(0, stringers))
 
-# z = np.linspace(0, 1)
+z = np.linspace(0, 12.08)
 wingbox.show_geometry(0, stringers)
 # wingbox.Jplots(z)
 
-# plot_centroid(self, z_range, stringers)
+print(wingbox.bending(z, division_function, E=E, stringers=stringers))
