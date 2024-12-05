@@ -80,7 +80,7 @@ class WingBox():
         v_double_dot = lambda x: M(x) /(-E*self.MOM_total(z=x, stringers=stringers)[0])
         
         
-        print(M(0))
+        
         v_double_dot_g = interp1d(z, v_double_dot(z), kind='cubic', fill_value="extrapolate")
         vs = []
         vdot_list =[]
@@ -181,12 +181,14 @@ class WingBox():
         return I_wingbox_xx, I_wingbox_yy
         
     def MOM_total (self, z, stringers): #total Moment of Intertia (so empty wing box and stringers)
+        
         I_wingbox_xx, I_wingbox_yy = self.MOMEWB(z, stringers=stringers)
         I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string = self.stringer_I(z, stringers=stringers)
+        
         I_total_xx = I_wingbox_xx + I_xx_stringers_steiner
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
-
-        return (I_total_xx, I_total_yy)
+        
+        return I_total_xx, I_total_yy
 
     def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
@@ -248,7 +250,7 @@ class WingBox():
         
         self.deflections['z location [m]'] = z
         
-        self.deflections['Moment of Inertia I [mm^4]'] = self.MOM_total(z=z, stringers=stringers)[0]
+        # self.deflections['Moment of Inertia I [mm^4]'] = self.MOM_total(z=z, stringers=stringers)[0]
         self.deflections['Polar moment of Inertia J [mm^4]'] = self.polar(z= z)
             
         vs = self.bending(z = z, M = moment, E = moduli[0], stringers=stringers)
