@@ -83,11 +83,20 @@ class WingBox():
     
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
         a, b, h, alpha = self.geometry(z)
-        # x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometric(self, z, stringers)
-        # Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange = Spar(self, Spar_thickenss, multiplication_factor, z)
-        # A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
-        # X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
-        # Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometric(self, z, stringers)
+        Flange_spar_position_x, Flange_spar_position_y ,Spar_thickness, Point_area_flange = Spar(self, Spar_thickenss, multiplication_factor, z)
+        A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
+        X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
+        Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
+
+        #2/3 contribution of stringers to centroid coordinates:
+        num_stringers = stringers[0]
+        #Only x-coordinate is relevant: x-coordinate of stringers
+        x_coordinate_stringer = ((h/np.cos(alpha)) /2) * np.cos(alpha)
+        weight_x_coordinate_stringer = x_coordinate_stringer * num_stringers * area_stringer #assuming number of stringers is total amount of stringers
+
+        #3/3 contribution of spar flanges to centroid coordinates:
+
 
 
         # for i in range(len(x_stringers)):
