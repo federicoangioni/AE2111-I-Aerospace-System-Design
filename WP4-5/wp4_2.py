@@ -103,7 +103,7 @@ class WingBox():
          #2/3 contribution of stringers to centroid coordinates:
         num_stringers = stringers[0]
         #Only x-coordinate is relevant: x-coordinate of stringers
-        x_coordinate_stringer = ((h/np.cos(alpha)) /2) * np.cos(alpha)
+        x_coordinate_stringer = h - (((h/np.cos(alpha)) /2) * np.cos(alpha))
         weight_x_coordinate_stringer = x_coordinate_stringer * num_stringers * area_stringer #assuming number of stringers is total amount of stringers
         
         #3/3 contribution of spar flanges to centroid coordinates:
