@@ -99,13 +99,6 @@ class WingBox():
         for i in range(len(area_stringer)):
             sum_trap_x += area_trapezoid[i]*x_trapezoid[i]
             sum_flanges_x += point_area_flange[i]*flange_spar_pos[i][0] # select x pos from tuple
-         
-        
-        
-        
-        
-        
-        y = 0 # always midway between the two caps, as it's symmetric along x - axis
 
          #2/3 contribution of stringers to centroid coordinates:
         num_stringers = stringers[0]
@@ -117,6 +110,7 @@ class WingBox():
         areas = sum(point_area_flange)*4 + sum(area_trapezoid) + (num_stringers * area_stringer)
         
         x= (sum_trap_x + sum_flanges_x + weight_x_coordinate_stringer) / areas
+        y = 0 # always midway between the two caps, as it's symmetric along x - axis
         return x, y
     
     def plot_centroid(self, z_range, stringers):
