@@ -20,15 +20,16 @@ def division_function(x):
     return f1_interp(x) / f2(x)
 
 
-wingbox = WingBox(0.001, c_r = c_r, c_t = None, wingspan= b, intersection= (d/2) / (b/2), tr = tr)
+wingbox = WingBox(c_r = c_r, c_t = None, wingspan= b, area_factor_flanges=12, t_spar=0.001, t_caps=0.001, intersection= (d/2) / (b/2), tr = tr)
 
 stringers = [6, 0.9, 'L', {'base': 10e-3, 'height': 5e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 # print(wingbox.stringer_geometry(0, stringers= stringers))
 
+print(wingbox.centroid(0, stringers))
 
-z = np.linspace(0, 1)
+# z = np.linspace(0, 1)
 
-#wingbox.show_geometry(12.078)
-wingbox.Jplots(z)
+# #wingbox.show_geometry(12.078)
+# wingbox.Jplots(z)
 
-plot_centroid(self, z_range, stringers)
+# plot_centroid(self, z_range, stringers)

@@ -87,7 +87,7 @@ class WingBox():
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
         a, b, h, alpha = self.geometry(z)
         
-        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(self, z, stringers)
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(z, stringers)
         
         flange_spar_pos, point_area_flange = self.spar_flanges(z= z)
         
