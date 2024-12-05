@@ -28,7 +28,7 @@ class WingBox():
                 
         self.deflections = pd.DataFrame()
         self.wingspan_og = wingspan
-        
+
         self.wingspan = (wingspan- intersection * wingspan)
         
         self.t_spar, self.t_caps = t_spar, t_caps
@@ -69,10 +69,12 @@ class WingBox():
         a, b, h, alpha = self.geometry(z)
         
         point_area_flange = self.t_spar**2 * self.flanges_area_ratio
-        
         flange_spar_pos = [(0, a/2), (h, b/2), (h, -b/2), (0, a/2)] # going in counterclockwise from upper right
+        #Parallel axis theorem:
+        Ixx_sparflanges= 2* point_area_flange * (b/2)**2 + 2* point_area_flange * (a/2)**2
+
       
-        return flange_spar_pos, point_area_flange
+        return flange_spar_pos, point_area_flange, Ixx_sparflanges
 
     def bending(self, z, M, E, stringers):
         
@@ -190,7 +192,9 @@ class WingBox():
     def MOM_total (self, z, stringers): #total Moment of Intertia (so empty wing box and stringers)
         I_wingbox_xx, I_wingbox_yy = self.MOMEWB(z, stringers=stringers)
         I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string = self.stringer_I(z, stringers=stringers)
-        I_total_xx = I_wingbox_xx + I_xx_stringers_steiner
+        flange_spar_pos, point_area_flange, Ixx_sparflanges = self.spar_flanges(self, z):
+
+        I_total_xx = I_wingbox_xx + I_xx_stringers_steiner +Ixx_sparflanges
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
 
         return (I_total_xx, I_total_yy)
