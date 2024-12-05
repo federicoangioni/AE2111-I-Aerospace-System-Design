@@ -109,7 +109,7 @@ class WingBox():
         
         x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(z, stringers)
         
-        flange_spar_pos, point_area_flange = self.spar_flanges(z= z)
+        flange_spar_pos, point_area_flange, Ixx_sparflanges = self.spar_flanges(z= z)
         
         area_trapezoid = [b*self.t_spar, a*self.t_spar, h/np.cos(alpha)*self.t_caps, h/np.cos(alpha)*self.t_caps] # Areas of the components [longer side, shorter side, oblique top, oblique bottom]
         x_trapezoid = [h, 0, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                                            # X positions of the components
@@ -186,7 +186,7 @@ class WingBox():
         
         I_wingbox_xx, I_wingbox_yy = self.MOMEWB(z, stringers=stringers)
         I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string = self.stringer_I(z, stringers=stringers)
-        flange_spar_pos, point_area_flange, Ixx_sparflanges = self.spar_flanges(self, z)
+        flange_spar_pos, point_area_flange, Ixx_sparflanges = self.spar_flanges(z)
 
         I_total_xx = I_wingbox_xx + I_xx_stringers_steiner +Ixx_sparflanges
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
