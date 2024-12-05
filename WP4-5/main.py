@@ -5,7 +5,7 @@ from wp4_2 import WingBox
 xflr_files = 'XFLRdata\\XFLR5sims'
 
 # change this to any angle of attack you'd like to use
-aoa = 0
+aoa = 2
 
 # aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= b)
 aerodynamics = Aerodynamics(folder= xflr_files, aoa= aoa, wingspan= 26.9, fus_radius=fus_radius)
@@ -21,13 +21,14 @@ g_shear, g_moment, g_torque, g_axial = internal_forces.internal_force_diagrams(e
                                         fuel_tank_length=fuel_tank_length, fuel_density=fuel_density, return_list=False)
 
 # Plotting the internal distribution functions
-# internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
-t = 0.001 # m
+internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
 
-wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.001, t_caps= 0.001)
+
+wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.003, t_caps= 0.002)
+
+stringers = [20, 0.9, 'L', {'base': 10e-3, 'height': 10e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 
 # wingbox.show(wingbox.z, load= g_torque, modulus= G, choice= 'torsion', limit= 10, plot= True, degrees= True)
-
-stringers = [20, 0.9, 'L', {'base': 10e-3, 'height': 5e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
+wingbox.show_geometry(0, stringers=stringers)
 
 print(wingbox.bending(wingbox.z, g_moment, E=E, stringers=stringers))

@@ -3,7 +3,7 @@ tr = 0.31 #taper ratio
 b = 26.9 #wingspan
 d = 2.74 #fuselage diameter
 alpha =1.48414 #in degrees
-airspeed = 327.5313261078292
+airspeed = 228.6
 
 # Engine specs
 engine_length = 3.0 # m
@@ -26,9 +26,9 @@ tsY = 450000000 #tensile strength yield [Pa]
 tsU = 485000000 #tensile strength ultimate [Pa]
 
 # Atmospheric properties
-rho0 = 1.225 #kg/m^3
-T0 = 288.15 #K
-P0 = 101325 #Pa
+rho0 = 0.409727 #kg/m^3
+T0 = 222.770 #K
+P0 = 26200.8 #Pa
 gamma = 1.4
 R = 287.05 #J/(kgK)
 g = 9.81 #m/s^2

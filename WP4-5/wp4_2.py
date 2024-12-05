@@ -27,6 +27,8 @@ class WingBox():
         self.c_r = c_r - c_r*(1-(self.c_t /c_r))*intersection # redefining chord root
                 
         self.deflections = pd.DataFrame()
+        self.wingspan_og = wingspan
+        
         self.wingspan = (wingspan- intersection * wingspan)
         
         self.t_spar, self.t_caps = t_spar, t_caps
@@ -73,29 +75,38 @@ class WingBox():
         return flange_spar_pos, point_area_flange
 
     def bending(self, z, M, E, stringers):
-        I, _ = self.MOM_total(z=z, stringers=stringers)
+        
         
         v_double_dot = lambda x: M(x) /(-E*self.MOM_total(z=x, stringers=stringers)[0])
         
         
+        print(M(0))
         v_double_dot_g = interp1d(z, v_double_dot(z), kind='cubic', fill_value="extrapolate")
         vs = []
         vdot_list =[]
+        Is = []
         for i in range(len(z)):
             
             vdot, _ = integrate.quad(v_double_dot_g, 0, z[i])
     
             vdot_list.append(vdot)
+            Is.append(self.MOM_total(z=z[i], stringers=stringers)[0])
+
+        plt.plot(z, Is)
+        plt.title("Is")
+        plt.show()
         
         vdot_g =  interp1d(z, vdot_list, kind='cubic', fill_value="extrapolate")
-        
+        plt.plot(z, vdot_g(z))
+        plt.show()
         for i in range(len(z)):
             
             v, _ = integrate.quad(vdot_g, 0, z[i])
     
             vs.append(v)
-        
-        if v > 0.15 * self.wingspan:
+        plt.plot(z, vs)
+        plt.show()
+        if max(vs) > 0.15 * self.wingspan_og:
             print("Max Tip Displacement Exceeded", "Displacement =", v, (v/self.wingspan)*100, "(% Wingspan)" )
         else:
             print("Max Tip Displacement OK", "Displacement =", v , (v/self.wingspan)*100, "(% Wingspan)")
