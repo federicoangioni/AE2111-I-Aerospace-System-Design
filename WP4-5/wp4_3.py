@@ -309,12 +309,25 @@ class LoadCases():
     def get_load_cases(self):
         return self.critical_load_cases
     
+    def get_critical_cases(self, possible_cases):
+        max_speed_case = max(possible_cases, key=lambda case: (case["speed"], case["load_factor"]))
+        min_load_factor_case = min(possible_cases, key=lambda case: case["load_factor"])
+
+        return max_speed_case, min_load_factor_case
+    
+    def get_all_critical_cases(self):
+        max_speed_case = max(self.critical_load_cases, key=lambda case: (case["speed"], case["load_factor"]))
+        min_load_factor_case = min(self.critical_load_cases, key=lambda case: case["load_factor"])
+        return max_speed_case, min_load_factor_case
+
+
+    
 
 if __name__ == "__main__":
     print("running wp4-3.py")
-    MTOW_kg = 19593  #kg
     weights_kg = [19593, 19593+6355, 35688] # OEW | OEW + MPW | OEW + MPW + Fuel (AKA MTOW)
     altitudes_m = [0, 35000 * 0.3048]
+    possible_cases = np.empty(0)
     critical_cases = np.empty(0)
     CL_max_clean = 1.41
     CL_max_flapped = 2.55
@@ -324,11 +337,19 @@ if __name__ == "__main__":
             VND = VelocityLoadFactorDiagram(weight, 0.886*weights_kg[2], weights_kg[2], altitude, CL_max_clean, CL_max_flapped)
 
             LC = LoadCases(VND)
-            LC.show(show=False, save=True)
-            critical_cases = np.append(critical_cases, LC.get_load_cases())
+            # LC.show(show=False, save=True)
+            possible_cases = np.append(possible_cases, LC.get_load_cases())
+            critical_cases = np.append(critical_cases,LC.get_all_critical_cases())
+
+    max_clc, min_clc = LC.get_critical_cases(possible_cases)
+
+    print(max_clc)
+    print(min_clc)
 
     with open("VNDiagram/critical_cases.txt", "w") as file:
         file.write(str(critical_cases))
+
+
+    with open("VNDiagram/possible_cases.txt", "w") as file:
+        file.write(str(possible_cases))
     
-
-

@@ -1,70 +1,165 @@
 from scipy import integrate
+from scipy.integrate import cumtrapz
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 import math as math
+from scipy.interpolate import interp1d
 
 
-# authors: Federicobabe, Benthelad, Anitawalking, Wilsondaking
+# authors: Federico, Ben, Anita, Winston
 
 #general: assumption is symmetric wing box utilised
 class WingBox():
-    def __init__(self, t: int, c_r: int, c_t: int, tr:int = None):
-        self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]
-        self.c_r = c_r                              # root chord [m]
-        self.t = t                                  # wingbox thickness, constant thickness in the cross sectiona nd along z assumed [m]
-        self.deflections = pd.DataFrame(columns = ['Load [Nm]', 'z location [m]', 'Displacement [m]',
-                                                    'Rotation [rad]', 'Moment of Inertia I [m^4]', 'Polar moment of Inertia J [m^4 (??)]'])
+    def __init__(self, c_r: int, c_t: int, wingspan: int, intersection: int,  area_factor_flanges :int, t_spar: int, t_caps: int, tr:int = None):
+        """
+        c_r is chord root at the half of the fuselage
+        stringers: list [number of stringers, percentage of span until they continue, type, dimensions(in a further list) dict type], must be an integer for the code to work
+        dimensions: dict type changes in base of the used stringer
+        L type stringer: {'base':, 'height':, 'thickness base':, 'thickness height':} [m]
+        I type stringer: {'base':, 'top':, 'web height':, 'thickness top':, 'thickness web':, 'thickness base':} [m]
+        distance: tuple, distance from centroid (x, y)
+        intersection is the percentage of the wingspan where the wing cuts the fuselage
+        wingspan, PUT ORIGINAL WINGSPAN WITH ORIGIN AT THE MIDDLE OF THE PLANE, as of 03/12 it is at 26.9 m
+        """
+        self.c_t = tr * c_r if c_t is None else c_t # tip chord [m]        
+                             
+        self.c_r = c_r - c_r*(1-(self.c_t /c_r))*intersection # redefining chord root
+                
+        self.deflections = pd.DataFrame()
+        self.wingspan_og = wingspan
         
-    def chord(self, z): 
-        # returns the chord at any position z
-        c = self.c_r - self.c_r*(1-(self.c_t/self.c_r))*z
+        self.wingspan = (wingspan- intersection * wingspan)
+        
+        self.t_spar, self.t_caps = t_spar, t_caps
+        
+        self.z = np.linspace(0, self.wingspan/2, 100) # will be useful to iterate through the functions
+        
+        self.flanges_area_ratio = area_factor_flanges # ratio of height-to-thickness of spar flanges
+        
+        print(f"Wing span modified goes from 0 to {np.round(self.wingspan/2, 3)}")
+            
+    def chord(self, z): # ok
+        # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
+        c = self.c_r - self.c_r * (1 - (self.c_t / self.c_r)) * (z / ((self.wingspan / 2)))
         return c
 
-    def geometry(self, z: int):
+    def geometry(self, z: int): # ok
         # returns the wing box geometry (side lenghts) at any position z
         a = 0.1013 * self.chord(z)        # trapezoid longer  [m]
         b = 0.0728 * self.chord(z)        # trapezoid shorter [m]
         h = 0.55 * self.chord(z)          # trapezoid height  [m]
         alpha = np.arctan(((a-b)/2)/h)    # angle angle [rad]
-        num_stringers = 1                 # number of strings
-        return a, b, h, alpha, num_stringers
-      
-    def bending (self, z, M, E):
-        I = self.MOMEWB()
-        v_double_dot = lambda z: M/(-E*I)
-        
-        vdot = integrate.quad(v_double_dot, 0, z)
-        v = integrate.quad(vdot, 0, z)
-        
-        return v
+        return a, b, h, alpha
     
-    def centroid(self, z, stringer_x_pos, stringer_y_pos, stringer_area):# c-chord, t-thickness, alpha-
-        
+    def show_geometry(self, z, stringers): # kinda useless buut may be useful for nice graphs
         a, b, h, alpha = self.geometry(z)
-       # alpha = np.arctan(((a-b)/2)/h)
         
-        A = [b*self.t, a*self.t, h/np.cos(alpha)*self.t, h/np.cos(alpha)*self.t] #Areas of the components [longer side, shorter side, oblique top, oblique bottom]
-        X = [0, h, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                     # X positions of the components
-        Y = [0, 0, -0.5*a+0.5*h/np.sin(alpha), +0.5*a-0.5*h/np.sin(alpha)]       # Y positions of the components
+        plt.plot([0, 0], [a/2, -a/2])
+        plt.plot([0, h], [a/2, b/2])
+        plt.plot([h, h], [b/2, -b/2])
+        plt.plot([0, h], [-a/2, -b/2])
+        centroid = self.centroid(z, stringers)
+        plt.scatter(centroid[0], centroid[1])
+        plt.show()
+        plt.clf()    
+        print(a, b, h, alpha)
+ 
+    def spar_flanges(self, z):
+        a, b, h, alpha = self.geometry(z)
+        
+        point_area_flange = self.t_spar**2 * self.flanges_area_ratio
+        
+        flange_spar_pos = [(0, a/2), (h, b/2), (h, -b/2), (0, a/2)] # going in counterclockwise from upper right
+      
+        return flange_spar_pos, point_area_flange
 
-        while j <= len(stringer_x_pos): #include the contributions of the stringers
-            A.append(stringer_area[j])
-            X.append(stringer_x_pos[j])
-            Y.append(stringer_y_pos[j])
-            j+=1
+    def bending(self, z, M, E, stringers):
+        
+        
+        v_double_dot = lambda x: M(x) /(-E*self.MOM_total(z=x, stringers=stringers)[0])
+        
+        
+        print(M(0))
+        v_double_dot_g = interp1d(z, v_double_dot(z), kind='cubic', fill_value="extrapolate")
+        vs = []
+        vdot_list =[]
+        Is = []
+        for i in range(len(z)):
+            
+            vdot, _ = integrate.quad(v_double_dot_g, 0, z[i])
+    
+            vdot_list.append(vdot)
+            Is.append(self.MOM_total(z=z[i], stringers=stringers)[0])
 
-        while i <= len(X): #calculate the weights
-            weights_X = A[i]*X[i]
-            weights_Y = A[i]*Y[i]
-            i+=1
+        plt.plot(z, Is)
+        plt.title("Is")
+        plt.show()
         
-        x = weights_X/sum(A) #x position of the centroid
-        y= weights_Y/sum(A)  #y position of the centroid
+        vdot_g =  interp1d(z, vdot_list, kind='cubic', fill_value="extrapolate")
+        plt.plot(z, vdot_g(z))
+        plt.show()
+        for i in range(len(z)):
+            
+            v, _ = integrate.quad(vdot_g, 0, z[i])
+    
+            vs.append(v)
+        plt.plot(z, vs)
+        plt.show()
         
+        return vs
+    
+    def centroid(self, z, stringers): # c-chord, t-thickness, alpha
+        a, b, h, alpha = self.geometry(z)
+        
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(z, stringers)
+        
+        flange_spar_pos, point_area_flange = self.spar_flanges(z= z)
+        
+        area_trapezoid = [b*self.t_spar, a*self.t_spar, h/np.cos(alpha)*self.t_caps, h/np.cos(alpha)*self.t_caps] # Areas of the components [longer side, shorter side, oblique top, oblique bottom]
+        x_trapezoid = [h, 0, 0.5*h/np.cos(alpha), 0.5*h/np.cos(alpha)]                                            # X positions of the components
+        
+        sum_trap_x = 0
+        sum_flanges_x = 0
+        for i in range(len(area_trapezoid)):
+            sum_trap_x += area_trapezoid[i]*x_trapezoid[i]
+            sum_flanges_x += point_area_flange*flange_spar_pos[i][0] # select x pos from tuple
+
+         #2/3 contribution of stringers to centroid coordinates:
+        num_stringers = stringers[0]
+        #Only x-coordinate is relevant: x-coordinate of stringers
+        x_coordinate_stringer = h - (((h/np.cos(alpha)) /2) * np.cos(alpha))
+        weight_x_coordinate_stringer = x_coordinate_stringer * num_stringers * area_stringer #assuming number of stringers is total amount of stringers
+        
+        #3/3 contribution of spar flanges to centroid coordinates:
+        areas = (point_area_flange)*4 + sum(area_trapezoid) + (num_stringers * area_stringer)
+        
+        x= (sum_trap_x + sum_flanges_x + weight_x_coordinate_stringer) / areas
+        y = 0 # always midway between the two caps, as it's symmetric along x - axis
         return x, y
+    
+    def plot_centroid(self, z_range, stringers):
+        x_vals = []
+        y_vals = []
+    
+        for z in z_range:
+            x, y = self.centroid(z, stringers)
+            x_vals.append(x)
+            y_vals.append(y)
+    
+        plt.figure(figsize=(10, 6))
+        plt.plot(z_range, x_vals, label="Centroid X-Position")
+        plt.plot(z_range, y_vals, label="Centroid Y-Position")
+        plt.xlabel("z (Position along beam)")
+        plt.ylabel("Centroid Position")
+        plt.title("Centroid Positions as a Function of z")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+   
 
-    def MOMEWB (self, z, x, y): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
+    def MOMEWB (self, z, stringers): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
+        x, y = self.centroid(z, stringers=stringers)
         a, b, h, alpha = self.geometry(z)
         # old version: alpha = np.arctan(((a-b)/2)/h)
         
@@ -75,50 +170,187 @@ class WingBox():
 
         #Split into 3 section: 1 is the short vertical bar, 2 is the long vertical bar, and 3 are the bars at an angle
         #section 1:
-        I1xx = (self.t*b**3)/12 + 0 #I know it's silly
-        I1yy = 0 + (self.t*b)*ci1**2
+        I1xx = (self.t_spar*b**3)/12 + 0 #I know it's silly
+        I1yy = 0 + (self.t_spar*b)*ci1**2
 
         #section 2:
-        I2xx = (self.t*a**3)/12 + 0
-        I2yy = 0 + (self.t*a)*ci2**2
+        I2xx = (self.t_spar*a**3)/12 + 0
+        I2yy = 0 + (self.t_spar*a)*ci2**2
 
         #section 3 (so both bars): #bar at angle practically same as bar: 0.5501845713 chord
-        I3xx= (2/12)*self.t*(np.sin(alpha)**2)*((h/np.cos(alpha))**3) +2*((h/np.cos(alpha))*self.t)*cj3**2
-        I3yy= (2/12)*self.t*(np.cos(alpha)**2)*((h/np.cos(alpha))**3) +2*((h/np.cos(alpha))*self.t)*ci3**2
+        I3xx= (2/12)*self.t_caps*(np.sin(alpha)**2)*((h/np.cos(alpha))**3) +2*((h/np.cos(alpha))*self.t_caps)*cj3**2
+        I3yy= (2/12)*self.t_caps*(np.cos(alpha)**2)*((h/np.cos(alpha))**3) +2*((h/np.cos(alpha))*self.t_caps)*ci3**2
 
         #Total moments of inertia of wing box:
         I_wingbox_xx = I1xx+I2xx+I3xx
         I_wingbox_yy = I1yy+I2yy+I3yy
 
         return I_wingbox_xx, I_wingbox_yy
-    
-    def I_stiffener(self, type: str, dimensions: dict, distance: tuple):
-        type = ["L", "I"]
         
-        """
-        dimensions: changes in base of the used stringer
-        L type stringer: {base, height, thickness base, thickness height}
-        I type stringer: [base, top, web height, thickness top, thickness web, thickness base]
-        distance: tuple, distance from centroid (x, y)
-        """
-        
-        if type == "L":
-            x = (dimensions["base"]*(dimensions["thickness base"]**2)/2)/(dimensions["base"]*dimensions["height"]*dimensions["thickness base"]*dimensions["thickness height"])
-            y = (dimensions["height"]**2 * dimensions["thickness height"]/2) / (dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"])
-            
-            I_xx = 0 
-            I_yy = 0
-            Area_string = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
-        
-        elif type == "I":
-            Area_string = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
-        
-        # returning only Steiner's terms for now
-        #old version: return (#distance[0] ** 2 * #Area_string, distance[1] ** 2 * Area_string)
-        return (Area_string)
-    
+    def MOM_total (self, z, stringers): #total Moment of Intertia (so empty wing box and stringers)
+        I_wingbox_xx, I_wingbox_yy = self.MOMEWB(z, stringers=stringers)
+        I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string = self.stringer_I(z, stringers=stringers)
+        I_total_xx = I_wingbox_xx + I_xx_stringers_steiner
+        I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
 
-    def MOM_addition_Stringers(self, h, num_stringers, alpha, b, Area_string, x , y):
+        return (I_total_xx, I_total_yy)
+
+    def polar (self, z): # T : torsion, 
+        a, b, h, alpha = self.geometry(z)
+        A = h * (a + b) / 2               # Area of cross section [m^2]
+        denom = (b/self.t1) + 2*((h/np.cos(alpha))/self.t2) + (a/self.t1) #t1 is spar thickness, t2 is thickness of horizontal portion
+
+        J = (4*A**2)/denom
+        return J
+    
+    def Jplots(self, z):
+        t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        z = np.linspace(0, self.tiplocation)
+        for i in range(len(t1)): 
+            for j in range(len(t2)): 
+                plt.plot(z, self.polar(z, t1[i], t2[j]), label=f'Thickness {t1[i]}, {t2[j]}')
+        #for t in range(len(t1), len(t2)):
+            #plt.plot(z, self.polar(z, t1[t], t2[t]), label = f'Thickness: {t1 = t1[t], t2 = t2[2]}')        
+        plt.grid(True)
+        plt.legend(title = "Thickness(t)", loc = "upper right")
+        plt.xlabel('z [m]')
+        plt.ylabel("Torsional Stiffness [mm$^4$]")
+        plt.title("Torsional Stiffness for varying Spanwise Locations and Thickness")
+        plt.show()
+        return plt.gcf()
+    
+    def torsion (self, z, T: int, G): # ok
+        """
+        Takes as input a z numpy array which goes from 0 to the half span
+        """
+        # T is defined with z fro 0 to b/2 in m
+        thetadot = lambda x: (T(x)) / (self.polar(x) * G)
+        
+        # interpolating the orginal function to avoid discontinuities along the integration
+        thetad = interp1d(z, thetadot(z), kind='cubic', fill_value="extrapolate")
+        
+        thetas = []
+
+        for i in range(len(z)):
+            theta, error = integrate.quad(thetad, 0, z[i])
+            
+            thetas.append(theta)
+
+        return thetas
+
+    def show(self, z, loads, moduli, limits: int, stringers, plot: bool = False, save: bool= False, degrees= False): 
+        """
+        load: int function representing the internal load of the wing [N]
+        moduli: [E, G] in Pa or N/m2
+        limit: it is the maximum allowable displacement [mm, deg] or [bending, torsion]
+        halfspan: halfspan length [m] 
+        choice: 'bending' or 'torsion', string input
+        degrees: plots the torsion diagram in degrees instead of radians
+        """
+        # changes on 04/12 we won't plot one displacement at a time but all together
+        moment = loads[1]
+        torque = loads[2]
+        
+        
+        self.deflections['z location [m]'] = z
+        
+        self.deflections['Moment of Inertia I [mm^4]'] = self.MOM_total(z=z, stringers=stringers)
+        self.deflections['Polar moment of Inertia J [mm^4]'] = self.polar(z= z)
+            
+        vs = self.bending(z = z, M = moment, E = moduli[0])
+            
+        self.deflections['Displacement [m]'] = vs
+        
+        # Torque diagram 
+        
+        thetas = self.torsion(z = z, T = torque, G = moduli[1])            
+        
+        self.deflections['Rotation [rad]'] = thetas
+        self.deflections['Rotation [deg]'] = np.degrees(thetas)
+        
+        if (self.deflections['Displacement [m]'] > 0.15*max(self.deflections['Displacement [m]'])).any().any():
+            print("Max Tip Displacement Exceeded", "Displacement =", max(self.deflections['Displacement [m]']), (max(self.deflections['Displacement [m]'])/self.wingspan)*100, "(% Wingspan)" )
+        else:
+            print("Max Tip Displacement OK", "Displacement =", max(self.deflections['Displacement [m]']) , (max(self.deflections['Displacement [m]'])/self.wingspan)*100, "(% Wingspan)")
+            
+            
+        if (self.deflections['Rotation [rad]'] > np.radians(limits[1])).any().any():
+            print("Wing Tip Max. Rotation Exceeded", "Max displacement =", np.degrees(max(self.deflections['Rotation [rad]'])))
+        else:
+            print("Wing Tip Max. Rotation Allowed", "Max displacement =", np.degrees(max(self.deflections['Rotation [rad]'])))
+        # plotting
+        if plot and degrees:
+            # divide in subplots @todo
+            fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+            axs[0].plot(self.deflections['z location [m]'], np.degrees(self.deflections['Rotation [rad]']))
+            axs[0].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[0].xlabel("Span wise position [m]")
+            axs[0].ylabel(r"$\theta$ rotation [rad]")
+            axs[0].grid()
+            
+            
+            axs[1].plot(self.deflections['z location [m]'], self.deflections['Displacement [m]'])
+            axs[1].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[1].xlabel("Span wise position [m]")
+            axs[1].ylabel(r"$\theta$ rotation [rad]")
+            axs[1].grid()
+            plt.show()
+                      
+        # write a CSV with all the information        
+        with open('WP4-5/deflections.csv',  'w', encoding = 'utf=8') as file:
+            self.deflections.to_csv(file)
+
+
+    def stringer_geometry(self, z, stringers):
+        a, b, h, alpha = self.geometry(z)
+        
+        # defining the variables for the stringers
+        if type(stringers) != list or len(stringers) == 3:
+            raise Exception("Insert the value in a list of length 2")
+        if stringers[0] % 2 != 0: 
+            raise Exception("Please Insert an even number")
+        else:
+            stringer_per_side = int(stringers[0]/2)
+            stringers_span = stringers[1]
+            stringers_type = stringers[2]
+            dimensions = stringers[3]
+        
+        if stringers_type == "L":
+            area_stringer = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
+        
+        elif stringers_type == "I":
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
+        
+        x_stringers = []
+        y_stringers = []
+
+        num_stringers = stringers[0]
+        
+        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
+
+        for i in range(1, stringer_per_side+1): # Upperside
+               # Distance along the inclined bar
+               distance_along_bar = i * stringer_spacing
+
+               # Position of the stringer in the global coordinate system (origin is at the long vertical bar)
+            #    x_pos_string = h - (distance_along_bar * np.cos(alpha))   
+               x_stringers.append(h - (distance_along_bar * np.cos(alpha)))      
+               y_stringers.append((b/2) + (distance_along_bar * np.sin(alpha)))
+
+        for i in range(1, stringer_per_side+1): #lowerside
+            distance_along_bar = i * stringer_spacing
+            x_stringers.append(h - (distance_along_bar * np.cos(alpha)))
+            y_stringers.append(-((b/2) + (distance_along_bar * np.sin(alpha))))  
+            
+        return x_stringers, y_stringers, area_stringer, stringers_span
+
+    def stringer_I(self, z, stringers): # check this again, too many functions in one
+        a, b, h, alpha = self.geometry(z)
+        x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(z, stringers)
+        x, y = self.centroid(z, stringers)
+        num_stringers = stringers[0]
+        
         stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
 
         # For each bar, calculate contributions
@@ -135,8 +367,8 @@ class WingBox():
                Note: position is now on the bars, we may need to adjust this a little based on the assumption
                """
                # Contribution to moments of inertia using parallel axis theorem
-               I_xx_sub = Area_string * (y_pos_string - y) ** 2
-               I_yy_sub = Area_string * (x_pos_string - x) ** 2
+               I_xx_sub = area_stringer * (y_pos_string - y) ** 2
+               I_yy_sub = area_stringer * (x_pos_string - x) ** 2
 
                # Add contributions to total
                I_xx_stringers_steiner += I_xx_sub
@@ -145,69 +377,5 @@ class WingBox():
          # Double the total contributions because we have two bars
         I_xx_stringers_steiner *= 2
         I_yy_stringers_steiner *= 2
-
-        return I_xx_stringers_steiner, I_yy_stringers_steiner # double-check if this is correct, we need to double it as we have 2 bars
         
-    def torsion (self, z, T: int, G): # T : torsion, 
-        a, b, h, alpha = self.geometry(z)
-        A = h * (a + b) / 2               # Area of cross section [m^2]
-        S = a + b + 2 * (h/np.cos(alpha)) # Perimetre of cross section [m]
-        J = ((4*t*A**2)/S) + stein
-
-        thetadot = lambda z: (T) / (J * G)
-
-        theta = integrate.quad(thetadot, 0, z)
-
-    return theta
-
-    def show(self, load, modulus, halfspan, choice: str): 
-        """
-        load: int function representing the internal load of the wing [N]
-        modulus: either E or G depending on the analysis [N/m2]
-        halfspan: halfspan length [m]
-        choice: 'bending' or 'torsion', string input
-        """
-        type = ['bending', 'torsion']
-        
-        z = np.linspace(0, halfspan) # range of z values to show the plot
-        
-        I_xx = 0 # defining the moment of inertia
-        
-        J = 0 
-        
-        self.deflections['Load [Nm]'] = 0
-        self.deflections['z location [m]'] = z
-        
-        self.deflections['Moment of Inertia I [m^4]'] = 0
-        self.deflections['Polar moment of Inertia J [m^4 (??)]'] = 0
-            
-        if choice == type[0]: 
-            # bending diagram is chosen
-            
-            temp_v = []
-            
-            for i in z:
-                # iterating through each value of z and evaluating the displacement at that point
-                v = self.bending(z = i, M = load, E = modulus)
-                
-                temp_v.append(v)
-            
-            
-            self.deflections['Displacement [m]'] = temp_v
-            self.deflections['Rotation [rad]'] = np.zeros(len(z))
-            
-        elif choice == type[1]: 
-            # Torque diagram is chosen
-            
-            temp_theta = []
-            
-            for i in z:
-                # iterating through each value of z and evaluating the rotation at that point
-                theta = self.torsion(z = i, T = load, G = modulus)
-                
-                temp_theta.append(v)
-            
-            
-            self.deflections['Displacement [m]'] = np.zeros(len(z))
-            self.deflections['Rotation [rad]'] = temp_theta
-
+        return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string
