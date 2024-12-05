@@ -94,20 +94,13 @@ class WingBox():
             vdot_list.append(vdot)
             Is.append(self.MOM_total(z=z[i], stringers=stringers)[0])
 
-        plt.plot(z, Is)
-        plt.title("Is")
-        plt.show()
-        
         vdot_g =  interp1d(z, vdot_list, kind='cubic', fill_value="extrapolate")
-        plt.plot(z, vdot_g(z))
-        plt.show()
+    
         for i in range(len(z)):
             
             v, _ = integrate.quad(vdot_g, 0, z[i])
     
             vs.append(v)
-        plt.plot(z, vs)
-        plt.show()
         
         return vs
     
@@ -202,7 +195,7 @@ class WingBox():
     def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
-        denom = (b/self.t1) + 2*((h/np.cos(alpha))/self.t2) + (a/self.t1) #t1 is spar thickness, t2 is thickness of horizontal portion
+        denom = (b/self.t_spar) + 2*((h/np.cos(alpha))/self.t_caps) + (a/self.t_spar) #t1 is spar thickness, t2 is thickness of horizontal portion
 
         J = (4*A**2)/denom
         return J
@@ -253,16 +246,16 @@ class WingBox():
         degrees: plots the torsion diagram in degrees instead of radians
         """
         # changes on 04/12 we won't plot one displacement at a time but all together
-        moment = loads[1]
-        torque = loads[2]
+        moment = loads[0]
+        torque = loads[1]
         
         
         self.deflections['z location [m]'] = z
         
-        self.deflections['Moment of Inertia I [mm^4]'] = self.MOM_total(z=z, stringers=stringers)
+        self.deflections['Moment of Inertia I [mm^4]'] = self.MOM_total(z=z, stringers=stringers)[0]
         self.deflections['Polar moment of Inertia J [mm^4]'] = self.polar(z= z)
             
-        vs = self.bending(z = z, M = moment, E = moduli[0])
+        vs = self.bending(z = z, M = moment, E = moduli[0], stringers=stringers)
             
         self.deflections['Displacement [m]'] = vs
         
@@ -274,9 +267,9 @@ class WingBox():
         self.deflections['Rotation [deg]'] = np.degrees(thetas)
         
         if (self.deflections['Displacement [m]'] > 0.15*max(self.deflections['Displacement [m]'])).any().any():
-            print("Max Tip Displacement Exceeded", "Displacement =", max(self.deflections['Displacement [m]']), (max(self.deflections['Displacement [m]'])/self.wingspan)*100, "(% Wingspan)" )
+            print("Max Tip Displacement Exceeded", "Displacement =", max(self.deflections['Displacement [m]']), (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)" )
         else:
-            print("Max Tip Displacement OK", "Displacement =", max(self.deflections['Displacement [m]']) , (max(self.deflections['Displacement [m]'])/self.wingspan)*100, "(% Wingspan)")
+            print("Max Tip Displacement OK", "Displacement =", max(self.deflections['Displacement [m]']) , (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)")
             
             
         if (self.deflections['Rotation [rad]'] > np.radians(limits[1])).any().any():
@@ -286,19 +279,22 @@ class WingBox():
         # plotting
         if plot and degrees:
             # divide in subplots @todo
-            fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+            fig, axs = plt.subplots(1, 2, figsize=(8, 5))
             axs[0].plot(self.deflections['z location [m]'], np.degrees(self.deflections['Rotation [rad]']))
             axs[0].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
-            axs[0].xlabel("Span wise position [m]")
-            axs[0].ylabel(r"$\theta$ rotation [rad]")
+            axs[0].set_xlabel("Span wise position [m]")
+            axs[0].set_ylabel(r"$\theta$ rotation [rad]")
+            axs[0].set_title("Rotation due to torsion")
             axs[0].grid()
             
             
             axs[1].plot(self.deflections['z location [m]'], self.deflections['Displacement [m]'])
-            axs[1].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
-            axs[1].xlabel("Span wise position [m]")
-            axs[1].ylabel(r"$\theta$ rotation [rad]")
+            axs[1].axhline(y = - 0.15*self.wingspan_og, color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[1].set_xlabel("Span wise position [m]")
+            axs[1].set_ylabel("Displacement due to bending moment [m]")
+            axs[1].set_title("Displacement due to bending")
             axs[1].grid()
+            plt.tight_layout()
             plt.show()
                       
         # write a CSV with all the information        
