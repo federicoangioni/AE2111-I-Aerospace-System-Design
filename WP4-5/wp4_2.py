@@ -106,11 +106,7 @@ class WingBox():
             vs.append(v)
         plt.plot(z, vs)
         plt.show()
-        if max(vs) > 0.15 * self.wingspan_og:
-            print("Max Tip Displacement Exceeded", "Displacement =", v, (v/self.wingspan)*100, "(% Wingspan)" )
-        else:
-            print("Max Tip Displacement OK", "Displacement =", v , (v/self.wingspan)*100, "(% Wingspan)")
-            
+        
         return vs
     
     def centroid(self, z, stringers): # c-chord, t-thickness, alpha
@@ -243,7 +239,7 @@ class WingBox():
 
         return thetas
 
-    def show(self, z, loads, moduli, limits: int, plot: bool = False, save: bool= False, degrees= False): 
+    def show(self, z, loads, moduli, limits: int, stringers, plot: bool = False, save: bool= False, degrees= False): 
         """
         load: int function representing the internal load of the wing [N]
         moduli: [E, G] in Pa or N/m2
@@ -253,12 +249,13 @@ class WingBox():
         degrees: plots the torsion diagram in degrees instead of radians
         """
         # changes on 04/12 we won't plot one displacement at a time but all together
-        torque = loads[2]
         moment = loads[1]
+        torque = loads[2]
+        
         
         self.deflections['z location [m]'] = z
         
-        self.deflections['Moment of Inertia I [mm^4]'] = 0 #?
+        self.deflections['Moment of Inertia I [mm^4]'] = self.MOM_total(z=z, stringers=stringers)
         self.deflections['Polar moment of Inertia J [mm^4]'] = self.polar(z= z)
             
         vs = self.bending(z = z, M = moment, E = moduli[0])
@@ -272,6 +269,12 @@ class WingBox():
         self.deflections['Rotation [rad]'] = thetas
         self.deflections['Rotation [deg]'] = np.degrees(thetas)
         
+        if (self.deflections['Displacement [m]'] > 0.15*max(self.deflections['Displacement [m]'])).any().any():
+            print("Max Tip Displacement Exceeded", "Displacement =", max(self.deflections['Displacement [m]']), (max(self.deflections['Displacement [m]'])/self.wingspan)*100, "(% Wingspan)" )
+        else:
+            print("Max Tip Displacement OK", "Displacement =", max(self.deflections['Displacement [m]']) , (max(self.deflections['Displacement [m]'])/self.wingspan)*100, "(% Wingspan)")
+            
+            
         if (self.deflections['Rotation [rad]'] > np.radians(limits[1])).any().any():
             print("Wing Tip Max. Rotation Exceeded", "Max displacement =", np.degrees(max(self.deflections['Rotation [rad]'])))
         else:
@@ -279,11 +282,19 @@ class WingBox():
         # plotting
         if plot and degrees:
             # divide in subplots @todo
-            plt.plot(self.deflections['z location [m]'], np.degrees(self.deflections['Rotation [rad]']))
-            plt.axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
-            plt.xlabel("Span wise position [m]")
-            plt.ylabel(r"$\theta$ rotation [rad]")
-            plt.grid()
+            fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+            axs[0].plot(self.deflections['z location [m]'], np.degrees(self.deflections['Rotation [rad]']))
+            axs[0].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[0].xlabel("Span wise position [m]")
+            axs[0].ylabel(r"$\theta$ rotation [rad]")
+            axs[0].grid()
+            
+            
+            axs[1].plot(self.deflections['z location [m]'], self.deflections['Displacement [m]'])
+            axs[1].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[1].xlabel("Span wise position [m]")
+            axs[1].ylabel(r"$\theta$ rotation [rad]")
+            axs[1].grid()
             plt.show()
                       
         # write a CSV with all the information        

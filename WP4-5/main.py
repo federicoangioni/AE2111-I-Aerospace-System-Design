@@ -28,7 +28,4 @@ wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, inte
 
 stringers = [20, 0.9, 'L', {'base': 10e-3, 'height': 10e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 
-# wingbox.show(wingbox.z, load= g_torque, modulus= G, choice= 'torsion', limit= 10, plot= True, degrees= True)
-wingbox.show_geometry(0, stringers=stringers)
-
-print(wingbox.bending(wingbox.z, g_moment, E=E, stringers=stringers))
+wingbox.show(wingbox.z, load= [g_moment, g_torque], modulus= [E, G], choice= 'torsion', limit= 10, plot= True, degrees= True)
