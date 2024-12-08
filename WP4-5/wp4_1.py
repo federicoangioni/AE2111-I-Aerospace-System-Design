@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 import sympy as sp
 import os
 from scipy.integrate import cumtrapz
-
+#from main import VelocityLoadFactorDiagram, LoadCases
 
 # authors: Medhansh, Teodor
 
@@ -16,7 +16,7 @@ class Aerodynamics():
         self.wingspan = wingspan - 2 * fus_radius
 
     def coefficients(self, return_list: bool):
-
+        #print(self.files[self.aoa])
         ylst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(0,), invalid_raise=False)
         Cllst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(3,), invalid_raise=False)
         Cdlst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(5,), invalid_raise=False)
@@ -28,7 +28,7 @@ class Aerodynamics():
         g_cm = interp1d(ylst, Cmlst, kind='cubic', fill_value="extrapolate")  # Cm scipy functio, callable
 
         if return_list:
-            return g_cl, g_cd, g_cm, ylst, Cllst, Cdlst, Cmlst
+            return g_cl, g_cd, g_cm, ylst, Cllst, Cdlst, Cmlst, ylst
         else:
             return g_cl, g_cd, g_cm
 
@@ -74,7 +74,7 @@ class Aerodynamics():
 
 
 class InternalForces():
-    def __init__(self, load_factor, sound_speed, half_chord_sweep, fus_radius, density, airspeed, distributions, c_r, wingspan, engine_z_loc, engine_length, x_hl, x_lemac, MAC, one_engine_thrust, fan_cowl_diameter, c_t):
+    def __init__(self, aircraft_mass, load_factor, sound_speed, half_chord_sweep, fus_radius, density, airspeed, c_r, wingspan, engine_z_loc, engine_length, x_hl, x_lemac, MAC, one_engine_thrust, fan_cowl_diameter, c_t):
         """
 
         """
@@ -94,29 +94,107 @@ class InternalForces():
         self.fan_cowl_diameter = fan_cowl_diameter
         self.load_factor = load_factor
         self.fus_radius = fus_radius
-        self.sound_speed = sound_speed
         self.airspeed = airspeed
+        self.sound_speed = sound_speed
         self.z_points = np.linspace(0, self.wingspan / 2, 1000)
+        self.aircraft_mass = aircraft_mass
 
-        self.g_cl = distributions[0]
-        self.g_cd = distributions[1]
-        self.g_cm = distributions[2]
+        # self.g_cl = distributions[0]
+        # self.g_cd = distributions[1]
+        # self.g_cm = distributions[2]
 
         self.lift_dist, self.torque_dist, self.drag_dist = self.applied_distributions()  # this is ok
 
+###########################################################################
+        # NEW CODE: Method to calculate total CL from chord and Cl distribution
+
+    def calculate_total_CL(self, g_cl):
+
+        z = sp.Symbol("z", real=True)
+        chord_expr = self.c_t + ((self.c_r - self.c_t) / (0 - self.wingspan / 2)) * (z - self.wingspan / 2)
+        chord_func = sp.lambdify(z, chord_expr, "numpy")
+
+        self.z_points = np.array(self.z_points, dtype = "float")
+
+        chord_vals = chord_func(self.z_points)
+        Cl_vals = g_cl(self.z_points)
+
+        # Wing area of the exposed wing, I know I hardcoded it but idc rn
+        S = 64.2
+
+        # Integral of c(y)*Cl(y)
+        integrand = chord_vals * Cl_vals
+        integral_half_cl = np.trapz(integrand, self.z_points)
+
+        C_L_total = (2.0 / S) * integral_half_cl
+
+        return C_L_total
+
+    def calculate_CL_0_and_10(self):
+
+        # Create Aerodynamics instances for 0° and 10° AoA
+        aerodynamics_0 = Aerodynamics(
+            folder="XFLRdata\XFLR5OpPoints",
+            aoa=0, wingspan=self.ogwingspan, fus_radius=self.fus_radius)
+        g_cl0, g_cd0, g_cm0 = aerodynamics_0.coefficients(return_list=False)
+
+        aerodynamics_10 = Aerodynamics(
+            folder="XFLRdata\XFLR5OpPoints",
+            aoa=10, wingspan=self.ogwingspan, fus_radius=self.fus_radius)
+        g_cl10, g_cd10, g_cm10 = aerodynamics_10.coefficients(return_list=False)
+
+        # Compute CL for AoA=0° and AoA=10°
+        CL_0 = self.calculate_total_CL(g_cl0)
+        CL_10 = self.calculate_total_CL(g_cl10)
+
+
+        c_ld = ((self.load_factor * self.aircraft_mass * 9.81)/(self.q * 64.2)) * np.sqrt(1-(self.airspeed/self.sound_speed)**2)
+        alpha_d = ((c_ld - CL_0)/(CL_10 - CL_0)) * 10
+
+        z_points = np.linspace(0, self.wingspan / 2, 500)
+        z_points = np.array(z_points, dtype="float")
+
+        # Lift interpolation
+        diff_10_0 = []
+        for a, b in zip(g_cl10(z_points), g_cl0(z_points)):
+            diff_10_0.append(a + b)
+
+        slope = ((c_ld - CL_0)/(CL_10-CL_0))
+
+        scaled_diff_list = np.array(diff_10_0) * slope
+
+        c_ld_dist = np.array(g_cl0(z_points)) + scaled_diff_list
+        c_m_dist = (np.array(g_cm10(z_points)) - np.array(g_cm0(z_points)) / 10) * alpha_d
+        c_d_dist = (np.array(g_cd10(z_points)) - np.array(g_cd0(z_points)) / 10) * float(np.abs(alpha_d))
+
+        g_cl_loaded = interp1d(z_points, c_ld_dist, kind='cubic', fill_value="extrapolate")  # Cl scipy function, callable
+        g_cm_loaded = interp1d(z_points, c_m_dist, kind='cubic', fill_value="extrapolate")  # Cl scipy function, callable
+        g_cd_loaded = interp1d(z_points, c_d_dist, kind='cubic', fill_value="extrapolate")  # Cl scipy function, callable
+
+
+        return g_cl_loaded, g_cm_loaded, g_cd_loaded, alpha_d
+
+###################################################
     # This is the main function
     def applied_distributions(self):
         z = sp.symbols("z")
         chord_dist_z = self.c_t + ((self.c_r - self.c_t) / (0 - self.wingspan / 2)) * (z - self.wingspan / 2)
 
         # lift, torque, and drag distributions along the span
+        index = 0
         L_z = []
         T_z = []
         D_z = []
+        N_z = []
         for i in self.z_points:
-            L_z.append(self.g_cl(i) * self.q * chord_dist_z.subs(z, i)/ np.sqrt(1-(self.airspeed/self.sound_speed)**2))
-            T_z.append(self.g_cm(i) * self.q * chord_dist_z.subs(z, i)/ np.sqrt(1-(self.airspeed/self.sound_speed)**2))
-            D_z.append(self.g_cd(i) * self.q * chord_dist_z.subs(z, i)/ np.sqrt(1-(self.airspeed/self.sound_speed)**2))
+            L_z.append(self.calculate_CL_0_and_10()[0](i) * self.q * chord_dist_z.subs(z, i) / np.sqrt(1-(self.airspeed/self.sound_speed)**2))
+            T_z.append(self.calculate_CL_0_and_10()[1](i) * self.q * chord_dist_z.subs(z, i) / np.sqrt(1-(self.airspeed/self.sound_speed)**2) / np.sqrt(1-(self.airspeed/self.sound_speed)**2))
+            D_z.append(self.calculate_CL_0_and_10()[2](i) * self.q * chord_dist_z.subs(z, i) / np.sqrt(1-(self.airspeed/self.sound_speed)**2) / np.sqrt(1-(self.airspeed/self.sound_speed)**2))
+            N_z.append(np.cos(np.radians(self.calculate_CL_0_and_10()[3])) * L_z[index] + np.sin(np.radians(self.calculate_CL_0_and_10()[3])) * D_z[index])
+
+            index+=1
+
+        L_z = N_z
 
         # These are the final scipy functions
         Lift_dist = interp1d(self.z_points, L_z, kind='cubic', fill_value="extrapolate")
@@ -125,15 +203,15 @@ class InternalForces():
 
         return Lift_dist, Torque_dist, Drag_dist
 
-    def internal_force_diagrams(self, engine_mass, wing_box_length, fuel_tank_length, fuel_density, return_list = False):
+    def force_diagrams(self, engine_mass, wing_box_length, fuel_tank_length, fuel_density):
         z = sp.symbols("z")
-        
+
         # Engine weight
-        eng_weight = - engine_mass * 9.81 * self.load_factor
+        eng_weight = -engine_mass * 9.81
 
         # Wing weight distribution
         # I assumed that the net wing weight will act at 25% of the half wingspan
-        Wing_weight_distribution = -(-(141.1 * self.load_factor * z) + (1897.8 * self.load_factor))
+        Wing_weight_distribution = -(-(141.1* z) + (1897.8))
         Total_Wing_weight_force = sp.integrate(Wing_weight_distribution, (z, self.fus_radius, self.ogwingspan/2))
         Total_Wing_weight_force_z_loc = sp.integrate(z * Wing_weight_distribution, (z, self.fus_radius, self.ogwingspan/2)) / sp.integrate(
             Wing_weight_distribution, (z, self.fus_radius, self.ogwingspan/2))
@@ -144,7 +222,7 @@ class InternalForces():
         # significantly higher than the required fuel as well)
         A_root = (self.c_r * wing_box_length) * (self.c_r * 0.14)  # Im using wingbox areas at the root and tip chord
         A_tip = (self.c_t * wing_box_length) * (self.c_t * 0.14)
-        Fuel_weight_distribution = -(A_root - ((A_root - A_tip) / fuel_tank_length) * z) * fuel_density * self.load_factor
+        Fuel_weight_distribution = -(A_root - ((A_root - A_tip) / fuel_tank_length) * z) * fuel_density
         Total_Fuel_force = (sp.integrate(Fuel_weight_distribution, (z, 0, fuel_tank_length)))
         Total_Fuel_force_z_loc = sp.integrate(z * Fuel_weight_distribution, (z, 0, fuel_tank_length)) / sp.integrate(
             Fuel_weight_distribution, (z, 0, fuel_tank_length))
@@ -158,6 +236,8 @@ class InternalForces():
         Total_lift_force_z_loc = sp.integrate(z * Lift_load_distribution, (z, 0, self.wingspan / 2)) / sp.integrate(
             Lift_load_distribution, (z, 0, self.wingspan / 2))
         Lift_shear = sp.integrate(Lift_load_distribution, (z, 0, z))
+
+        #print(Total_lift_force)
 
         # Torque distribution
         lift_torque_coefficients = np.polyfit(self.z_points, self.torque_dist(self.z_points),
@@ -232,22 +312,24 @@ class InternalForces():
         g_torque = interp1d(self.z_points, torque_list, kind='cubic', fill_value="extrapolate")
         g_axial = interp1d(self.z_points, axial_list, kind='cubic', fill_value="extrapolate")
         # shear list is okay
-        if return_list:
-            return shear_list, moment_list, torque_list, axial_list
-        else:
-            return g_shear, g_moment, g_torque, g_axial
+        return shear_list, moment_list, torque_list, axial_list, g_shear, g_moment, g_torque, g_axial
 
     def show(self, engine_mass, wing_box_length, fuel_tank_length, fuel_density):
         # subplots
-        shear, moment, torque, axial_force = self.internal_force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length,
+        shear, moment, torque, axial_force, g_shear, g_moment, g_torque, g_axial = self.force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length,
                                                                fuel_tank_length=fuel_tank_length,
-                                                               fuel_density=fuel_density, return_list = True)
+                                                               fuel_density=fuel_density)
         shear = [0] + shear
         moment = [0] + moment
         torque = [0] + torque
         axial_force = [0] + axial_force
 
         self.z_points = [0] + list(self.z_points)
+
+        print(self.calculate_total_CL(self.calculate_CL_0_and_10()[0]))
+        print(self.calculate_total_CL(self.calculate_CL_0_and_10()[0]))
+        print(self.calculate_CL_0_and_10()[3])
+
 
         fig, axs = plt.subplots(1, 3, figsize=(18, 6))
 
@@ -281,117 +363,93 @@ class InternalForces():
         axs[2].grid(True)
         axs[2].legend(fontsize=10)
 
-        plt.show()
-        plt.close()
-        
-        fig, axs = plt.subplots(1, 4, figsize=(18, 6))
-        # Plot Load Distribution
-    
-        axs[0].plot(self.z_points, shear, label='Shear Force Distribution', color='blue', linewidth=2)
-        axs[0].axhline(0, color="black", linewidth=0.8)
-        axs[0].set_xlabel("Span-wise Location (z) [m]", fontsize=12)
-        axs[0].set_ylabel("Shear Force [N]", fontsize=12)
-        axs[0].set_title("Shear Force Distribution Along the Wing Span", fontsize=14)
-        axs[0].grid(True)
-        axs[0].legend(fontsize=10)
-        
-        
-        # Plot moment Distribution
-        
-        axs[1].plot(self.z_points, moment, label='Bending Moment Distribution', color='blue', linewidth=2)
-        axs[1].axhline(0, color="black", linewidth=0.8)
-        axs[1].set_xlabel("Span-wise Location (z) [m]", fontsize=12)
-        axs[1].set_ylabel("Bending Moment [kNm]", fontsize=12)
-        axs[1].set_title("Moment Distribution Along the Wing Span", fontsize=14)
-        axs[1].grid(True)
-        axs[1].legend(fontsize=10)
-        
-
-        # Plot torque Distribution
-        
-        axs[2].plot(self.z_points, torque, label='Torque Distribution', color='blue', linewidth=2)
-        axs[2].axhline(0, color="black", linewidth=0.8)
-        axs[2].set_xlabel("Span-wise Location (z) [m]", fontsize=12)
-        axs[2].set_ylabel("Torque [Nm]", fontsize=12)
-        axs[2].set_title("Torque Distribution Along the Wing Span", fontsize=14)
-        axs[2].grid(True)
-        axs[2].legend(fontsize=10)
-        
-
-        # Plot axial force Distribution
-        
-        axs[3].plot(self.z_points, axial_force, label='Axial Force Distribution', color='blue', linewidth=2)
-        axs[3].axhline(0, color="black", linewidth=0.8)
-        axs[3].set_xlabel("Span-wise Location (z) [m]", fontsize=12)
-        axs[3].set_ylabel("Axial Force [N]", fontsize=12)
-        axs[3].set_title("Axial Force Distribution Along the Wing Span", fontsize=14)
-        axs[3].grid(True)
-        axs[3].legend(fontsize=10)
         plt.tight_layout()
         plt.show()
+        plt.clf()
 
-# change
-# aerodynamics = Aerodynamics(folder="C:\\Users\medha\OneDrive\Desktop\TU Delft 1st Year\pythonProject1\\venv\XFLROpPoints2", aoa=5, wingspan=26.9, fus_radius=1.47)
-# distributions = aerodynamics.coefficients(return_list=False)
+        #print(len(self.z_points))
+        # Plot Load Distribution
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.z_points, shear, label='Shear Force Distribution', color='blue', linewidth=2)
+        plt.axhline(0, color="black", linewidth=0.8)
+        plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
+        plt.ylabel("Shear Force [N]", fontsize=12)
+        plt.title("Shear Force Distribution Along the Wing Span", fontsize=14)
+        plt.grid(True)
+        plt.legend(fontsize=10)
+        #plt.savefig("Shear_Force_f.svg", format="svg")
+        plt.show()
 
-# internal_forces = InternalForces(
-#     load_factor= 1,
-#     sound_speed=343,
-#     half_chord_sweep=22.4645,
-#     fus_radius=1.47,
-#     density=1.225,            # Air density in kg/m^3
-#     airspeed=66.26,               # Airspeed in m/s
-#     distributions=distributions,  # From the Aerodynamics class
-#     c_r=4.33,                 # Root chord in meters
-#     c_t=1.33,
-#     wingspan= 26.9,            # Wingspan in meters after shaving off fuselage width
-#     engine_z_loc=4.35,        # Engine location along the span (z) in meters
-#     engine_length=3.0,        # Length of the engine in meters
-#     x_hl=13,                  # Horizontal distance to the engine
-#     x_lemac=16.37,            # Horizontal distance to the leading edge of MAC
-#     MAC=3.05,                 # Mean Aerodynamic Chord in meters
-#     one_engine_thrust=78466,  # Thrust per engine in Newtons
-#     fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters        
-# )
+        # Plot moment Distribution
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.z_points, moment, label='Bending Moment Distribution', color='blue', linewidth=2)
+        plt.axhline(0, color="black", linewidth=0.8)
+        plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
+        plt.ylabel("Bending Moment [kNm]", fontsize=12)
+        plt.title("Moment Distribution Along the Wing Span", fontsize=14)
+        plt.grid(True)
+        plt.legend(fontsize=10)
+        #plt.savefig("Moment_f.svg", format="svg")
+        plt.show()
 
-# internal_forces.show(
-#     engine_mass=2306,         # Mass of the engine in kilograms
-#     wing_box_length=0.55,     # Length of the wingbox relative to chord
-#     fuel_tank_length=11.98,   # Length of the fuel tank in meters
-#     fuel_density=800        # Density of the fuel in kg/m^3
-# )
+        # Plot torque Distribution
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.z_points, torque, label='Torque Distribution', color='blue', linewidth=2)
+        plt.axhline(0, color="black", linewidth=0.8)
+        plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
+        plt.ylabel("Torque [Nm]", fontsize=12)
+        plt.title("Torque Distribution Along the Wing Span", fontsize=14)
+        plt.grid(True)
+        plt.legend(fontsize=10)
+        #plt.savefig("Torque_f.svg", format="svg")
+        plt.show()
 
-# def critical_case_analysis(aoa, load_factor, airspeed, density, one_engine_thrust):
-#     aerodynamics = Aerodynamics(
-#         folder="XFLRdata\XFLR5sims", aoa=aoa,
-#         wingspan=26.9, fus_radius=1.47)
-#     distributions = aerodynamics.coefficients(return_list=False)
+        # Plot axial force Distribution
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.z_points, axial_force, label='Axial Force Distribution', color='blue', linewidth=2)
+        plt.axhline(0, color="black", linewidth=0.8)
+        plt.xlabel("Span-wise Location (z) [m]", fontsize=12)
+        plt.ylabel("Axial Force [N]", fontsize=12)
+        plt.title("Axial Force Distribution Along the Wing Span", fontsize=14)
+        plt.grid(True)
+        plt.legend(fontsize=10)
+        #plt.savefig("Axial_Force_f.svg", format="svg")
+        plt.show()
 
-#     internal_forces = InternalForces(
-#         load_factor=load_factor,
-#         sound_speed=343,
-#         half_chord_sweep=22.4645,
-#         fus_radius=1.47,
-#         density=density,  # Air density in kg/m^3
-#         airspeed=airspeed,  # Airspeed in m/s
-#         distributions=distributions,  # From the Aerodynamics class
-#         c_r=4.33,  # Root chord in meters
-#         c_t=1.33,
-#         wingspan=26.9,  # Wingspan in meters after shaving off fuselage width
-#         engine_z_loc=4.35,  # Engine location along the span (z) in meters
-#         engine_length=3.0,  # Length of the engine in meters
-#         x_hl=13,  # Horizontal distance to the engine
-#         x_lemac=16.37,  # Horizontal distance to the leading edge of MAC
-#         MAC=3.05,  # Mean Aerodynamic Chord in meters
-#         one_engine_thrust=one_engine_thrust,  # Thrust per engine in Newtons
-#         fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters
-#     )
+def critical_case_analysis( aircaft_mass, load_factor, airspeed, density, one_engine_thrust):
 
-#     internal_forces.show(
-#         engine_mass=2306,  # Mass of the engine in kilograms
-#         wing_box_length=0.55,  # Length of the wingbox relative to chord
-#         fuel_tank_length=11.98,  # Length of the fuel tank in meters
-#         fuel_density=800  # Density of the fuel in kg/m^3
-#     )
-    
-# # critical_case_analysis(aoa= 10, load_factor= 2.5, airspeed= 327.5, density= 1.225, one_engine_thrust= 78466)
+    internal_forces = InternalForces(
+        aircraft_mass=aircaft_mass,
+        load_factor=load_factor,
+        half_chord_sweep=22.4645,
+        fus_radius=1.47,
+        density=density,  # Air density in kg/m^3
+        airspeed=airspeed,  # Airspeed in m/s
+        c_r=4.33,  # Root chord in meters
+        c_t=1.33,
+        wingspan=26.9,  # Wingspan in meters after shaving off fuselage width
+        engine_z_loc=4.35,  # Engine location along the span (z) in meters
+        engine_length=3.0,  # Length of the engine in meters
+        x_hl=13,  # Horizontal distance to the engine
+        x_lemac=16.37,  # Horizontal distance to the leading edge of MAC
+        MAC=3.05,  # Mean Aerodynamic Chord in meters
+        one_engine_thrust=one_engine_thrust,  # Thrust per engine in Newtons
+        fan_cowl_diameter=1.448,  # Diameter of the fan cowl in meters
+        sound_speed = 296.56 # at cruise conditions
+    )
+
+    internal_forces.show(
+        engine_mass=2306,  # Mass of the engine in kilograms
+        wing_box_length=0.55,  # Length of the wingbox relative to chord
+        fuel_tank_length=11.98,  # Length of the fuel tank in meters
+        fuel_density=800  # Density of the fuel in kg/m^3
+    )
+
+    internal_forces.calculate_CL_0_and_10()
+
+
+critical_case_analysis(aircaft_mass=35688, load_factor=2.5, airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
+
+
+critical_case_analysis(aircaft_mass=35688, load_factor=-1,  airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
+
