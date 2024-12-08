@@ -134,12 +134,12 @@ class InternalForces():
 
         # Create Aerodynamics instances for 0° and 10° AoA
         aerodynamics_0 = Aerodynamics(
-            folder="XFLRdata\XFLR5OpPoints",
+            folder="XFLRdata\XFLR5sims",
             aoa=0, wingspan=self.ogwingspan, fus_radius=self.fus_radius)
         g_cl0, g_cd0, g_cm0 = aerodynamics_0.coefficients(return_list=False)
 
         aerodynamics_10 = Aerodynamics(
-            folder="XFLRdata\XFLR5OpPoints",
+            folder="XFLRdata\XFLR5sims",
             aoa=10, wingspan=self.ogwingspan, fus_radius=self.fus_radius)
         g_cl10, g_cd10, g_cm10 = aerodynamics_10.coefficients(return_list=False)
 
