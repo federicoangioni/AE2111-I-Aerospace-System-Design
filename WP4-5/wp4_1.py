@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import sympy as sp
 import os
+from variables import load_factor
 from scipy.integrate import cumtrapz
 #from main import VelocityLoadFactorDiagram, LoadCases
 
@@ -448,8 +449,8 @@ def critical_case_analysis( aircaft_mass, load_factor, airspeed, density, one_en
     internal_forces.calculate_CL_0_and_10()
 
 
-critical_case_analysis(aircaft_mass=35688, load_factor=2.5, airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
+critical_case_analysis(aircaft_mass=35688, load_factor=load_factor, airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
 
 
-critical_case_analysis(aircaft_mass=35688, load_factor=-1,  airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
+#critical_case_analysis(aircaft_mass=35688, load_factor=-1,  airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
 
