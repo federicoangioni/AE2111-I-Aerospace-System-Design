@@ -14,7 +14,7 @@ internal_forces = InternalForces(aircraft_mass=aircraft_mass, load_factor= load_
     
     
 g_shear, g_moment, g_torque, g_axial = internal_forces.force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length, 
-                                        fuel_tank_length=fuel_tank_length, fuel_density=fuel_density)
+                                        fuel_tank_length=fuel_tank_length, fuel_density=fuel_density)[4:]
 
 # Plotting the internal distribution functions
 # internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
