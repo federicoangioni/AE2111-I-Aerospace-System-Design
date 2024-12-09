@@ -237,11 +237,11 @@ class WingBox():
 
         return thetas
 
-    def show(self, z, loads, moduli, limits: int, stringers, plot: bool = False, save: bool= False, degrees= False): 
+    def show(self, z, loads, moduli, limits: int, stringers, plot: bool = False, save: bool= False, degrees= False, filename=None): 
         """
         load: int function representing the internal load of the wing [N]
         moduli: [E, G] in Pa or N/m2
-        limit: it is the maximum allowable displacement [mm, deg] or [bending, torsion]
+        limit: it is the maximum allowable displacement [mm, deg]
         halfspan: halfspan length [m] 
         choice: 'bending' or 'torsion', string input
         degrees: plots the torsion diagram in degrees instead of radians
@@ -267,39 +267,42 @@ class WingBox():
         self.deflections['Rotation [rad]'] = thetas
         self.deflections['Rotation [deg]'] = np.degrees(thetas)
         
-        if (self.deflections['Displacement [m]'] > 0.15*max(self.deflections['Displacement [m]'])).any().any():
-            print("Max Tip Displacement Exceeded", "Displacement =", max(self.deflections['Displacement [m]']), (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)" )
+        if (abs(self.deflections['Displacement [m]']) > 0.15*self.wingspan_og).any().any():
+            print("Max Tip Displacement Exceeded", "Displacement =", max(abs(self.deflections['Displacement [m]'])), (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)" )
         else:
-            print("Max Tip Displacement OK", "Displacement =", max(self.deflections['Displacement [m]']) , (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)")
+            print("Max Tip Displacement OK", "Displacement =", max(abs(self.deflections['Displacement [m]'])) , (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)")
             
             
-        if (self.deflections['Rotation [rad]'] > np.radians(limits[1])).any().any():
-            print("Wing Tip Max. Rotation Exceeded", "Max displacement =", np.degrees(max(self.deflections['Rotation [rad]'])))
+        if (abs(self.deflections['Rotation [rad]']) > np.radians(limits[1])).any().any():
+            print("Wing Tip Max. Rotation Exceeded", "Max displacement =", max(abs(self.deflections['Rotation [deg]'])))
         else:
-            print("Wing Tip Max. Rotation Allowed", "Max displacement =", np.degrees(max(self.deflections['Rotation [rad]'])))
+            print("Wing Tip Max. Rotation Allowed", "Max displacement =", max(abs(self.deflections['Rotation [deg]'])))
         # plotting
         if plot and degrees:
             # divide in subplots @todo
             fig, axs = plt.subplots(1, 2, figsize=(8, 5))
-            axs[0].plot(self.deflections['z location [m]'], np.degrees(self.deflections['Rotation [rad]']))
+            axs[0].plot(self.deflections['z location [m]'], self.deflections['Rotation [deg]'])
             axs[0].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
             axs[0].set_xlabel("Span wise position [m]")
-            axs[0].set_ylabel(r"$\theta$ rotation [rad]")
+            axs[0].set_ylabel(r"$\theta$ rotation [deg]")
             axs[0].set_title("Rotation due to torsion")
             axs[0].grid()
             
-            
             axs[1].plot(self.deflections['z location [m]'], self.deflections['Displacement [m]'])
-            axs[1].axhline(y = - 0.15*self.wingspan_og, color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[1].axhline(y = np.sign(self.deflections['Displacement [m]'].iloc[-1])*0.15*self.wingspan_og, color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            
             axs[1].set_xlabel("Span wise position [m]")
             axs[1].set_ylabel("Displacement due to bending moment [m]")
             axs[1].set_title("Displacement due to bending")
             axs[1].grid()
             plt.tight_layout()
+            
+            if save:
+                plt.savefig(filename)
             plt.show()
                       
         # write a CSV with all the information        
-        with open('WP4-5/deflections.csv',  'w', encoding = 'utf=8') as file:
+        with open('deflections.csv',  'w', encoding = 'utf=8') as file:
             self.deflections.to_csv(file)
 
 
@@ -321,7 +324,7 @@ class WingBox():
             area_stringer = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
         
         elif stringers_type == "I":
-            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["web"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["web height"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
         
         x_stringers = []
         y_stringers = []
