@@ -18,10 +18,10 @@ class Aerodynamics():
 
     def coefficients(self, return_list: bool):
         #print(self.files[self.aoa])
-        ylst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(0,), invalid_raise=False)
-        Cllst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(3,), invalid_raise=False)
-        Cdlst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(5,), invalid_raise=False)
-        Cmlst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(7,), invalid_raise=False)
+        ylst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(0,), invalid_raise=False, encoding="latin-1")
+        Cllst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(3,), invalid_raise=False, encoding="latin-1")
+        Cdlst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(5,), invalid_raise=False, encoding="latin-1")
+        Cmlst = np.genfromtxt(self.files[self.aoa], skip_header=40, max_rows=19, usecols=(7,), invalid_raise=False, encoding="latin-1")
 
         # Interpolate data
         g_cl = interp1d(ylst, Cllst, kind='cubic', fill_value="extrapolate")  # Cl scipy function, callable
