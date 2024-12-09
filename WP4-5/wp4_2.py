@@ -282,7 +282,7 @@ class WingBox():
             # divide in subplots @todo
             fig, axs = plt.subplots(1, 2, figsize=(8, 5))
             axs[0].plot(self.deflections['z location [m]'], self.deflections['Rotation [deg]'])
-            axs[0].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[0].axhline(y = np.sign(self.deflections['Rotation [deg]'].iloc[-1])*limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
             axs[0].set_xlabel("Span wise position [m]")
             axs[0].set_ylabel(r"$\theta$ rotation [deg]")
             axs[0].set_title("Rotation due to torsion")
