@@ -299,7 +299,7 @@ class WingBox():
             plt.show()
                       
         # write a CSV with all the information        
-        with open('WP4-5/deflections.csv',  'w', encoding = 'utf=8') as file:
+        with open('deflections.csv',  'w', encoding = 'utf=8') as file:
             self.deflections.to_csv(file)
 
 
