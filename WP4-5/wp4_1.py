@@ -135,12 +135,12 @@ class InternalForces():
 
         # Create Aerodynamics instances for 0° and 10° AoA
         aerodynamics_0 = Aerodynamics(
-            folder="XFLRdata\XFLR5sims",
+            folder="XFLRdata\\XFLR5sims",
             aoa=0, wingspan=self.ogwingspan, fus_radius=self.fus_radius)
         g_cl0, g_cd0, g_cm0 = aerodynamics_0.coefficients(return_list=False)
 
         aerodynamics_10 = Aerodynamics(
-            folder="XFLRdata\XFLR5sims",
+            folder="XFLRdata\\XFLR5sims",
             aoa=10, wingspan=self.ogwingspan, fus_radius=self.fus_radius)
         g_cl10, g_cd10, g_cm10 = aerodynamics_10.coefficients(return_list=False)
 
@@ -326,12 +326,6 @@ class InternalForces():
         axial_force = [0] + axial_force
 
         self.z_points = [0] + list(self.z_points)
-
-        print(self.calculate_total_CL(self.calculate_CL_0_and_10()[0]))
-        print(self.calculate_total_CL(self.calculate_CL_0_and_10()[0]))
-        print(self.calculate_CL_0_and_10()[3])
-
-
         fig, axs = plt.subplots(1, 3, figsize=(18, 6))
 
         # Lift Dist
@@ -447,10 +441,4 @@ def critical_case_analysis( aircaft_mass, load_factor, airspeed, density, one_en
     )
 
     internal_forces.calculate_CL_0_and_10()
-
-
-critical_case_analysis(aircaft_mass=35688, load_factor=load_factor, airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
-
-
-#critical_case_analysis(aircaft_mass=35688, load_factor=-1,  airspeed=228.35, density=0.4097, one_engine_thrust= 78466)
 
