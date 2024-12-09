@@ -237,7 +237,7 @@ class WingBox():
 
         return thetas
 
-    def show(self, z, loads, moduli, limits: int, stringers, plot: bool = False, save: bool= False, degrees= False): 
+    def show(self, z, loads, moduli, limits: int, stringers, plot: bool = False, save: bool= False, degrees= False, filename=None): 
         """
         load: int function representing the internal load of the wing [N]
         moduli: [E, G] in Pa or N/m2
@@ -296,6 +296,9 @@ class WingBox():
             axs[1].set_title("Displacement due to bending")
             axs[1].grid()
             plt.tight_layout()
+            
+            if save:
+                plt.savefig(filename)
             plt.show()
                       
         # write a CSV with all the information        
