@@ -331,7 +331,7 @@ class WingBox():
 
         num_stringers = stringers[0]
         
-        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
+        stringer_spacing = (h/np.cos(alpha)) / (stringer_per_side + 1)  # Spacing between stringers on the bars
 
         for i in range(1, stringer_per_side+1): # Upperside
                # Distance along the inclined bar
@@ -353,13 +353,13 @@ class WingBox():
         a, b, h, alpha = self.geometry(z)
         x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(z, stringers)
         x, y = self.centroid(z, stringers)
-        num_stringers = stringers[0]
+        stringer_per_side = int(stringers[0]/2)
         
-        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
+        stringer_spacing = (h/np.cos(alpha)) / (stringer_per_side + 1)  # Spacing between stringers on the bars
 
         # For each bar, calculate contributions
         I_xx_stringers_steiner, I_yy_stringers_steiner = 0, 0
-        for i in range(1, num_stringers+1):
+        for i in range(1, stringer_per_side +1):
 
                # Distance along the inclined bar
                distance_along_bar = i * stringer_spacing
