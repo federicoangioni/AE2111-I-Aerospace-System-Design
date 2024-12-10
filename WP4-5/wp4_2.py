@@ -196,7 +196,7 @@ class WingBox():
     def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
-        denom = (b/self.t_spar) + 2*((h/np.cos(alpha))/self.t_caps) + (a/self.t_spar) #t1 is spar thickness, t2 is thickness of horizontal portion
+        denom = (b/self.t_spar) + 2*((h/np.cos(alpha))/self.t_caps) + (a/self.t_spar) 
 
         J = (4*A**2)/denom
         return J
