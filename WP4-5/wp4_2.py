@@ -321,7 +321,7 @@ class WingBox():
             dimensions = stringers[3]
         
         if stringers_type == "L":
-            area_stringer = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["height"]*dimensions["thickness height"]
         
         elif stringers_type == "I":
             area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["web height"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
