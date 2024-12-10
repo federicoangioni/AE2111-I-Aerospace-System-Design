@@ -267,6 +267,8 @@ class WingBox():
         self.deflections['Rotation [rad]'] = thetas
         self.deflections['Rotation [deg]'] = np.degrees(thetas)
         
+        self.deflections['Area Moment of Inertia [mm^4]'] = self.MOM_total(z= z, stringers=stringers)[0]
+        
         if (abs(self.deflections['Displacement [m]']) > 0.15*self.wingspan_og).any().any():
             print("Max Tip Displacement Exceeded", "Displacement =", max(abs(self.deflections['Displacement [m]'])), (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)" )
         else:
