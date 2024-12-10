@@ -204,6 +204,8 @@ class WingBox():
     def Jplots(self, z):
         t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
         t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
         z = np.linspace(0, self.tiplocation)
         for i in range(len(t1)): 
             for j in range(len(t2)): 
@@ -321,6 +323,7 @@ class WingBox():
             dimensions = stringers[3]
         
         if stringers_type == "L":
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["height"]*dimensions["thickness height"]
             area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["thickness height"]*dimensions["thickness height"]
         
         elif stringers_type == "I":
