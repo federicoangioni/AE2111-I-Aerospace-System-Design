@@ -202,8 +202,8 @@ class WingBox():
         return J
     
     def Jplots(self, z):
-        t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
-        t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t1 = [self.t_spar]
+        t2 = [self.t_caps]
         z = np.linspace(0, self.tiplocation)
         for i in range(len(t1)): 
             for j in range(len(t2)): 
