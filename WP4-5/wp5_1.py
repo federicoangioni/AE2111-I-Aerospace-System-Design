@@ -57,7 +57,7 @@ class SkinBuckling():
                 panel_AR.append(panel_area[i]/length_of_ribs[i]**2)
 
         for i in range(number_of_panels-1):
-            if z => length_of_the_panel * i and z<length_of_the_panel * (i+1):
+            if z >= length_of_the_panel * i and z<length_of_the_panel * (i+1):
                 AR_final = panel_AR[i]
             else: AR_final = -100000
         
