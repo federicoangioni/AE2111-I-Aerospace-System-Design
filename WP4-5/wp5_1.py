@@ -35,7 +35,7 @@ class SkinBuckling():
         print(f"Interpolated value at AR={x_query}: kc={y_query}")
         return Kc
 
-    def SkinAspectRatio(number_of_ribs, wing_span, geometry):
+    def SkinAspectRatio(number_of_ribs, wing_span, geometry, z):
         number_of_panels = number_of_ribs - 1
         length_of_the_panel = wing_span/number_of_panels
         length_of_ribs = []
@@ -55,8 +55,15 @@ class SkinBuckling():
             else:
                 panel_AR.append(panel_area[i]/length_of_ribs[i]**2)
 
-        return panel_AR
+        for i in range(number_of_panels-1):
+            if z => length_of_the_panel*i and z<=length_of_the_panel*(i+1):
+                AR_final = panel_AR[i]
+        
+
+
+        return AR_final
     
+
     def StressSkinBuckling(panel_AR, E, Poisson, constant):
         stress = np.pi**2 * constant*E/(12*(1-Poisson**2))*(t/b)**2
         return stress
