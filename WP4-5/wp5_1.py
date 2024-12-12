@@ -36,8 +36,9 @@ class SkinBuckling():
         return Kc
 
     def SkinAspectRatio(number_of_ribs, wing_span, geometry, z):
+        half_wing =wing_span/2
         number_of_panels = number_of_ribs - 1
-        length_of_the_panel = wing_span/number_of_panels
+        length_of_the_panel = half_wing/number_of_panels
         length_of_ribs = []
         panel_area = []
         panel_AR = []
