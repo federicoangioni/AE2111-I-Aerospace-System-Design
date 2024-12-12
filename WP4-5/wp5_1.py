@@ -43,7 +43,7 @@ class SkinBuckling():
         panel_AR = []
 
         for i in range(number_of_ribs + 1):
-            a, b, h, alpha = geometry(length_of_panel * i)
+            a, b, h, alpha = geometry(length_of_the_panel * i)
             length_of_ribs.append(h)
 
         for i in range(number_of_ribs -1):
@@ -56,15 +56,14 @@ class SkinBuckling():
                 panel_AR.append(panel_area[i]/length_of_ribs[i]**2)
 
         for i in range(number_of_panels-1):
-            if z => length_of_the_panel*i and z<=length_of_the_panel*(i+1):
+            if z => length_of_the_panel * i and z<length_of_the_panel * (i+1):
                 AR_final = panel_AR[i]
+            else: AR_final = -100000
         
-
-
         return AR_final
     
 
-    def StressSkinBuckling(panel_AR, E, Poisson, constant):
+    def StressSkinBuckling(panel_AR, E, Poisson, constant, t, z):
         stress = np.pi**2 * constant*E/(12*(1-Poisson**2))*(t/b)**2
         return stress
 
