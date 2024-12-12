@@ -40,7 +40,7 @@ class SkinBuckling():
         length_of_the_panel = wing_span/number_of_panels
         length_of_ribs = []
         panel_area = []
-        AR = []
+        panel_AR = []
 
         for i in range(number_of_ribs + 1):
             a, b, h, alpha = geometry(length_of_panel * i)
@@ -48,7 +48,13 @@ class SkinBuckling():
 
         for i in range(number_of_ribs -1):
             panel_area.append(0.5*length_of_the_panel*(length_of_ribs[i]+length_of_ribs[i+1]))
-            panel_AR.append(panel_area[i]/(length_of_the_panel **2))
+            AR = panel_area[i]/(length_of_the_panel **2)
+
+            if AR >=1:
+                panel_AR.append(AR)
+            else:
+                panel_AR.append(panel_area[i]/length_of_ribs[i]**2)
+
 
 
 
