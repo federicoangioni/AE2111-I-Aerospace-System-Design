@@ -96,7 +96,7 @@ class RibWebBuckling(self):
         # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
         c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
         return c
-
+    # Defines AspectRaio of the long Spar
     def LongSparWebAR(self, z, c):
         b = z
         t_0 = 0.1013*self.chord(0)
