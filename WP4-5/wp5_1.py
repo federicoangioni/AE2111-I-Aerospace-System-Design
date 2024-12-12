@@ -37,8 +37,11 @@ class Buckling():
         number_of_panels = number_of_ribs - 1
         length_of_the_panel = wing_span/number_of_panels
 
-        for (int i =0, i<=number_of_ribs)
+        for i in range(number_of_ribs + 1):
+            a, b, h, alpha = geometry(length_of_panel * i)
+            length_of_ribs.append(h)
 
-        a, b, h, alpha = gino(length_of_the_panel)
+        length_of_ribs = []
+        panel_area = []
+        AR = []
 
-        length_of_ribs = 
