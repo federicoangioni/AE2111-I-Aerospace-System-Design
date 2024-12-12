@@ -1,28 +1,31 @@
 from scipy.interpolate import interp1d
 import numpy as np
-from variables import *
+import pandas as pd
 
 
 
 class SkinBuckling():
-    def __init__():
+    def __init__(self):
+        pass
         
-    def SkinBucklingConstant(aspect_ratio):
-
+        
+    def skin_buckling_constant(self, aspect_ratio):
+        
+        # file path of the points for the skin buckling for a plate
+        filepath = 'WP4-5/resources/K_cplates.csv'
         # Given points
-        x_points = [0.9, 1, 1.5, 2, 3, 4, 5]
-        y_points = [14, 10.25, 8.75, 8, 7.5, 7.5, 7.5]
-
+        df = pd.read_csv(filepath)
+        
         # Create linear interpolating function
-        linear_interp = interp1d(x_points, y_points, kind='linear')
+        linear_interp = interp1d(df['x'], df['y'], kind='next')
 
         # Generate interpolated values
-        x_vals = np.linspace(min(x_points), max(x_points), 500)
-        y_vals = linear_interp(x_vals)
+        x_vals = np.linspace(min(df['x']), max(df['x']), len(df['x']))
+        y_vals = linear_interp(df['x'])
 
         # Plotting
         import matplotlib.pyplot as plt
-        plt.scatter(x_points, y_points, color='red', label='Given Points')
+        plt.scatter(df['x'], df['y'], color='red', label='Given Points')
         plt.plot(x_vals, y_vals, label='Linear Interpolation', color='orange')
         plt.title('Linear Interpolation')
         plt.xlabel('x')
@@ -31,16 +34,20 @@ class SkinBuckling():
         plt.grid()
         plt.show()
 
-        Kc = interp_function(aspect_ratio)
-        print(f"Interpolated value at AR={x_query}: kc={y_query}")
-        return Kc
+        #Kc = interp_function(aspect_ratio)
+        #print(f"Interpolated value at AR={x_query}: kc={y_query}")
+        
 
-    def SkinAspectRatio(number_of_ribs, wing_span, gino):
-        number_of_panels = number_of_ribs - 1
-        length_of_the_panel = wing_span/number_of_panels
+    # def SkinAspectRatio(number_of_ribs, wing_span, geometry):
+    #     number_of_panels = number_of_ribs - 1
+    #     length_of_the_panel = wing_span/number_of_panels
 
-        for (int i =0, i<=number_of_ribs)
+    #     for (int i =0, i<=number_of_ribs)
 
-        a, b, h, alpha = gino(length_of_the_panel)
+    #     a, b, h, alpha = geometry(length_of_the_panel)
 
-        length_of_ribs = 
+    #     length_of_ribs = 
+
+
+skin = SkinBuckling()
+skin.skin_buckling_constant(8)
