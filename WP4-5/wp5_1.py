@@ -1,5 +1,6 @@
 from scipy.interpolate import interp1d
 import numpy as np
+from variables import *
 
 
 def SkinBucklingConstant(aspect_ratio):
@@ -29,3 +30,8 @@ def SkinBucklingConstant(aspect_ratio):
     Kc = interp_function(aspect_ratio)
     print(f"Interpolated value at AR={x_query}: kc={y_query}")
     return Kc
+
+def spar_long_buckling(z):
+    ks = "Function of AR"
+    
+    
