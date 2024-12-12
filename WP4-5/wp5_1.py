@@ -4,7 +4,9 @@ from variables import *
 
 
 
-class Buckling():
+class SkinBuckling():
+    def __init__():
+        
     def SkinBucklingConstant(aspect_ratio):
 
         # Given points
