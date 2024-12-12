@@ -92,6 +92,9 @@ class SkinBuckling():
 
 
 class RibWebBuckling(self):
+    def __init__():
+        pass  
+
     def chord(self, z, c_r, c_t, wingspan): 
         # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
         c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
