@@ -196,12 +196,14 @@ class WingBox():
     def polar (self, z): # T : torsion, 
         a, b, h, alpha = self.geometry(z)
         A = h * (a + b) / 2               # Area of cross section [m^2]
-        denom = (b/self.t_spar) + 2*((h/np.cos(alpha))/self.t_caps) + (a/self.t_spar) 
+        denom = (b/self.t_spar) + 2*((h/np.cos(alpha))/self.t_caps) + (a/self.t_spar) #t1 is spar thickness, t2 is thickness of horizontal portion
 
         J = (4*A**2)/denom
         return J
     
     def Jplots(self, z):
+        t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
         t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
         t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
         z = np.linspace(0, self.tiplocation)
@@ -284,7 +286,7 @@ class WingBox():
             # divide in subplots @todo
             fig, axs = plt.subplots(1, 2, figsize=(8, 5))
             axs[0].plot(self.deflections['z location [m]'], self.deflections['Rotation [deg]'])
-            axs[0].axhline(y = np.sign(self.deflections['Rotation [deg]'].iloc[-1])*limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
+            axs[0].axhline(y = limits[1], color = 'r', linestyle = '-', lw= 1, dashes=[2, 2])
             axs[0].set_xlabel("Span wise position [m]")
             axs[0].set_ylabel(r"$\theta$ rotation [deg]")
             axs[0].set_title("Rotation due to torsion")
@@ -324,6 +326,7 @@ class WingBox():
         
         if stringers_type == "L":
             area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["height"]*dimensions["thickness height"]
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["thickness height"]*dimensions["thickness height"]
         
         elif stringers_type == "I":
             area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["web height"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]

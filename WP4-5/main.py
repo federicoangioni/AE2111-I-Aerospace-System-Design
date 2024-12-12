@@ -18,7 +18,7 @@ g_shear, g_moment, g_torque, g_axial = internal_forces.force_diagrams(engine_mas
 
 # Plotting the internal distribution functions
 # internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
-print(g_torque(5))
+
 
 wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.003, t_caps= 0.002)
 
