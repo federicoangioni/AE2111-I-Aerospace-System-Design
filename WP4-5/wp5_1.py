@@ -69,7 +69,7 @@ skin.skin_buckling_constant(8)
         panel_AR = []
 
         for i in range(number_of_ribs + 1):
-            a, b, h, alpha = geometry(length_of_the_panel * i)
+            a, b, h, alpha = geometry(0, length_of_the_panel * i)
             length_of_ribs.append(h)
 
         for i in range(number_of_ribs -1):
