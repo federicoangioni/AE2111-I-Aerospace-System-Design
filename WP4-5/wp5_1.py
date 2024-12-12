@@ -30,14 +30,14 @@ def SkinBucklingConstant(aspect_ratio):
     Kc = interp_function(aspect_ratio)
     print(f"Interpolated value at AR={x_query}: kc={y_query}")
     return Kc
+
 def SkinAspectRatio(number_of_ribs, wing_span, gino):
     number_of_panels = number_of_ribs - 1
     length_of_the_panel = wing_span/number_of_panels
-    length_of_the_ribs = []
+    length_of_ribs = []
 
-
-    for (int i =0, i<=number_of_ribs, i++)
-        a, b, h, alpha = gino(length_of_the_panel*i)
+    for i in range(number_of_ribs + 1):
+        a, b, h, alpha = gino(length_of_panel * i)
         length_of_ribs.append(h)
 
 
