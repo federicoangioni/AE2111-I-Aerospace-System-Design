@@ -38,14 +38,18 @@ class SkinBuckling():
     def SkinAspectRatio(number_of_ribs, wing_span, gino):
         number_of_panels = number_of_ribs - 1
         length_of_the_panel = wing_span/number_of_panels
+        length_of_ribs = []
+        panel_area = []
+        AR = []
 
         for i in range(number_of_ribs + 1):
             a, b, h, alpha = geometry(length_of_panel * i)
             length_of_ribs.append(h)
 
-        length_of_ribs = []
-        panel_area = []
-        AR = []
+        for i in range(number_of_ribs -1):
+            panel_area.append(0.5*length_of_the_panel*(length_of_ribs[i]+length_of_ribs[i+1]))
+            panel_AR.append(panel_area[i]/(length_of_the_panel **2))
+
 
 
 class RibWebBuckling():
