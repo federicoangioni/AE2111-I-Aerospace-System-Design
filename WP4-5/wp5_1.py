@@ -29,3 +29,6 @@ def SkinBucklingConstant(aspect_ratio):
     Kc = interp_function(aspect_ratio)
     print(f"Interpolated value at AR={x_query}: kc={y_query}")
     return Kc
+
+def back_spar_web_buckling():
+    crit_stress = lambda: np.pi**2 * k_s
