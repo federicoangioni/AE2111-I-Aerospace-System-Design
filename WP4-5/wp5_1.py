@@ -1,12 +1,12 @@
 from scipy.interpolate import interp1d
 import numpy as np
 from variables import *
-
+import matplotlib.pyplot as plt
 
 
 class SkinBuckling():
     def __init__():
-        
+        pass  
     def SkinBucklingConstant(aspect_ratio):
 
         # Given points
