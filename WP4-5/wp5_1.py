@@ -1,7 +1,7 @@
 from scipy.interpolate import interp1d
 import numpy as np
 from variables import *
-
+from wp4_2 import WingBox
 
 def SkinBucklingConstant(aspect_ratio):
 
@@ -40,3 +40,6 @@ def SkinAspectRatio(number_of_ribs, wing_span, gino):
     a, b, h, alpha = gino(length_of_the_panel)
 
     length_of_ribs = 
+
+class RibWebBuckling():
+    print("hello world")
