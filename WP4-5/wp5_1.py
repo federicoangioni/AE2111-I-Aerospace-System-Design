@@ -58,8 +58,8 @@ class SkinBuckling():
     #     length_of_ribs = 
 
 
-skin = SkinBuckling()
-skin.skin_buckling_constant(8)
+    skin = SkinBuckling()
+    skin.skin_buckling_constant(8)
     def SkinAspectRatio(number_of_ribs, wing_span, geometry, z):
         half_wing =wing_span/2
         number_of_panels = number_of_ribs - 1
@@ -116,7 +116,7 @@ skin.skin_buckling_constant(8)
 
 
 
-class RibWebBuckling(self):
+class RibWebBuckling():
     def __init__():
         pass  
 
