@@ -56,6 +56,10 @@ class SkinBuckling():
                 panel_AR.append(panel_area[i]/length_of_ribs[i]**2)
 
         return panel_AR
+    
+    def StressSkinBuckling(panel_AR, E, Poisson, constant):
+        stress = np.pi**2 * constant*E/(12*(1-Poisson**2))*(t/b)**2
+        return stress
 
 
 
