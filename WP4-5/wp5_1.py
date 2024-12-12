@@ -99,7 +99,9 @@ class RibWebBuckling(self):
 
     def LongSparWebAR(self, z, c):
         b = z
-        a = self.chord()
-        S = z * ( + b) / 2   
+        t_0 = 0.1013*self.chord(0)
+        t_1 = 0.1013*self.chord(z)
+        S = z * (t_0 + t_1) / 2   
         AR = (b**2)/S
+        return AR
 
