@@ -63,8 +63,9 @@ class SkinBuckling():
         
         return AR_final
     
-    def PlotSkinAR(number_of_ribs, wing_span, geometry, z_values):
+    def PlotSkinAR(number_of_ribs, wing_span, geometry, SkinAspectRatio):
         AR_final_values = []
+        z_values = np.linspace(0, wing_span / 2, 100)
 
         # Calculate AR_final for each z value
         for z in z_values:

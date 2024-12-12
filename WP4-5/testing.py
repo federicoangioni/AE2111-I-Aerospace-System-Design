@@ -11,5 +11,5 @@ wb = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersect
 stringers = [8, 1, 'I', {'base': 30e-3, 'top': 30e-3, 'web height':30e-3, 'thickness top':2e-3, 'thickness web':2e-3, 'thickness base': 2e-3, }]
 wb.plot_centroid(wb.z,20)
 
-
+SkinBuckling.PlotSkinAR(5, 26.9, WingBox.geometry, SkinBuckling.SkinAspectRatio)
 
