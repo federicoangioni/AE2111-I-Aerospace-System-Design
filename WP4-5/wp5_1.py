@@ -63,6 +63,25 @@ class SkinBuckling():
         
         return AR_final
     
+    def PlotSkinAR(number_of_ribs, wing_span, geometry, z_values):
+        AR_final_values = []
+
+        # Calculate AR_final for each z value
+        for z in z_values:
+            AR_final = SkinAspectRatio(number_of_ribs, wing_span, geometry, z)
+            AR_final_values.append(AR_final)
+
+    # Create the plot
+        plt.figure(figsize=(10, 6))
+        plt.plot(z_values, AR_final_values, marker='o', linestyle='-', color='b', label='AR_final(z)')
+        plt.title("Skin Aspect Ratio as a Function of z")
+        plt.xlabel("z Position")
+        plt.ylabel("Aspect Ratio (AR_final)")
+        plt.axhline(y=1, color='r', linestyle='--', label='AR = 1 Threshold')  # Add a reference line
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()  # Improve layout
+        plt.show() 
 
     def StressSkinBuckling(panel_AR, E, Poisson, constant, t, z):
         stress = np.pi**2 * constant*E/(12*(1-Poisson**2))*(t/b)**2
