@@ -27,5 +27,5 @@ def SkinBucklingConstant(aspect_ratio):
     plt.show()
 
     Kc = interp_function(aspect_ratio)
-    print(f"Interpolated value at x={x_query}: y={y_query}")
+    print(f"Interpolated value at AR={x_query}: kc={y_query}")
     return Kc
