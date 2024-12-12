@@ -45,5 +45,15 @@ class SkinBuckling():
 
         length_of_ribs = 
 
-class RibWebBuckling():
-    print("hello world")
+class RibWebBuckling(self):
+    def chord(self, z, c_r, c_t, wingspan): 
+        # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
+        c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
+        return c
+
+    def LongSparWebAR(self, z, c):
+        b = z
+        a = self.chord()
+        S = z * ( + b) / 2   
+        AR = (b**2)/S
+
