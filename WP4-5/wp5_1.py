@@ -55,6 +55,8 @@ class SkinBuckling():
             else:
                 panel_AR.append(panel_area[i]/length_of_ribs[i]**2)
 
+        return panel_AR
+
 
 
 
