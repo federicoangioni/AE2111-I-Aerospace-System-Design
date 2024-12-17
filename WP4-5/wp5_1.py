@@ -184,6 +184,21 @@ class RibWebBuckling():
         
         return crit_stress_z_front
     
+    def rear_spar_web_buckling(self, AR, E, t_sparweb, b, v):
+        from k_s_curve import k_s_array
+        AR = self.SparWebARSparWebAR()
+        k_s_array_np = np.array(k_s_array)
+        ab_values = k_s_array_np[:, 0]
+        k_s_values = k_s_array_np[:, 1]
+        crit_stress_z_back = []
+        for i in AR:
+            k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
+            for j in k_s:
+                crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #This will find the critical stresses for a given k_s
+                crit_stress_z_back.append(crit_stress) # Stores the relevant critical stress in a list
+        
+        return crit_stress_z_back
+
     def front_spar_web_buckling_plot(self):
         wingspan = self.wingspan
         z_values = np.linspace(0, wingspan/2, 100)
