@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt        
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry: function, wingspan):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
@@ -14,7 +14,7 @@ class SkinBuckling():
         self.geometry = wingbox_geometry 
         
         # attributing to class variable
-        self.wingspan = wingspan 
+        self.halfspan = wingspan / 2
         
         # raising error if number of ribs is smaller than 3
         if n_ribs < 3:
@@ -22,7 +22,7 @@ class SkinBuckling():
         else:
             self.n_ribs = n_ribs
     
-    def skin_buckling_constant(self, aspect_ratio, show: bool = True): #ok
+    def skin_buckling_constant(self, aspect_ratio, show: bool = False): #ok
         
         # file path of the points for the skin buckling for a plate
         filepath = 'WP4-5/resources/K_cplates.csv'
@@ -60,13 +60,14 @@ class SkinBuckling():
         
         # here ASSUMPTION, the wing ribs are equally spaceed along the half span
         # length of one panel
-        l_panel = self.wingspan/n_panels
+        l_panel = self.halfspan/n_panels
         
         l_ribs = []
         panel_area = []
         panel_AR = []
 
-        for i in range(self.n_ribs + 1):
+        for i in range(self.n_ribs):
+            print(i)
             a, b, h, alpha = self.geometry(l_panel * i)
             l_ribs.append(h)
 
@@ -87,7 +88,9 @@ class SkinBuckling():
         #         AR_final = panel_AR[i]
         #     else: AR_final = -100000
         
+        print(l_ribs)
         return panel_AR
+    
     
     def PlotSkinAR(number_of_ribs, wing_span, geometry, SkinAspectRatio):
         AR_final_values = []
