@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
       
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, t_skin):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
@@ -16,9 +16,7 @@ class SkinBuckling():
         
         # attributing to class variable
         self.halfspan = wingspan / 2
-        self.E = E
-        self.v = v
-        self.t = t_skin
+        
         # raising error if number of ribs is smaller than 3
         if n_ribs < 3:
             raise Exception('Please inseret a number greater than 3! On an Airbus A320 it is 27 per wing :)')
@@ -54,7 +52,7 @@ class SkinBuckling():
         
         return Kc
         
-    def skin_AR(self, z):
+    def skin_AR(self):
         """
         The wing is defined with a rib at the root and at the tip orginally 
         """
@@ -66,87 +64,65 @@ class SkinBuckling():
         l_panel = self.halfspan/n_panels
         
         l_ribs = []
-    
+        panel_area = []
         panel_AR = []
 
-        areas = []
-        
-        for i in range(self.n_ribs): # ok
+        for i in range(self.n_ribs):
+            print(i)
             a, b, h, alpha = self.geometry(l_panel * i)
             l_ribs.append(h)
 
-        for i in range(n_panels):
-            # area of a trapezoid
-            area = l_panel*(l_ribs[i]+l_ribs[i+1])/2 
+        for i in range(0, n_panels+ 1):
             
-            # aspect ratio for each panel
-            AR = (l_panel**2)/(area)
-            
-            panel_AR.append(AR)
-            areas.append(area)
-            
-        # define the function as a function of z
-        z_ribs = [l_panel*i for i in range(n_panels + 1)]
-        
-        for i in range(len(z_ribs) - 1):
-            if z_ribs[i] <= z < z_ribs[i + 1]:
-                return panel_AR[i], areas[i]
-        
-        return panel_AR[-1], areas[-1]
+            panel_area.append(0.5*l_panel*(l_ribs[i] + l_ribs[i+1]))
+            AR = panel_area[i]/(l_panel ** 2)
+
+            if AR >=1:
+                panel_AR.append(AR)
+            else:
+                panel_AR.append(panel_area[i]/l_ribs[i]**2)
+
+        # im not sure i understand this below by fede
     
-    def plot_skinAR(self):
-        AR_final = []
-        z_values = np.linspace(0, self.halfspan, 2000)
+        # for i in range(number_of_panels-1):
+        #     if z >= length_of_the_panel * i and z<length_of_the_panel * (i+1):
+        #         AR_final = panel_AR[i]
+        #     else: AR_final = -100000
+        
+        print(l_ribs)
+        return panel_AR
+    
+    
+    def PlotSkinAR(number_of_ribs, wing_span, geometry, SkinAspectRatio):
+        AR_final_values = []
+        z_values = np.linspace(0, wing_span / 2, 100)
 
         # Calculate AR_final for each z value
         for z in z_values:
-            AR, area = self.skin_AR(z)
-            AR_final.append(AR)
-
+            AR_final = SkinAspectRatio(number_of_ribs, wing_span, geometry, z)
+            AR_final_values.append(AR_final)
 
     # Create the plot
         plt.figure(figsize=(10, 6))
-        plt.plot(z_values, AR_final, marker='o', linestyle='-', color='b', label='AR_final(z)')
+        plt.plot(z_values, AR_final_values, marker='o', linestyle='-', color='b', label='AR_final(z)')
         plt.title("Skin Aspect Ratio as a Function of z")
         plt.xlabel("z Position")
         plt.ylabel("Aspect Ratio (AR_final)")
+        plt.axhline(y=1, color='r', linestyle='--', label='AR = 1 Threshold')  # Add a reference line
         plt.grid(True)
         plt.legend()
         plt.tight_layout()  # Improve layout
         plt.show() 
 
-    def sigma_crit(self, z):
-        """
-        E: young's elastic modulus
-        v: Poisson's ratio
-        t: is the thickness of the skin
-        
-        """
-        # aspect ratio for the specific panel
-        AR, area = self.skin_AR(z)
-        
-        # define the K_c for this specific panel
-        K_c = self.skin_buckling_constant(aspect_ratio= AR, show= False)
-        
-        b = np.sqrt(AR*area)
-        
-        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t/b)**2
-        
-        return sigma_cr
-    
-    def plot_sigma_cr(self):
-        
-        z_values = np.linspace(0, self.halfspan, 1000)
-        sigmas = []
-        
-        for z in z_values:
-            sigmas.append(self.sigma_crit(z))
-            
-        plt.plot(z_values, sigmas)
-        plt.show()
-        
-        
-        
+
+
+
+
+#     def StressSkinBuckling(panel_AR, E, Poisson, constant, t, z):
+#         stress = np.pi**2 * constant*E/(12*(1-Poisson**2))*(t/b)**2
+#         return stress
+
+
 
 
 class RibWebBuckling():
@@ -237,14 +213,12 @@ class RibWebBuckling():
         for i in range(len(z_values)):
             plt.plot(z_values, self.back_spar_web_buckling())
 
-    Kc = interp_function(aspect_ratio)
-    print(f"Interpolated value at AR={x_query}: kc={y_query}")
-    return Kc
+        Kc = interp_function(aspect_ratio)
+        print(f"Interpolated value at AR={x_query}: kc={y_query}")
+        return Kc
 
-        #everything under this part relates to stringer buckling:
-""""
-Note to self: 3 designs, so: 3 Areas and 3 I's 
-""""
+
+
 Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
 Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
 Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
@@ -264,25 +238,23 @@ y5_9=7.5e-3#coordinates for option 5 and 9
 x_8= 10e-3
 y_8= 10e-3
 
-def Stringer_MOM ():#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
-    I5 = 2*(Area5*x5_9**2)
+class Stringer_buckling (): 
+    def Stringer_MOM ():#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+        I5 = 2*(Area5*x5_9**2)
 
-    I8 = 2*(Area8*x_8**2)
+        I8 = 2*(Area8*x_8**2)
 
-    I9 = 2*(Area9*x5_9**2)
+        I9 = 2*(Area9*x5_9**2)
+        return I5, I8, I9
 
-    return I5, I8, I9
+    def Stringer_buckling (E, K, L, I5,I8,I9): #critical stress of 3 different designs
+        stresscr_stringer_5= (K*np.pi**2*E*I5)/(L**2*(2*Area5))
 
-def Stringer_buckling (E, K, L, I5,I8,I9): #critical stress of 3 different designs
-    stresscr_stringer_5= (K*np.pi**2*E*I5)/(L**2*(2*Area5))
-
-    stresscr_stringer_8= (K*np.pi**2*E*I8)/(L**2*(2*Area8))
+        stresscr_stringer_8= (K*np.pi**2*E*I8)/(L**2*(2*Area8))
     
-    stresscr_stringer_9= (K*np.pi**2*E*I9)/(L**2*(2*Area9))
+        stresscr_stringer_9= (K*np.pi**2*E*I9)/(L**2*(2*Area9))
+        return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9
 
-    return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9
-
-        #everything above this part relates to stringer buckling
  
    
     
