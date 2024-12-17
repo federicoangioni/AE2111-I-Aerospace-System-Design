@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd      
-import matplotlib.pyplot as plt        
+import matplotlib.pyplot as plt    
+from k_s_curve import k_s_array    
 
 class SkinBuckling():
     def __init__(self, n_ribs, wingbox_geometry: function, wingspan):
@@ -156,4 +157,11 @@ class RibWebBuckling():
         k_s_values = k_s_array_np[:, 1]
         k_s = np.interp(a_over_b, ab_values, k_s_values)
         crit_stress = np.pi**2 * k_s * E /(12*(1-0.33**2)) * (t_sparweb/b)**2
+        return crit_stress
         print('Critical stress is', crit_stress)
+
+    def max_shear_force(k_v, V):
+        avg_shear = V / 
+        max_shear=k_v * avg_shear
+        return(max_shear)
+        print('Max shear force', max_shear)
