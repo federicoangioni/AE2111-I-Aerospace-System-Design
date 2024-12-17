@@ -256,7 +256,8 @@ class SparWebBuckling():
 #             plt.plot(z_values, self.rear_spar_web_buckling())
 
 
-    def margin_of_safety(self, z , V, k_v, AR, E, t_sparweb, b, v):
+    def margin_of_safety(self, z , V, k_v, AR, E, t_sparweb, b, v): 
+        # mos = margin of safety
         critical_front = self.front_spar_web_buckling
         critical_rear = self.rear_spar_web_buckling
         mos_front_list = []
