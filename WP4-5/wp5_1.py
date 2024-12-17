@@ -126,8 +126,8 @@ class SkinBuckling():
 
 
 class RibWebBuckling():
-    print("hello world")
-
+    def __init__(self, wingbox_geometry):
+        self.geometry = wingbox_geometry
 
 
 
@@ -163,8 +163,10 @@ class RibWebBuckling():
         return crit_stress
         print('Critical stress is', crit_stress)
 
-    def max_shear_force(k_v, V):
-        avg_shear = V / 
-        max_shear=k_v * avg_shear
-        return(max_shear)
-        print('Max shear force', max_shear)
+    def margin_of_safety(a_over_b, E, t_sparweb, b, self, k_v, V, z, t_f, t_r, T):
+        a, b, h, alpha = self.geometry(z) # a and b not related to a_over_b
+        avg_shear = V / (a * t_f + b * t_r)  #formula for average shear
+        max_shear=k_v * avg_shear #formula for maximum shear
+        A = (a+b)*h/2 # enclosed area of trapezoidal wingbox
+        q_torsion = T / 2 / A # torsion shear stress in thin-walled closed section
+        margin_of_safety =  self.back_spar_web_buckling(a_over_b, E, t_sparweb, b) / (max_shear + q_torsion)
