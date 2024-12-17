@@ -161,12 +161,13 @@ class RibWebBuckling():
         k_s = np.interp(a_over_b, ab_values, k_s_values)
         crit_stress = np.pi**2 * k_s * E /(12*(1-0.33**2)) * (t_sparweb/b)**2
         return crit_stress
-        print('Critical stress is', crit_stress)
+        #print('Critical stress is', crit_stress)
 
-    def margin_of_safety(a_over_b, E, t_sparweb, b, self, k_v, V, z, t_f, t_r, T):
+    def margin_of_safety_backspar(a_over_b, E, t_sparweb, b, self, k_v, V, z, t_f, t_r, T):
         a, b, h, alpha = self.geometry(z) # a and b not related to a_over_b
         avg_shear = V / (a * t_f + b * t_r)  #formula for average shear
         max_shear=k_v * avg_shear #formula for maximum shear
         A = (a+b)*h/2 # enclosed area of trapezoidal wingbox
         q_torsion = T / 2 / A # torsion shear stress in thin-walled closed section
-        margin_of_safety =  self.back_spar_web_buckling(a_over_b, E, t_sparweb, b) / (max_shear + q_torsion)
+        margin_of_safety =  self.back_spar_web_buckling(a_over_b, E, t_sparweb, b) / (max_shear + q_torsion * t_r)
+        return margin_of_safety
