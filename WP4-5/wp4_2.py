@@ -156,8 +156,7 @@ class WingBox():
         plt.title("Centroid Positions as a Function of z")
         plt.legend()
         plt.grid(True)
-        plt.show()
-   
+        plt.show() 
 
     def MOMEWB (self, z, stringers): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
         x, y = self.centroid(z, stringers=stringers)
