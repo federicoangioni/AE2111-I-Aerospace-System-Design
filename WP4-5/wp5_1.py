@@ -1,6 +1,7 @@
 from scipy.interpolate import interp1d
 import numpy as np
 import pandas as pd
+from wp4_2 import WingBox
 
 
 
@@ -69,7 +70,7 @@ class SkinBuckling():
         panel_AR = []
 
         for i in range(number_of_ribs + 1):
-            a, b, h, alpha = geometry(0, length_of_the_panel * i)
+            a, b, h, alpha = geometry(0, WingBox.chord(length_of_the_panel * i))
             length_of_ribs.append(h)
 
         for i in range(number_of_ribs -1):
