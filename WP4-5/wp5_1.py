@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd      
-import matplotlib.pyplot as plt        
+import matplotlib.pyplot as plt
+      
 
 class SkinBuckling():
     def __init__(self, n_ribs, wingbox_geometry: function, wingspan):
@@ -122,38 +123,67 @@ class SkinBuckling():
 
 
 class RibWebBuckling():
-    print("hello world")
+    def __init__(self, wingbox_geometry: function, wingspan):
+        # attributing to class variable
+        self.geometry = wingbox_geometry 
+        
+        # attributing to class variable
+        self.wingspan = wingspan
+        pass  
 
+    def chord(self, z, c_r, c_t, wingspan): 
+        # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
+        c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
+        return c
+    
+    # Defines AspectRaio of the long Spar
+    def LongSparWebAR(self, z):
+        wing_span = self.wingspan
+        a = self.geometry(z)
+        LongSparWebAR_z = []
+        z_values = np.linspace(0,wing_span/2, 100) 
+        for z in z_values:
+            t_0 = a(0)
+            t_1 = a(z_values)
+            S = z * (t_0 + t_1) / 2    
+            AR = (z**2)/S
+            LongSparWebAR_z.append(AR)
 
+        return LongSparWebAR_z
+    
+    def ShortSparWebAR(self, z):
+        wing_span = self.wingspan
+        b = self.geometry(z)
+        ShortSparWebAR_z = []
+        z_values = np.linspace(0,wing_span/2, 100) 
+        for z in z_values:
+            t_0 = b(0)
+            t_1 = b(z_values)
+            S = z * (t_0 + t_1) / 2    
+            AR = (z**2)/S
+            ShortSparWebAR_z.append(AR)
+        
+        return ShortSparWebAR_z
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def back_spar_web_buckling(self, a_over_b, E, t_sparweb, b):
+    
+    def front_spar_web_buckling(self, AR, E, t_sparweb, b, v):
+        from k_s_curve import k_s_array
+        AR = self.LongSparWebAR()
         k_s_array_np = np.array(k_s_array)
         ab_values = k_s_array_np[:, 0]
         k_s_values = k_s_array_np[:, 1]
-        k_s = np.interp(a_over_b, ab_values, k_s_values)
-        crit_stress = np.pi**2 * k_s * E /(12*(1-0.33**2)) * (t_sparweb/b)**2
-        print('Critical stress is', crit_stress)
+        crit_stress_z_front = []
+        for i in AR:
+            k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
+            for j in k_s:
+                crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #This will find the critical stresses for a given k_s
+                crit_stress_z_front.append(crit_stress) # Stores the relevant critical stress in a list
+        
+        return crit_stress_z_front
+    
+    def front_spar_web_buckling_plot(self):
+        wingspan = self.wingspan
+        z_values = np.linspace(0, wingspan/2, 100)
+        for i in range(len(z_values)):
+            plt.plot(z_values, self.front_spar_web_buckling())
+
