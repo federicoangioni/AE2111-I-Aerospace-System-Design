@@ -125,7 +125,30 @@ class SkinBuckling():
 
 
 
-class RibWebBuckling():
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class SparWebBuckling():
     def __init__(self, wingbox_geometry: function, wingspan):
         # attributing to class variable
         self.geometry = wingbox_geometry 
@@ -175,14 +198,14 @@ class RibWebBuckling():
         k_s_array_np = np.array(k_s_array)
         ab_values = k_s_array_np[:, 0]
         k_s_values = k_s_array_np[:, 1]
+        k_s_z_front = []
         crit_stress_z_front = []
-        # for i in AR:
-        #     k_s_z = []
-        #     k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
-        #     k_s_z.append(k_s)
-        # for i in k_s_z:
-        #     crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #This will find the critical stresses for a given k_s
-        #     crit_stress_z_front.append(crit_stress) # Stores the relevant critical stress in a list
+        
+        for i in range(len(AR)):
+            k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
+            crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
+            k_s_z_front.append(k_s)
+            crit_stress_z_front.append(crit_stress) # Stores the relevant critical stress in a list
         
         return crit_stress_z_front
     
@@ -192,23 +215,50 @@ class RibWebBuckling():
         k_s_array_np = np.array(k_s_array)
         ab_values = k_s_array_np[:, 0]
         k_s_values = k_s_array_np[:, 1]
+        k_s_z_back = []
         crit_stress_z_back = []
-        # for i in AR:
-        #     k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
-        #     for j in k_s:
-        #         crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #This will find the critical stresses for a given k_s
-        #         crit_stress_z_back.append(crit_stress) # Stores the relevant critical stress in a list
+        for i in AR:
+            k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
+            crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #This will find the critical stresses for a given k_s
+            k_s_z_back.append(k_s)   
+            crit_stress_z_back.append(crit_stress) # Stores the relevant critical stress in a list
         
         return crit_stress_z_back
 
-    def front_spar_web_buckling_plot(self):
+    def front_spar_web_buckling_plot(self, wingspan):
         wingspan = self.wingspan
         z_values = np.linspace(0, wingspan/2, 100)
         for i in range(len(z_values)):
             plt.plot(z_values, self.front_spar_web_buckling())
 
-    def back_spar_web_buckling_plot(self):
+    def back_spar_web_buckling_plot(self, wingspan):
         wingpan = self.wingspan
         z_values = np.linspace(0, wingspan/2, 100)
         for i in range(len(z_values)):
-            plt.plot(z_values, self.back_spar_web_buckling())
+            plt.plot(z_values, self.rear_spar_web_buckling())
+
+
+    def margin_of_safety(self, z , V, k_v, AR, E, t_sparweb, b, v):
+        critical_front = self.front_spar_web_buckling
+        critical_rear = self.rear_spar_web_buckling
+        mos_front_list = []
+        mos_rear_list = []
+        for i in range(len(critical_front)):
+            a, b, h, alpha = self.geometry(z) # a and b not related to a_over_b
+            #t_f = ###add function### 
+            #t_r = ###add function### 
+            #T_front = ###add function### 
+            #T_rear = ###add function###
+            avg_shear_front = V / (a * t_f + b * t_r) # formula for average shear
+            max_shear_front = k_v * avg_shear_front # formula for maximum shear
+            avg_shear_rear = V / (a * t_f + b * t_r)
+            max_shear_rear = k_v * avg_shear_rear
+            A = (a+b)*h/2 #enclosed area of trapezoical wingbox
+            q_torsion_front = T_front / 2 / A #torsion shear stress in thin-walled closed section
+            q_torsion_rear = T_rear / 2 / A
+            mos_front = critical_front[i] / (max_shear_front + q_torsion_front * t_f)
+            mos_rear= critical_rear[i] / (max_shear_rear + q_torsion_rear * t_r)
+            mos_front_list.append(mos_front)
+            mos_rear_list.append(mos_rear)
+        return mos_front_list , mos_rear_list
+    
