@@ -1,93 +1,93 @@
-from scipy.interpolate import interp1d
 import numpy as np
-import pandas as pd
-from wp4_2 import WingBox
-
-
+import pandas as pd      
+import matplotlib.pyplot as plt        
 
 class SkinBuckling():
-    def __init__(self):
-        pass
+    def __init__(self, n_ribs, wingbox_geometry: function, wingspan):
+        """
+        wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
+        wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
+                    you can use WingBox.wingspan to obtain it, it has been defined like this even if it's a half span insult fede for this :)
+        """        
         
+        # attributing to class variable
+        self.geometry = wingbox_geometry 
         
-    def skin_buckling_constant(self, aspect_ratio):
+        # attributing to class variable
+        self.wingspan = wingspan 
+        
+        # raising error if number of ribs is smaller than 3
+        if n_ribs < 3:
+            raise Exception('Please inseret a number greater than 3! On an Airbus A320 it is 27 per wing :)')
+        else:
+            self.n_ribs = n_ribs
+    
+    def skin_buckling_constant(self, aspect_ratio, show: bool = True): #ok
         
         # file path of the points for the skin buckling for a plate
         filepath = 'WP4-5/resources/K_cplates.csv'
-from variables import *
-import matplotlib.pyplot as pltfrom k_s_curve import k_s_array 
-
-
-
-class SkinBuckling():
-    def __init__():
-        pass  
-    def SkinBucklingConstant(aspect_ratio):
         # Given points
         df = pd.read_csv(filepath)
-        
-        # Create linear interpolating function
-        linear_interp = interp1d(df['x'], df['y'], kind='next')
-
-        # Generate interpolated values
-        x_vals = np.linspace(min(df['x']), max(df['x']), len(df['x']))
-        y_vals = linear_interp(df['x'])
 
         # Plotting
-        import matplotlib.pyplot as plt
-        plt.scatter(df['x'], df['y'], color='red', label='Given Points')
-        plt.plot(x_vals, y_vals, label='Linear Interpolation', color='orange')
-        plt.title('Linear Interpolation')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.legend()
-        plt.grid()
-        plt.show()
+        if show:
+            # Create linear x
+            x_vals = np.linspace(min(df['x']), max(df['x']), len(df['x']))
+            
 
-        #Kc = interp_function(aspect_ratio)
-        #print(f"Interpolated value at AR={x_query}: kc={y_query}")
+            # Generate interpolated values
+            y_vals = np.interp(x_vals, df['x'], df['y'])
         
+            plt.scatter(df['x'], df['y'], color='red', label='Given Points')
+            plt.plot(x_vals, y_vals, label='Linear Interpolation', color='orange')
+            plt.title('Linear Interpolation')
+            plt.xlabel('x')
+            plt.ylabel('y')
+            plt.legend()
+            plt.grid()
+            plt.show()
 
-    # def SkinAspectRatio(number_of_ribs, wing_span, geometry):
-    #     number_of_panels = number_of_ribs - 1
-    #     length_of_the_panel = wing_span/number_of_panels
-
-    #     for (int i =0, i<=number_of_ribs)
-
-    #     a, b, h, alpha = geometry(length_of_the_panel)
-
-    #     length_of_ribs = 
-
-
-    skin = SkinBuckling()
-    skin.skin_buckling_constant(8)
-    def SkinAspectRatio(number_of_ribs, wing_span, geometry, z):
-        half_wing =wing_span/2
-        number_of_panels = number_of_ribs - 1
-        length_of_the_panel = half_wing/number_of_panels
-        length_of_ribs = []
+        Kc = np.interp(aspect_ratio, df['x'], df['y'])
+        
+        return Kc
+        
+    def skin_AR(self):
+        """
+        The wing is defined with a rib at the root and at the tip orginally 
+        """
+        # nr of panels on the half wing will always be one less than the number of ribs
+        n_panels = self.n_ribs - 1
+        
+        # here ASSUMPTION, the wing ribs are equally spaceed along the half span
+        # length of one panel
+        l_panel = self.wingspan/n_panels
+        
+        l_ribs = []
         panel_area = []
         panel_AR = []
 
-        for i in range(number_of_ribs + 1):
-            a, b, h, alpha = geometry(0, WingBox.chord(length_of_the_panel * i))
-            length_of_ribs.append(h)
+        for i in range(self.n_ribs + 1):
+            a, b, h, alpha = self.geometry(l_panel * i)
+            l_ribs.append(h)
 
-        for i in range(number_of_ribs -1):
-            panel_area.append(0.5*length_of_the_panel*(length_of_ribs[i]+length_of_ribs[i+1]))
-            AR = panel_area[i]/(length_of_the_panel **2)
+        for i in range(0, n_panels+ 1):
+            
+            panel_area.append(0.5*l_panel*(l_ribs[i] + l_ribs[i+1]))
+            AR = panel_area[i]/(l_panel ** 2)
 
             if AR >=1:
                 panel_AR.append(AR)
             else:
-                panel_AR.append(panel_area[i]/length_of_ribs[i]**2)
+                panel_AR.append(panel_area[i]/l_ribs[i]**2)
 
-        for i in range(number_of_panels-1):
-            if z >= length_of_the_panel * i and z<length_of_the_panel * (i+1):
-                AR_final = panel_AR[i]
-            else: AR_final = -100000
+        # im not sure i understand this below by fede
+    
+        # for i in range(number_of_panels-1):
+        #     if z >= length_of_the_panel * i and z<length_of_the_panel * (i+1):
+        #         AR_final = panel_AR[i]
+        #     else: AR_final = -100000
         
-        return AR_final
+        return panel_AR
     
     def PlotSkinAR(number_of_ribs, wing_span, geometry, SkinAspectRatio):
         AR_final_values = []
@@ -110,9 +110,13 @@ class SkinBuckling():
         plt.tight_layout()  # Improve layout
         plt.show() 
 
-    def StressSkinBuckling(panel_AR, E, Poisson, constant, t, z):
-        stress = np.pi**2 * constant*E/(12*(1-Poisson**2))*(t/b)**2
-        return stress
+
+
+
+
+#     def StressSkinBuckling(panel_AR, E, Poisson, constant, t, z):
+#         stress = np.pi**2 * constant*E/(12*(1-Poisson**2))*(t/b)**2
+#         return stress
 
 
 
