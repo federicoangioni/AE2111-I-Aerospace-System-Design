@@ -11,3 +11,5 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+VNDiagram/critical_cases.txt
+VNDiagram/possible_cases.txt

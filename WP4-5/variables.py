@@ -33,7 +33,7 @@ gamma = 1.4
 R = 287.05 #J/(kgK)
 g = 9.81 #m/s^2
 
-load_factor = -2.5
+load_factor = 2.5
 hchord_sweep = 22.4645 # m
 fus_radius = d/2 # m
 engine_z_loc = 4.35 # m

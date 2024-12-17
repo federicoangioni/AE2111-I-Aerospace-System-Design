@@ -55,12 +55,18 @@ class WingBox():
     def show_geometry(self, z, stringers): # kinda useless buut may be useful for nice graphs
         a, b, h, alpha = self.geometry(z)
         
-        plt.plot([0, 0], [a/2, -a/2])
-        plt.plot([0, h], [a/2, b/2])
-        plt.plot([h, h], [b/2, -b/2])
-        plt.plot([0, h], [-a/2, -b/2])
+        plt.plot([0, 0], [b/2, -b/2], color="blue") 
+        plt.plot([0, h], [b/2, a/2], color="blue") 
+        plt.plot([h, h], [a/2, -a/2],  color="blue") 
+        plt.plot([0, h], [-b/2, -a/2],  color="blue") 
         centroid = self.centroid(z, stringers)
-        plt.scatter(centroid[0], centroid[1])
+        plt.scatter(centroid[0], centroid[1], color="red")
+        # plt.plot([0,centroid[0]],[centroid[1],centroid[1]], ls=":")
+        # plt.plot([centroid[0],centroid[0]],[0,centroid[1]], ls=":")
+        plt.axhline(centroid[1], ls=":")
+        plt.axvline(centroid[0], ls=":")
+        plt.xlabel("Centroid Position in terms of chord c [-]")
+        plt.ylabel("Height in terms of chord c [-]")
         plt.show()
         plt.clf()    
         print(a, b, h, alpha)
@@ -150,8 +156,7 @@ class WingBox():
         plt.title("Centroid Positions as a Function of z")
         plt.legend()
         plt.grid(True)
-        plt.show()
-   
+        plt.show() 
 
     def MOMEWB (self, z, stringers): #Moment of inertia for empty wing box, #ci and cj are related to distance from centroid/coordinate system
         x, y = self.centroid(z, stringers=stringers)
@@ -202,6 +207,8 @@ class WingBox():
         return J
     
     def Jplots(self, z):
+        t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
+        t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
         t1 = [0.001, 0.002, 0.003, 0.004, 0.005]
         t2 = [0.001, 0.002, 0.003, 0.004, 0.005]
         z = np.linspace(0, self.tiplocation)
@@ -267,6 +274,8 @@ class WingBox():
         self.deflections['Rotation [rad]'] = thetas
         self.deflections['Rotation [deg]'] = np.degrees(thetas)
         
+        self.deflections['Area Moment of Inertia [mm^4]'] = self.MOM_total(z= z, stringers=stringers)[0]
+        
         if (abs(self.deflections['Displacement [m]']) > 0.15*self.wingspan_og).any().any():
             print("Max Tip Displacement Exceeded", "Displacement =", max(abs(self.deflections['Displacement [m]'])), (max(abs(self.deflections['Displacement [m]']))/self.wingspan_og)*100, "(% Wingspan)" )
         else:
@@ -321,7 +330,8 @@ class WingBox():
             dimensions = stringers[3]
         
         if stringers_type == "L":
-            area_stringer = dimensions["base"]*dimensions["height"] + dimensions["thickness base"]*dimensions["thickness height"]
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["height"]*dimensions["thickness height"]
+            area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["thickness height"]*dimensions["thickness height"]
         
         elif stringers_type == "I":
             area_stringer = dimensions["base"]*dimensions["thickness base"] + dimensions["web height"]*dimensions["thickness web"] + dimensions["top"]* dimensions["thickness top"]
@@ -331,7 +341,7 @@ class WingBox():
 
         num_stringers = stringers[0]
         
-        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
+        stringer_spacing = (h/np.cos(alpha)) / (stringer_per_side + 1)  # Spacing between stringers on the bars
 
         for i in range(1, stringer_per_side+1): # Upperside
                # Distance along the inclined bar
@@ -353,13 +363,13 @@ class WingBox():
         a, b, h, alpha = self.geometry(z)
         x_stringers, y_stringers, area_stringer, stringers_span = self.stringer_geometry(z, stringers)
         x, y = self.centroid(z, stringers)
-        num_stringers = stringers[0]
+        stringer_per_side = int(stringers[0]/2)
         
-        stringer_spacing = (h/np.cos(alpha)) / (num_stringers + 1)  # Spacing between stringers on the bars
+        stringer_spacing = (h/np.cos(alpha)) / (stringer_per_side + 1)  # Spacing between stringers on the bars
 
         # For each bar, calculate contributions
         I_xx_stringers_steiner, I_yy_stringers_steiner = 0, 0
-        for i in range(1, num_stringers+1):
+        for i in range(1, stringer_per_side +1):
 
                # Distance along the inclined bar
                distance_along_bar = i * stringer_spacing
