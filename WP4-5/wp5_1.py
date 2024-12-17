@@ -144,11 +144,6 @@ class SkinBuckling():
             
         plt.plot(z_values, sigmas)
         plt.show()
-        
-        
-
-
-# 
 
 
 
@@ -284,6 +279,10 @@ class SparWebBuckling():
             mos_front_list.append(mos_front)
             mos_rear_list.append(mos_rear)
         return mos_front_list , mos_rear_list
+    
+#go on and make the plots
+
+#-----------------
     
 #     Kc = interp_function(aspect_ratio)
 #     print(f"Interpolated value at AR={x_query}: kc={y_query}")
