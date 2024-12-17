@@ -1,4 +1,4 @@
-k_s = [
+k_s_array = [
     [0.994661092, 15.03813978],
     [0.995058037, 14.8851837],
     [1.004204308, 14.69415399],
@@ -71,3 +71,18 @@ k_s = [
     [4.892891049, 9.58686311],
     [4.988042036, 9.588682441],
 ]
+
+import numpy as np
+k_s_array_np = np.array(k_s_array)
+
+# Split the data into x and y arrays
+x_values = k_s_array_np[:, 0]
+y_values = k_s_array_np[:, 1]
+
+def get_ks_for_a_over_b(a_over_b):
+    return np.interp(a_over_b, x_values, y_values)
+
+
+#x_input = 1.5  # Example input x value
+#y_output = get_ks_for_a_over_b(x_input)
+#print(f"For a_over_b = {x_input}, k_s is {y_output}")

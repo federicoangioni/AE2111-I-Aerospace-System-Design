@@ -1,12 +1,12 @@
-[{'load_factor': 2.5, 'speed': 327.5313261078292, 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
- {'load_factor': -1.0, 'speed': 261.0358173570648, 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
- {'load_factor': 2.5, 'speed': 327.5313261078292, 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
- {'load_factor': -1.0, 'speed': 261.0358173570648, 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
- {'load_factor': 2.5, 'speed': 327.5313261078292, 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
- {'load_factor': -1.0, 'speed': 261.0358173570648, 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
- {'load_factor': 2.5, 'speed': 285.413906519396, 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
- {'load_factor': -1.0, 'speed': 227.3549120339023, 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}
- {'load_factor': 2.5, 'speed': 285.413906519396, 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
- {'load_factor': -1.0, 'speed': 227.3549120339023, 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}
- {'load_factor': 2.5, 'speed': 285.413906519396, 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
- {'load_factor': -1.0, 'speed': 227.3549120339023, 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}]
+[{'load_factor': np.float64(2.5), 'speed': np.float64(327.5313261078292), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(261.0358173570648), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(327.5313261078292), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(261.0358173570648), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(327.5313261078292), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(261.0358173570648), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(285.413906519396), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(227.3549120339023), 'weight': 192207.33000000002, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(285.413906519396), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(227.3549120339023), 'weight': 254549.88, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}
+ {'load_factor': np.float64(2.5), 'speed': np.float64(285.413906519396), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Dive speed'}
+ {'load_factor': np.float64(-1.0), 'speed': np.float64(227.3549120339023), 'weight': 350099.28, 'flaps': 'Clean', 'altitude': 10668.0, 'description': 'Cruise Speed negative load'}]

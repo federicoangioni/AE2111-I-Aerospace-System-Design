@@ -136,9 +136,9 @@ class VelocityLoadFactorDiagram():
         n_lower_clean = self.n_lower_clean
         n_upper_flaps = self.n_upper_flaps
 
-        plt.plot(speeds, n_lower_clean)
-        plt.plot(speeds, n_upper_clean)
-        plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps)
+        plt.plot(speeds, n_lower_clean, color="blue")
+        plt.plot(speeds, n_upper_clean, color="blue")
+        plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps, color="blue")
         plt.grid()
         plt.xlabel("Equivalent air speed [m/s]")
         plt.ylabel("Load factor")
@@ -151,13 +151,13 @@ class VelocityLoadFactorDiagram():
         n_lower_clean = self.n_lower_clean
         n_upper_flaps = self.n_upper_flaps
 
-        plt.plot(speeds, n_lower_clean)
-        plt.plot(speeds, n_upper_clean)
-        plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps)
+        plt.plot(speeds, n_lower_clean, color="blue")
+        plt.plot(speeds, n_upper_clean, color="blue")
+        plt.plot(speeds[:len(n_upper_flaps)], n_upper_flaps, color="blue")
         plt.grid()
         plt.xlabel("Equivalent air speed [m/s]")
         plt.ylabel("Load factor")
-        plt.title(f"V-n diagram altitude: {self.altitude}m, weight: {self.weight_kg}kg")
+        # plt.title(f"V-n diagram altitude: {self.altitude}m, weight: {self.weight_kg}kg")
         plt.savefig(path, dpi=300)
 
     def n_max_formula(self):
@@ -298,7 +298,13 @@ class LoadCases():
 
         plt.xlabel("Equivalent air speed [m/s]")
         plt.ylabel("Load factor")
-        plt.title(f"V-n diagram altitude: {round(self.Vn.get_altitude(),2)}m, weight: {round(self.Vn.get_weight(),2)}kg")
+        # plt.title(f"V-n diagram altitude: {round(self.Vn.get_altitude(),2)}m, weight: {round(self.Vn.get_weight(),2)}kg")
+
+        # plt.subplots_adjust(right=0.7)
+        plt.xlim(0, 1.2 * self.speed_dive)
+
+        plt.legend(["Clean negative n", "Clean postive n ", "Flapped configuration"], loc="lower right", bbox_to_anchor=(1.1, 0))
+
         if save:
             os.makedirs("VNDiagram", exist_ok=True)
             plt.savefig(f"VNDiagram/W{round(self.Vn.get_weight())}_A{round(self.Vn.get_altitude())}.png", dpi=300)
@@ -337,7 +343,7 @@ if __name__ == "__main__":
             VND = VelocityLoadFactorDiagram(weight, 0.886*weights_kg[2], weights_kg[2], altitude, CL_max_clean, CL_max_flapped)
 
             LC = LoadCases(VND)
-            # LC.show(show=False, save=True)
+            LC.show(show=False, save=True)
             possible_cases = np.append(possible_cases, LC.get_load_cases())
             critical_cases = np.append(critical_cases,LC.get_all_critical_cases())
 
