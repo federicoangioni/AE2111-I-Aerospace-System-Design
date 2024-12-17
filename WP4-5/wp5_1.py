@@ -218,28 +218,27 @@ class RibWebBuckling():
         return Kc
 
 
-
-Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
-Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
-Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
-K = 1/4 #1 end fixed, 1 end free 
-
-#calculation of length: 
-#8 stringers on one side (take configuration with most stringers)
-#conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
-#angle_stringer= 26.59493069 degrees at 1/9 of chord
-L = 15.04148123 #so 13.45 divided by cos(26.5949)
-#doublecheck value
-
-#centroid coordinates:
-x5_9=7.5e-3 #coordinates for option 5 and 9
-y5_9=7.5e-3#coordinates for option 5 and 9
-
-x_8= 10e-3
-y_8= 10e-3
-
 class Stringer_buckling (): 
-    def Stringer_MOM ():#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+    Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
+    Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
+    Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
+    K = 1/4 #1 end fixed, 1 end free 
+    
+    #calculation of length: 
+    #8 stringers on one side (take configuration with most stringers)
+    #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
+    #angle_stringer= 26.59493069 degrees at 1/9 of chord
+    L = 15.04148123 #so 13.45 divided by cos(26.5949)
+    #doublecheck value
+
+    #centroid coordinates:
+    x5_9=7.5e-3 #coordinates for option 5 and 9
+    y5_9=7.5e-3#coordinates for option 5 and 9
+
+    x_8= 10e-3
+    y_8= 10e-3
+
+    def Stringer_MOM (self, Area5,Area8,Area9,x5_9,x_8):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
         I5 = 2*(Area5*x5_9**2)
 
         I8 = 2*(Area8*x_8**2)
@@ -247,7 +246,7 @@ class Stringer_buckling ():
         I9 = 2*(Area9*x5_9**2)
         return I5, I8, I9
 
-    def Stringer_buckling (E, K, L, I5,I8,I9): #critical stress of 3 different designs
+    def Stringer_buckling (self, E, K, L, I5, I8,I9, Area5, Area8, Area9): #critical stress of 3 different designs
         stresscr_stringer_5= (K*np.pi**2*E*I5)/(L**2*(2*Area5))
 
         stresscr_stringer_8= (K*np.pi**2*E*I8)/(L**2*(2*Area8))
