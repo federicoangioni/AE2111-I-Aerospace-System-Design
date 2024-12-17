@@ -124,20 +124,39 @@ class SkinBuckling():
 
 
 
-# class RibWebBuckling():
-#     def __init__():
-#         pass  
+class RibWebBuckling():
+    print("hello world")
 
-#     def chord(self, z, c_r, c_t, wingspan): 
-#         # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
-#         c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
-#         return c
-#     # Defines AspectRaio of the long Spar
-#     def LongSparWebAR(self, z, c):
-#         b = z
-#         t_0 = 0.1013*self.chord(0)
-#         t_1 = 0.1013*self.chord(z)
-#         S = z * (t_0 + t_1) / 2   
-#         AR = (b**2)/S
-#         return AR
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def back_spar_web_buckling(self, a_over_b, E, t_sparweb, b):
+        k_s_array_np = np.array(k_s_array)
+        ab_values = k_s_array_np[:, 0]
+        k_s_values = k_s_array_np[:, 1]
+        k_s = np.interp(a_over_b, ab_values, k_s_values)
+        crit_stress = np.pi**2 * k_s * E /(12*(1-0.33**2)) * (t_sparweb/b)**2
+        print('Critical stress is', crit_stress)
