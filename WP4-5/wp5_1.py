@@ -235,7 +235,7 @@ class SparWebBuckling():
 #             plt.plot(z_values, self.rear_spar_web_buckling())
 
 
-    def margin_of_safety(self, z , V, k_v, AR, E, t_sparweb, b, v): 
+    def margin_of_safety(self, z , V, k_v, AR, E, t_sparweb, b, v, torque): 
         # mos = margin of safety
         critical_front = self.front_spar_web_buckling
         critical_rear = self.rear_spar_web_buckling
@@ -245,15 +245,17 @@ class SparWebBuckling():
             a, b, h, alpha = self.geometry(z) # a and b not related to a_over_b
             #t_f = ###add function### 
             #t_r = ###add function### 
-            #T_front = ###add function### 
+            #T_front = ###add function### # you might need only one torque
             #T_rear = ###add function###
+            # torque(z)
+            
             avg_shear_front = V / (a * t_f + b * t_r) # formula for average shear
             max_shear_front = k_v * avg_shear_front # formula for maximum shear
             avg_shear_rear = V / (a * t_f + b * t_r)
             max_shear_rear = k_v * avg_shear_rear
             A = (a+b)*h/2 #enclosed area of trapezoical wingbox
-            q_torsion_front = T_front / 2 / A #torsion shear stress in thin-walled closed section
-            q_torsion_rear = T_rear / 2 / A
+            q_torsion_front = torque(z) / 2 / A #torsion shear stress in thin-walled closed section
+            q_torsion_rear = T_rear / (2 * A) #??
             mos_front = critical_front[i] / (max_shear_front + q_torsion_front * t_f)
             mos_rear= critical_rear[i] / (max_shear_rear + q_torsion_rear * t_r)
             mos_front_list.append(mos_front)
@@ -270,7 +272,7 @@ class SparWebBuckling():
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
     def __init__(self):
-        Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
+        self.Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
         Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
         K = 1/4 #1 end fixed, 1 end free 
@@ -293,8 +295,8 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         x_8= 10e-3
         y_8= 10e-3
 
-    def stringer_MOM (self, Area5, Area8, Area9, x5_9, x_8):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
-        I5 = 2*(Area5*x5_9**2)
+    def stringer_MOM (self, Area8, Area9, x5_9, x_8):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+        I5 = 2*(self.Area5*x5_9**2)
         I8 = 2*(Area8*x_8**2)
         I9 = 2*(Area9*x5_9**2)
         return I5, I8, I9
