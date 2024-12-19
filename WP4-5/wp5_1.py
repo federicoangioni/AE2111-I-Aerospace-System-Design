@@ -183,7 +183,7 @@ class SparWebBuckling():
         return AR_rear
 
     
-    def front_spar_web_buckling(self, z, E, t_sparweb, b, v):
+    def front_spar_web_buckling(self, z, E, t_sparweb, v):
         
         AR = self.front_sparAR(z= z)
         
@@ -192,7 +192,14 @@ class SparWebBuckling():
        
         k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
         
+        t_1, _, _, _ = self.geometry(z)
         
+        if t_1 < z:
+            b = t_1
+        else:
+            b = z
+        
+
         crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
      
         return crit_stress
@@ -206,6 +213,13 @@ class SparWebBuckling():
        
         k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
         
+        _, t_1, _, _ = self.geometry(z)
+        
+        if t_1 < z:
+            b = t_1
+        else:
+            b = z
+
         crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
      
         return crit_stress
