@@ -261,9 +261,9 @@ class SparWebBuckling():
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
     def __init__(self):
         self.Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
-        Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
-        Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
-        K = 1/4 #1 end fixed, 1 end free 
+        self.Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
+        self.Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
+        self.K = 1/4 #1 end fixed, 1 end free 
 
         # #calculation of length: 
         # #8 stringers on one side (take configuration with most stringers)
@@ -277,22 +277,22 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         # #doublecheck value
 
         #centroid coordinates:
-        x5_9=7.5e-3 #coordinates for option 5 and 9
-        y5_9=7.5e-3#coordinates for option 5 and 9
+        self.x5_9=7.5e-3 #coordinates for option 5 and 9
+        self.y5_9=7.5e-3#coordinates for option 5 and 9
 
-        x_8= 10e-3
-        y_8= 10e-3
+        self.x_8= 10e-3
+        self.y_8= 10e-3
 
-    def stringer_MOM (self, Area8, Area9, x5_9, x_8):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
-        I5 = 2*(self.Area5*x5_9**2)
-        I8 = 2*(Area8*x_8**2)
-        I9 = 2*(Area9*x5_9**2)
+    def stringer_MOM (self):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+        I5 = 2*(self.Area5*self.x5_9**2)
+        I8 = 2*(self.Area8*self.x_8**2)
+        I9 = 2*(self.Area9*self.x5_9**2)
         return I5, I8, I9
     
-    def stringer_buckling_values (self, E, K, L, I5, I8,I9, Area5, Area8, Area9): #critical stress of 3 different designs
-        stresscr_stringer_5= (K*np.pi**2*E*I5)/(L**2*(2*Area5))
-        stresscr_stringer_8= (K*np.pi**2*E*I8)/(L**2*(2*Area8))
-        stresscr_stringer_9= (K*np.pi**2*E*I9)/(L**2*(2*Area9))
+    def stringer_buckling_values (self, E, K, L, I5, I8, I9): #critical stress of 3 different designs
+        stresscr_stringer_5= (self.K*np.pi**2*E*I5)/(L**2*(2*self.Area5))
+        stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
+        stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))
         return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9
 
     
