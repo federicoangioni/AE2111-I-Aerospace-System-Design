@@ -145,69 +145,48 @@ class SkinBuckling():
         plt.plot(z_values, sigmas)
         plt.show()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class SparWebBuckling():
-#     def __init__(self, wingbox_geometry: function, wingspan):
-#         # attributing to class variable
-#         self.geometry = wingbox_geometry 
+    def __init__(self, wingbox_geometry: function, wingspan):
+        # attributing to class variable
+        self.geometry = wingbox_geometry 
         
-#         # attributing to class variable
-#         self.wingspan = wingspan
-#         pass  
+        # attributing to class variable
+        self.wingspan = wingspan
+        pass  
 
-#     def chord(self, z, c_r, c_t, wingspan): 
-#         # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
-#         c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
-#         return c
+    def chord(self, z, c_r, c_t, wingspan): 
+        # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
+        c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
+        return c
     
-#     # Defines AspectRaio of the long Spar
-#     def LongSparWebAR(self, z):
-#         wing_span = self.wingspan
-#         a = self.geometry(z)
-#         LongSparWebAR_z = []
-#         z_values = np.linspace(0,wing_span/2, 100) 
-#         for z in z_values:
-#             t_0 = a(0)
-#             t_1 = a(z_values)
-#             S = z * (t_0 + t_1) / 2    
-#             AR = (z**2)/S
-#             LongSparWebAR_z.append(AR)
+    # Defines AspectRaio of the long Spar
+    def LongSparWebAR(self, z):
+        wing_span = self.wingspan
+        a = self.geometry(z)
+        LongSparWebAR_z = []
+        z_values = np.linspace(0,wing_span/2, 100) 
+        for z in z_values:
+            t_0 = a(0)
+            t_1 = a(z_values)
+            S = z * (t_0 + t_1) / 2    
+            AR = (z**2)/S
+            LongSparWebAR_z.append(AR)
 
-#         return LongSparWebAR_z
+        return LongSparWebAR_z
     
-#     def ShortSparWebAR(self, z):
-#         wing_span = self.wingspan
-#         b = self.geometry(z)
-#         ShortSparWebAR_z = []
-#         z_values = np.linspace(0,wing_span/2, 100) 
-#         for z in z_values:
-#             t_0 = b(0)
-#             t_1 = b(z_values)
-#             S = z * (t_0 + t_1) / 2    
-#             AR = (z**2)/S
-#             ShortSparWebAR_z.append(AR)
+    def ShortSparWebAR(self, z):
+        wing_span = self.wingspan
+        b = self.geometry(z)
+        ShortSparWebAR_z = []
+        z_values = np.linspace(0,wing_span/2, 100) 
+        for z in z_values:
+            t_0 = b(0)
+            t_1 = b(z_values)
+            S = z * (t_0 + t_1) / 2    
+            AR = (z**2)/S
+            ShortSparWebAR_z.append(AR)
         
-#         return ShortSparWebAR_z
+        return ShortSparWebAR_z
 
     
     def front_spar_web_buckling(self, AR, E, t_sparweb, b, v):
@@ -290,26 +269,31 @@ class SparWebBuckling():
 #     return Kc
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
-    Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
-    Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
-    K = 1/4 #1 end fixed, 1 end free 
+    def __init__(self):
+        Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
+        Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
+        Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
+        K = 1/4 #1 end fixed, 1 end free 
 
-    # #calculation of length: 
-    # #8 stringers on one side (take configuration with most stringers)
-    # #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
-    # #angle_stringer= 26.59493069 degrees at 1/9 of chord
-    L = 15.04148123 #so 13.45 divided by cos(26.5949)
-    # #doublecheck value
+        # #calculation of length: 
+        # #8 stringers on one side (take configuration with most stringers)
+        # #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
+        # #angle_stringer= 26.59493069 degrees at 1/9 of chord
+        
+        
+        
+        # try not to hard code
+        L = 15.04148123 #so 13.45 divided by cos(26.5949) 
+        # #doublecheck value
 
-    #centroid coordinates:
-    x5_9=7.5e-3 #coordinates for option 5 and 9
-    y5_9=7.5e-3#coordinates for option 5 and 9
+        #centroid coordinates:
+        x5_9=7.5e-3 #coordinates for option 5 and 9
+        y5_9=7.5e-3#coordinates for option 5 and 9
 
-    x_8= 10e-3
-    y_8= 10e-3
+        x_8= 10e-3
+        y_8= 10e-3
 
-    def stringer_MOM (self, Area5,Area8,Area9,x5_9,x_8):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+    def stringer_MOM (self, Area5, Area8, Area9, x5_9, x_8):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
         I5 = 2*(Area5*x5_9**2)
         I8 = 2*(Area8*x_8**2)
         I9 = 2*(Area9*x5_9**2)
