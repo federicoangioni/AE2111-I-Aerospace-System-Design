@@ -1,23 +1,61 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
-from main import g_moment
-from variables import b
+#from main import g_moment, wingbox
+#from variables import b
+from variables import *
+from wp4_1 import Aerodynamics, InternalForces
+from wp4_2 import WingBox
+
+xflr_files = 'XFLRdata\\XFLR5sims'
+
+# change these
+aircraft_mass = 35688
+alt_sound_speed = 296.56
+
+internal_forces = InternalForces(aircraft_mass=aircraft_mass, load_factor= 2.5, sound_speed=alt_sound_speed, half_chord_sweep= hchord_sweep, fus_radius=fus_radius, density=rho0, airspeed= airspeed, 
+                                 c_r= c_r, wingspan= b, engine_z_loc= engine_z_loc, engine_length= engine_length, x_hl= x_hl, x_lemac= x_lemac, MAC= MAC, 
+                                 one_engine_thrust= one_engine_thrust, fan_cowl_diameter= fan_cowl_diameter, c_t= c_r*tr)
+    
+    
+g_shear, g_moment, g_torque, g_axial = internal_forces.force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length, 
+                                        fuel_tank_length=fuel_tank_length, fuel_density=fuel_density)[4:]
+
+# Plotting the internal distribution functions
+# internal_forces.show(engine_mass= engine_mass, wing_box_length= wing_box_length, fuel_tank_length= fuel_tank_length, fuel_density= fuel_density)
+
+
+wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.003, t_caps= 0.002)
+
+stringers = [20, 1, 'L', {'base': 30e-3, 'height': 30e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
+
+
+print(stringers)
+
 
 def x_func(z):
-    return 0.5 * (1 - z / 10) 
+    return 0 
 
 def y_func(z):
-    return 0.3 * z
+    return wingbox.geometry(2*z/b)[0] / 2
 
 def Ixx_func(z):
-    return 100 + 5 * z 
+    return wingbox.MOM_total(2*z/b, stringers=stringers)[0]
 
 def Iyy_func(z):
-    return 150 + 3 * z
+    return wingbox.MOM_total(2*z/b, stringers=stringers)[1]
 
 def Ixy_func(z):
+    return 0 * 2* z/b
+
+def Mx_func(z):
+    return g_moment(z)
+
+def My_func(z):
     return 0 * z
+
+
+print(wingbox.MOM_total(z=0, stringers=stringers)[0])
 
 
 def stress_z(Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
@@ -51,19 +89,27 @@ def calculate_stress_distribution(z_points, x_func, y_func, Mx_func, My_func, Ix
         y = y_func(z)
         sigma_z = stress_z(Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func, z, x, y)
         stress_distribution.append(sigma_z)
+
+
+
+        # print(y)
+        # print(Mx_func(z))
+        #print(Ixx_func(z))
+
+
     return np.array(stress_distribution)
 
 def main():
     # Define spanwise locations
-    z_points = np.linspace(0, b, 100)  # Wing span from 0 to 10 meters
+    z_points = np.linspace(0, b/2, 100)  # Wing span from 0 to 10 meters
 
     # Calculate stress distribution
     stress_distribution = calculate_stress_distribution(
         z_points=z_points,
         x_func=x_func,
         y_func=y_func,
-        Mx_func=g_moment,
-        My_func= 0,  # Assuming same moment for simplicity
+        Mx_func=Mx_func,
+        My_func= My_func,  # Assuming same moment for simplicity
         Ixx_func=Ixx_func,
         Iyy_func=Iyy_func,
         Ixy_func=Ixy_func
@@ -76,13 +122,16 @@ def main():
 
     # Plot stress distribution
     plt.figure(figsize=(12, 6))
-    plt.plot(z_points, stress_distribution, label="Normal Stress Distribution", color="blue")
+    plt.plot(z_points, stress_distribution/ 1e6, label="Normal Stress Distribution", color="blue")
     plt.axhline(0, color="black", linewidth=0.8)
     plt.xlabel("Spanwise Location (z) [m]", fontsize=12)
-    plt.ylabel("Normal Stress [Pa]", fontsize=12)
+    plt.ylabel("Normal Stress [MPa]", fontsize=12)
     plt.title("Normal Stress Distribution Along the Wing Span", fontsize=14)
     plt.grid(True)
     plt.legend()
     plt.show()
 
-    
+if __name__ == "__main__":
+    main()
+
+
