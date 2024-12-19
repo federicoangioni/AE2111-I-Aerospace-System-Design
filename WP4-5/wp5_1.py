@@ -146,7 +146,7 @@ class SkinBuckling():
         plt.show()
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry, wingspan, chord):
+    def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
@@ -156,9 +156,18 @@ class SparWebBuckling():
         # np array with all the values from root to the 
         self.z_values = np.linspace(0, self.halfspan, 1000) 
         
-        filepath_ks = os.join('WP4-5', 'resources', 'k_s_curve.csv')
+        filepath_ks = os.path.join('WP4-5', 'resources', 'k_s_curve.csv')
         
-        self.k_s = pd.read_csv(filepath_ks)
+        self.k_s = pd.read_csv('WP4-5\\resources\\k_s_curve.csv')
+        
+        
+        self.t_front = t_front
+        self.t_rear = t_rear
+        
+        # define material properties
+        self.E = E
+        self.pois = pois
+        self.k_v = k_v
         
     # Defines AspectRaio of the long Spar
     def front_sparAR(self, z):
@@ -183,7 +192,7 @@ class SparWebBuckling():
         return AR_rear
 
     
-    def front_spar_web_buckling(self, z, E, t_sparweb, v):
+    def front_spar_web_buckling(self, z):
         
         AR = self.front_sparAR(z= z)
         
@@ -198,13 +207,13 @@ class SparWebBuckling():
             b = t_1
         else:
             b = z
-        
 
-        crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
+        crit_stress = np.pi**2 * k_s * self.E /(12*(1-self.pois**2)) * (self.t_front/b)**2 #find the critical stresses for a given k_s
      
+        # returning critical stress at specific z location
         return crit_stress
     
-    def rear_spar_web_buckling(self, z, E, t_sparweb, b, v):
+    def rear_spar_web_buckling(self, z):
         
         AR = self.rear_sparAR(z= z)
         
@@ -220,57 +229,60 @@ class SparWebBuckling():
         else:
             b = z
 
-        crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
+        crit_stress = np.pi**2 * k_s * self.E /(12*(1-self.pois**2)) * (self.t_rear/b)**2 #find the critical stresses for a given k_s
      
         return crit_stress
 
-    def front_spar_web_buckling_plot(self, wingspan):
-        wingspan = self.wingspan
-        z_values = np.linspace(0, wingspan/2, 100)
-        for i in range(len(z_values)):
-            plt.plot(z_values, self.front_spar_web_buckling())
-
-#     def back_spar_web_buckling_plot(self, wingspan):
-#         wingpan = self.wingspan
-#         z_values = np.linspace(0, wingspan/2, 100)
-#         for i in range(len(z_values)):
-#             plt.plot(z_values, self.rear_spar_web_buckling())
-
-
-    def margin_of_safety(self, z , V, k_v, AR, E, t_sparweb, b, v, torque): 
-        # mos = margin of safety
-        critical_front = self.front_spar_web_buckling
-        critical_rear = self.rear_spar_web_buckling
-        mos_front_list = []
-        mos_rear_list = []
-        for i in range(len(critical_front)):
-            a, b, h, alpha = self.geometry(z) # a and b not related to a_over_b
-            #t_f = ###add function### 
-            #t_r = ###add function### 
-            #T_front = ###add function### # you might need only one torque
-            #T_rear = ###add function###
-            # torque(z)
+    def margin_of_safety(self, z , V, T): 
+        
+        """
+        V, T are functions of z, namely python functions by 4.1
+        mos = margin of safety
+        """
+        critical_front = self.front_spar_web_buckling(z= z, E=self.E, v= self.v)
+        critical_rear = self.rear_spar_web_buckling(z= z, E=self.E, v= self.v)
+        
+        a, b, h, _ = self.geometry(z) # a and b not related to a_over_b
+        
+        avg_shear_front = V(z) / ((a + b)*self.t_front) # formula for average shear
+        max_shear_front = self.k_v * avg_shear_front # formula for maximum shear
+        
+        avg_shear_rear = V(z) / ((a + b)*self.t_rear) # formula for average shear
+        max_shear_rear = self.k_v * avg_shear_rear # formula for maximum shear
+        
+        A = (a + b) * h / 2 #enclosed area of trapezoical wingbox
+        
+        q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
+    
+        mos_front = critical_front / (max_shear_front + q_torsion * self.t_front)
+        mos_rear= critical_rear / (max_shear_rear + q_torsion * self.t_rear)
+        
+        return mos_front , mos_rear
+    
+    def show_mos(self, V, T, choice:str ='front'):
+        """
+        choice: string input use either front or rear
+        """
+        moss_front = []
+        moss_rear = []
+        for point in self.z_values:
+            mos_front, mos_rear = self.margin_of_safety(z= point, V= V, T= T)
             
-            avg_shear_front = V / (a * t_f + b * t_r) # formula for average shear
-            max_shear_front = k_v * avg_shear_front # formula for maximum shear
-            avg_shear_rear = V / (a * t_f + b * t_r)
-            max_shear_rear = k_v * avg_shear_rear
-            A = (a+b)*h/2 #enclosed area of trapezoical wingbox
-            q_torsion_front = torque(z) / 2 / A #torsion shear stress in thin-walled closed section
-            q_torsion_rear = T_rear / (2 * A) #??
-            mos_front = critical_front[i] / (max_shear_front + q_torsion_front * t_f)
-            mos_rear= critical_rear[i] / (max_shear_rear + q_torsion_rear * t_r)
-            mos_front_list.append(mos_front)
-            mos_rear_list.append(mos_rear)
-        return mos_front_list , mos_rear_list
-    
-#go on and make the plots
-
-#-----------------
-    
-#     Kc = interp_function(aspect_ratio)
-#     print(f"Interpolated value at AR={x_query}: kc={y_query}")
-#     return Kc
+            moss_front.append(mos_front)
+            moss_rear.append(mos_front)
+            
+        if choice == 'front':
+            plt.plot(self.z_values, moss_front)
+            plt.xlabel()
+            plt.ylabel()
+            plt.show()
+        elif choice == 'rear':
+            plt.plot(self.z_values, moss_rear)
+            plt.xlabel()
+            plt.ylabel()
+            plt.show()
+            
+        
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
     def __init__(self, stringers: list, wingspan):
