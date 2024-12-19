@@ -3,6 +3,7 @@ from variables import *
 from wp4_1 import Aerodynamics, InternalForces
 from wp4_2 import WingBox
 from wp5_1 import SkinBuckling
+from wp5_1 import Stringer_bucklin
 import matplotlib.pyplot as plt
 
 
@@ -14,3 +15,6 @@ skin_buckling = SkinBuckling(n_ribs=10, wingbox_geometry=wb.geometry, wingspan=w
 # skin_buckling.skin_buckling_constant(aspect_ratio=5, show= True)
 skin_buckling.plot_skinAR()
 skin_buckling.plot_sigma_cr()
+
+Stringer_buckling = Stringer_bucklin()
+print(Stringer_buckling.stringer_buckling_values())
