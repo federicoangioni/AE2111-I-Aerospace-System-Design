@@ -16,5 +16,8 @@ skin_buckling = SkinBuckling(n_ribs=15, wingbox_geometry=wb.geometry, wingspan=w
 # skin_buckling.plot_skinAR()
 # skin_buckling.plot_sigma_cr()
 
-Stringer_buckling = Stringer_bucklin(0)
-print(Stringer_buckling.stringer_buckling_values(E))
+Stringer_buckling = Stringer_bucklin(wingspan=wb.wingspan, E=E, stringers= )
+print(Stringer_buckling.stringer_buckling_values())
+
+Stringer_buckling.graph_buckling_values()
+

@@ -146,7 +146,7 @@ class SkinBuckling():
         plt.show()
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry, wingspan, chord):
+    def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
@@ -156,9 +156,18 @@ class SparWebBuckling():
         # np array with all the values from root to the 
         self.z_values = np.linspace(0, self.halfspan, 1000) 
         
-        filepath_ks = os.join('WP4-5', 'resources', 'k_s_curve.csv')
+        filepath_ks = os.path.join('WP4-5', 'resources', 'k_s_curve.csv')
         
-        self.k_s = pd.read_csv(filepath_ks)
+        self.k_s = pd.read_csv('WP4-5\\resources\\k_s_curve.csv')
+        
+        
+        self.t_front = t_front
+        self.t_rear = t_rear
+        
+        # define material properties
+        self.E = E
+        self.pois = pois
+        self.k_v = k_v
         
     # Defines AspectRaio of the long Spar
     def front_sparAR(self, z):
@@ -183,7 +192,7 @@ class SparWebBuckling():
         return AR_rear
 
     
-    def front_spar_web_buckling(self, z, E, t_sparweb, v):
+    def front_spar_web_buckling(self, z):
         
         AR = self.front_sparAR(z= z)
         
@@ -198,13 +207,13 @@ class SparWebBuckling():
             b = t_1
         else:
             b = z
-        
 
-        crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
+        crit_stress = np.pi**2 * k_s * self.E /(12*(1-self.pois**2)) * (self.t_front/b)**2 #find the critical stresses for a given k_s
      
+        # returning critical stress at specific z location
         return crit_stress
     
-    def rear_spar_web_buckling(self, z, E, t_sparweb, b, v):
+    def rear_spar_web_buckling(self, z):
         
         AR = self.rear_sparAR(z= z)
         
@@ -220,77 +229,72 @@ class SparWebBuckling():
         else:
             b = z
 
-        crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
+        crit_stress = np.pi**2 * k_s * self.E /(12*(1-self.pois**2)) * (self.t_rear/b)**2 #find the critical stresses for a given k_s
      
         return crit_stress
 
-    def front_spar_web_buckling_plot(self, wingspan):
-        wingspan = self.wingspan
-        z_values = np.linspace(0, wingspan/2, 100)
-        for i in range(len(z_values)):
-            plt.plot(z_values, self.front_spar_web_buckling())
-
-#     def back_spar_web_buckling_plot(self, wingspan):
-#         wingpan = self.wingspan
-#         z_values = np.linspace(0, wingspan/2, 100)
-#         for i in range(len(z_values)):
-#             plt.plot(z_values, self.rear_spar_web_buckling())
-
-
-    def margin_of_safety(self, z , V, k_v, AR, E, t_sparweb, b, v, torque): 
-        # mos = margin of safety
-        critical_front = self.front_spar_web_buckling
-        critical_rear = self.rear_spar_web_buckling
-        mos_front_list = []
-        mos_rear_list = []
-        for i in range(len(critical_front)):
-            a, b, h, alpha = self.geometry(z) # a and b not related to a_over_b
-            #t_f = ###add function### 
-            #t_r = ###add function### 
-            #T_front = ###add function### # you might need only one torque
-            #T_rear = ###add function###
-            # torque(z)
+    def margin_of_safety(self, z , V, T): 
+        
+        """
+        V, T are functions of z, namely python functions by 4.1
+        mos = margin of safety
+        """
+        critical_front = self.front_spar_web_buckling(z= z, E=self.E, v= self.v)
+        critical_rear = self.rear_spar_web_buckling(z= z, E=self.E, v= self.v)
+        
+        a, b, h, _ = self.geometry(z) # a and b not related to a_over_b
+        
+        avg_shear_front = V(z) / ((a + b)*self.t_front) # formula for average shear
+        max_shear_front = self.k_v * avg_shear_front # formula for maximum shear
+        
+        avg_shear_rear = V(z) / ((a + b)*self.t_rear) # formula for average shear
+        max_shear_rear = self.k_v * avg_shear_rear # formula for maximum shear
+        
+        A = (a + b) * h / 2 #enclosed area of trapezoical wingbox
+        
+        q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
+    
+        mos_front = critical_front / (max_shear_front + q_torsion * self.t_front)
+        mos_rear= critical_rear / (max_shear_rear + q_torsion * self.t_rear)
+        
+        return mos_front , mos_rear
+    
+    def show_mos(self, V, T, choice:str ='front'):
+        """
+        choice: string input use either front or rear
+        """
+        moss_front = []
+        moss_rear = []
+        for point in self.z_values:
+            mos_front, mos_rear = self.margin_of_safety(z= point, V= V, T= T)
             
-            avg_shear_front = V / (a * t_f + b * t_r) # formula for average shear
-            max_shear_front = k_v * avg_shear_front # formula for maximum shear
-            avg_shear_rear = V / (a * t_f + b * t_r)
-            max_shear_rear = k_v * avg_shear_rear
-            A = (a+b)*h/2 #enclosed area of trapezoical wingbox
-            q_torsion_front = torque(z) / 2 / A #torsion shear stress in thin-walled closed section
-            q_torsion_rear = T_rear / (2 * A) #??
-            mos_front = critical_front[i] / (max_shear_front + q_torsion_front * t_f)
-            mos_rear= critical_rear[i] / (max_shear_rear + q_torsion_rear * t_r)
-            mos_front_list.append(mos_front)
-            mos_rear_list.append(mos_rear)
-        return mos_front_list , mos_rear_list
-    
-#go on and make the plots
-
-#-----------------
-    
-#     Kc = interp_function(aspect_ratio)
-#     print(f"Interpolated value at AR={x_query}: kc={y_query}")
-#     return Kc
+            moss_front.append(mos_front)
+            moss_rear.append(mos_front)
+            
+        if choice == 'front':
+            plt.plot(self.z_values, moss_front)
+            plt.xlabel()
+            plt.ylabel()
+            plt.show()
+        elif choice == 'rear':
+            plt.plot(self.z_values, moss_rear)
+            plt.xlabel()
+            plt.ylabel()
+            plt.show()
+            
+        
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list):
-        
-        self.Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
-        self.Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
-        self.Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
+    def __init__(self, stringers: list, wingspan):
+        #Only one block, not entire area of L-stringer.
+        self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
+        self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
+        self.Area9 = 30e-3*3e-3 #this is fine, option 9 was L stringer to begin with
+
         self.K = 1/4 #1 end fixed, 1 end free 
 
-        # #calculation of length: 
-        # #8 stringers on one side (take configuration with most stringers)
-        # #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
-        # #angle_stringer= 26.59493069 degrees at 1/9 of chord
-        
-        
-        
-        # try not to hard code
-        L = 15.04148123 #so 13.45 divided by cos(26.5949) 
-        # #doublecheck value
-
+        self.halfspan = wingspan / 2
+    
         #centroid coordinates:
         self.x5_9=7.5e-3 #coordinates for option 5 and 9
         self.y5_9=7.5e-3#coordinates for option 5 and 9
@@ -298,19 +302,81 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         self.x_8= 10e-3
         self.y_8= 10e-3
 
-    def stringer_MOM(self):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+    def calculate_length(self, z):
+        """
+        Calculate the length of the stringer as a function of the wingspan coordinate z.
+        The stringer length runs until 15.04148123 meters(double-check!!!), while the wingspan runs until 13.45 meters due to the sweep angle.
+
+        For max length the following assumtpions:
+        # #8 stringers on one side (take configuration with most stringers)
+        # #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
+        # #angle_stringer= 26.59493069 degrees at 1/9 of chord
+        # L = 15.04148123 #so 13.45 divided by cos(26.5949) 
+
+        :param z: Wingspan coordinate
+        :return: Effective stringer length
+        """
+        angle_stringer = 26.59493069  # Sweep angle in degrees
+        max_length = 15.04148123  # Maximum stringer length in meters
+        effective_length = z / np.cos(np.radians(angle_stringer))
+        return min(effective_length, max_length)
+
+    def stringer_MOM(self):
+        """
+        MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+        """
         I5 = 2*(self.Area5*self.x5_9**2)
         I8 = 2*(self.Area8*self.x_8**2)
         I9 = 2*(self.Area9*self.x5_9**2)
         return I5, I8, I9
     
-    def stringer_buckling_values(self, E): #critical stress of 3 different designs
+    def stringer_buckling_values(self, E): 
+        """
+        critical stress of 3 different designs, L here is also for longest length so lowest 
+        """
         I5, I8, I9 = self.stringer_MOM()
         L = 15.04148123
         stresscr_stringer_5= (self.K*np.pi**2*E*I5)/(L**2*(2*self.Area5))
         stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
         stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))
         return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9
+    
+    def graph_buckling_values(self, E):
+        """
+        Compute the critical stress along the wingspan until 13.45 meters for graphing.
+        :param E: Young's modulus of the material
+        :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
+        """
+        z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan
+        stress_values_5 = []
+        stress_values_8 = []
+        stress_values_9 = []
+
+        for z in z_values:
+            L = self.calculate_length(z)
+            I5, I8, I9 = self.stringer_MOM()
+
+            stress5 = (self.K * np.pi**2 * E * I5) / (L**2 * (2 * self.Area5))
+            stress8 = (self.K * np.pi**2 * E * I8) / (L**2 * (2 * self.Area8))
+            stress9 = (self.K * np.pi**2 * E * I9) / (L**2 * (2 * self.Area9))
+
+            stress_values_5.append(stress5)
+            stress_values_8.append(stress8)
+            stress_values_9.append(stress9)
+             
+        # Create the plot
+        plt.figure(figsize=(8, 6))
+        plt.plot(z_values, stress_values_5, label='Design 5')
+        plt.plot(z_values, stress_values_8, label='Design 8')
+        plt.plot(z_values, stress_values_9, label='Design 9')
+        plt.xlabel('Wingspan Coordinate (m)')
+        plt.ylabel('Critical Buckling Stress (Pa)')
+        plt.title('Stringer Buckling Stress Along Wingspan')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        return z_values, stress_values_5, stress_values_8, stress_values_9
+   
 
     
    
