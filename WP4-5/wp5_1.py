@@ -298,13 +298,15 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         self.x_8= 10e-3
         self.y_8= 10e-3
 
-    def stringer_MOM (self):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+    def stringer_MOM(self):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
         I5 = 2*(self.Area5*self.x5_9**2)
         I8 = 2*(self.Area8*self.x_8**2)
         I9 = 2*(self.Area9*self.x5_9**2)
         return I5, I8, I9
     
-    def stringer_buckling_values (self, E, K, L, I5, I8, I9): #critical stress of 3 different designs
+    def stringer_buckling_values(self, E): #critical stress of 3 different designs
+        I5, I8, I9 = self.stringer_MOM()
+        L = 15.04148123
         stresscr_stringer_5= (self.K*np.pi**2*E*I5)/(L**2*(2*self.Area5))
         stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
         stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))
