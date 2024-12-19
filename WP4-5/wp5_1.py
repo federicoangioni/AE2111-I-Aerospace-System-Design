@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd      
 import matplotlib.pyplot as plt
-    
+from k_s_curve import k_s_array
 
 class SkinBuckling():
     def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, t_skin):
@@ -146,51 +146,39 @@ class SkinBuckling():
         plt.show()
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry: function, wingspan):
+    def __init__(self, wingbox_geometry, wingspan, chord):
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
+           
         # attributing to class variable
-        self.wingspan = wingspan
-        pass  
-
-    def chord(self, z, c_r, c_t, wingspan): 
-        # returns the chord at any position z in meters, not a percentage of halfspan, on 28/11 it can go from 0 to b/2 - intersection*b/2
-        c = c_r - c_r * (1 - (c_t / c_r)) * (z / ((wingspan / 2)))
-        return c
+        self.halfspan = wingspan / 2
+        
+        self.z_values = np.linspace(0, self.halfspan, 1000) 
+        
     
     # Defines AspectRaio of the long Spar
     def LongSparWebAR(self, z):
-        wing_span = self.wingspan
-        a = self.geometry(z)
-        LongSparWebAR_z = []
-        z_values = np.linspace(0,wing_span/2, 100) 
-        for z in z_values:
-            t_0 = a(0)
-            t_1 = a(z_values)
-            S = z * (t_0 + t_1) / 2    
-            AR = (z**2)/S
-            LongSparWebAR_z.append(AR)
+        t_0, _, _, _ = self.geometry(0)
 
-        return LongSparWebAR_z
+        t_1, _, _, _ = self.geometry(z)
+        
+        S = z * (t_0 + t_1) / 2    
+        AR_front = (z**2)/S
+        
+        return AR_front
     
     def ShortSparWebAR(self, z):
-        wing_span = self.wingspan
-        b = self.geometry(z)
-        ShortSparWebAR_z = []
-        z_values = np.linspace(0,wing_span/2, 100) 
-        for z in z_values:
-            t_0 = b(0)
-            t_1 = b(z_values)
-            S = z * (t_0 + t_1) / 2    
-            AR = (z**2)/S
-            ShortSparWebAR_z.append(AR)
+        _, t_0, _, _ = self.geometry(0)        
+        _, t_1, _, _ = self.geometry(z)
         
-        return ShortSparWebAR_z
+        S = z * (t_0 + t_1) / 2    
+        AR_rear = (z**2)/S
+        
+        return AR_rear
 
     
     def front_spar_web_buckling(self, AR, E, t_sparweb, b, v):
-        from k_s_curve import k_s_array
         AR = self.LongSparWebAR()
         k_s_array_np = np.array(k_s_array)
         ab_values = k_s_array_np[:, 0]
@@ -207,7 +195,7 @@ class SparWebBuckling():
 #         return crit_stress_z_front
     
     def rear_spar_web_buckling(self, AR, E, t_sparweb, b, v):
-        from k_s_curve import k_s_array
+        
         AR = self.SparWebARSparWebAR()
         k_s_array_np = np.array(k_s_array)
         ab_values = k_s_array_np[:, 0]
