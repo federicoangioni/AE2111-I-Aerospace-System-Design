@@ -15,6 +15,6 @@ skin_buckling = SkinBuckling(n_ribs=15, wingbox_geometry=wb.geometry, wingspan=w
 # skin_buckling.skin_buckling_constant(aspect_ratio=5, show= True)
 # skin_buckling.plot_skinAR()
 # skin_buckling.plot_sigma_cr()
-
-Stringer_buckling = Stringer_bucklin(0)
-print(Stringer_buckling.stringer_buckling_values(E))
+from wp5_1 import *
+sparwebbuckling = SparWebBuckling(wingbox_geometry=wb.geometry, wingspan=wb.wingspan, E= E, pois= 0.33, t_front = 4e-3, t_rear=4e-3)
+sparwebbuckling.show_mos(V= 5, T=5, choice='front')

@@ -154,11 +154,11 @@ class SparWebBuckling():
         self.halfspan = wingspan / 2
         
         # np array with all the values from root to the 
-        self.z_values = np.linspace(0, self.halfspan, 1000) 
+        self.z_values = np.linspace(1, self.halfspan, 1000) 
         
         filepath_ks = os.path.join('WP4-5', 'resources', 'k_s_curve.csv')
         
-        self.k_s = pd.read_csv('WP4-5\\resources\\k_s_curve.csv')
+        self.k_s = pd.read_csv('resources\\k_s_curve.csv')
         
         
         self.t_front = t_front
@@ -239,8 +239,8 @@ class SparWebBuckling():
         V, T are functions of z, namely python functions by 4.1
         mos = margin of safety
         """
-        critical_front = self.front_spar_web_buckling(z= z, E=self.E, v= self.v)
-        critical_rear = self.rear_spar_web_buckling(z= z, E=self.E, v= self.v)
+        critical_front = self.front_spar_web_buckling(z= z)
+        critical_rear = self.rear_spar_web_buckling(z= z)
         
         a, b, h, _ = self.geometry(z) # a and b not related to a_over_b
         
@@ -254,10 +254,13 @@ class SparWebBuckling():
         
         q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
     
-        mos_front = critical_front / (max_shear_front + q_torsion * self.t_front)
-        mos_rear= critical_rear / (max_shear_rear + q_torsion * self.t_rear)
+        applied_stress = max_shear_front + q_torsion / self.t_front
         
-        return mos_front , mos_rear
+        mos_front = critical_front / (max_shear_front + q_torsion / self.t_front)
+        mos_rear = critical_rear / (max_shear_rear + q_torsion / self.t_rear)
+        
+        
+        return mos_front , mos_rear, applied_stress
     
     def show_mos(self, V, T, choice:str ='front'):
         """
@@ -266,20 +269,16 @@ class SparWebBuckling():
         moss_front = []
         moss_rear = []
         for point in self.z_values:
-            mos_front, mos_rear = self.margin_of_safety(z= point, V= V, T= T)
+            mos_front, mos_rear, applied_stress = self.margin_of_safety(z= point, V= V, T= T)
             
             moss_front.append(mos_front)
-            moss_rear.append(mos_front)
-            
+            moss_rear.append(mos_rear)
+          
         if choice == 'front':
             plt.plot(self.z_values, moss_front)
-            plt.xlabel()
-            plt.ylabel()
             plt.show()
         elif choice == 'rear':
             plt.plot(self.z_values, moss_rear)
-            plt.xlabel()
-            plt.ylabel()
             plt.show()
             
         
