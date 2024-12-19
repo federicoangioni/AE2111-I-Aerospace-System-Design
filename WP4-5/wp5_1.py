@@ -273,24 +273,16 @@ class SparWebBuckling():
 #     return Kc
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list):
-        
-        self.Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
-        self.Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
-        self.Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
+    def __init__(self, stringers: list, wingspan):
+        #Only one block, not entire area of L-stringer.
+        self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
+        self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
+        self.Area9 = 30e-3*3e-3 #this is fine, option 9 was L stringer to begin with
+
         self.K = 1/4 #1 end fixed, 1 end free 
 
-        # #calculation of length: 
-        # #8 stringers on one side (take configuration with most stringers)
-        # #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
-        # #angle_stringer= 26.59493069 degrees at 1/9 of chord
-        
-        
-        
-        # try not to hard code
-        L = 15.04148123 #so 13.45 divided by cos(26.5949) 
-        # #doublecheck value
-
+        self.halfspan = wingspan / 2
+    
         #centroid coordinates:
         self.x5_9=7.5e-3 #coordinates for option 5 and 9
         self.y5_9=7.5e-3#coordinates for option 5 and 9
@@ -298,19 +290,81 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         self.x_8= 10e-3
         self.y_8= 10e-3
 
-    def stringer_MOM(self):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+    def calculate_length(self, z):
+        """
+        Calculate the length of the stringer as a function of the wingspan coordinate z.
+        The stringer length runs until 15.04148123 meters(double-check!!!), while the wingspan runs until 13.45 meters due to the sweep angle.
+
+        For max length the following assumtpions:
+        # #8 stringers on one side (take configuration with most stringers)
+        # #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
+        # #angle_stringer= 26.59493069 degrees at 1/9 of chord
+        # L = 15.04148123 #so 13.45 divided by cos(26.5949) 
+
+        :param z: Wingspan coordinate
+        :return: Effective stringer length
+        """
+        angle_stringer = 26.59493069  # Sweep angle in degrees
+        max_length = 15.04148123  # Maximum stringer length in meters
+        effective_length = z / np.cos(np.radians(angle_stringer))
+        return min(effective_length, max_length)
+
+    def stringer_MOM(self):
+        """
+        MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+        """
         I5 = 2*(self.Area5*self.x5_9**2)
         I8 = 2*(self.Area8*self.x_8**2)
         I9 = 2*(self.Area9*self.x5_9**2)
         return I5, I8, I9
     
-    def stringer_buckling_values(self, E): #critical stress of 3 different designs
+    def stringer_buckling_values(self, E): 
+        """
+        critical stress of 3 different designs, L here is also for longest length so lowest 
+        """
         I5, I8, I9 = self.stringer_MOM()
         L = 15.04148123
         stresscr_stringer_5= (self.K*np.pi**2*E*I5)/(L**2*(2*self.Area5))
         stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
         stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))
         return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9
+    
+    def graph_buckling_values(self, E):
+        """
+        Compute the critical stress along the wingspan until 13.45 meters for graphing.
+        :param E: Young's modulus of the material
+        :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
+        """
+        z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan
+        stress_values_5 = []
+        stress_values_8 = []
+        stress_values_9 = []
+
+        for z in z_values:
+            L = self.calculate_length(z)
+            I5, I8, I9 = self.stringer_MOM()
+
+            stress5 = (self.K * np.pi**2 * E * I5) / (L**2 * (2 * self.Area5))
+            stress8 = (self.K * np.pi**2 * E * I8) / (L**2 * (2 * self.Area8))
+            stress9 = (self.K * np.pi**2 * E * I9) / (L**2 * (2 * self.Area9))
+
+            stress_values_5.append(stress5)
+            stress_values_8.append(stress8)
+            stress_values_9.append(stress9)
+             
+        # Create the plot
+        plt.figure(figsize=(8, 6))
+        plt.plot(z_values, stress_values_5, label='Design 5')
+        plt.plot(z_values, stress_values_8, label='Design 8')
+        plt.plot(z_values, stress_values_9, label='Design 9')
+        plt.xlabel('Wingspan Coordinate (m)')
+        plt.ylabel('Critical Buckling Stress (Pa)')
+        plt.title('Stringer Buckling Stress Along Wingspan')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        return z_values, stress_values_5, stress_values_8, stress_values_9
+   
 
     
    
