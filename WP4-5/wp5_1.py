@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd      
 import matplotlib.pyplot as plt
-from k_s_curve import k_s_array
+import os
 
 class SkinBuckling():
     def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, t_skin):
@@ -150,17 +150,22 @@ class SparWebBuckling():
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
-           
         # attributing to class variable
         self.halfspan = wingspan / 2
         
+        # np array with all the values from root to the 
         self.z_values = np.linspace(0, self.halfspan, 1000) 
         
-    
+        filepath_ks = os.join('WP4-5', 'resources', 'k_s_curve.csv')
+        
+        self.k_s = pd.read_csv(filepath_ks)
+        
     # Defines AspectRaio of the long Spar
-    def LongSparWebAR(self, z):
+    def front_sparAR(self, z):
+        # take long side at the root
         t_0, _, _, _ = self.geometry(0)
 
+        # take long side at the other end 
         t_1, _, _, _ = self.geometry(z)
         
         S = z * (t_0 + t_1) / 2    
@@ -168,7 +173,7 @@ class SparWebBuckling():
         
         return AR_front
     
-    def ShortSparWebAR(self, z):
+    def rear_sparAR(self, z):
         _, t_0, _, _ = self.geometry(0)        
         _, t_1, _, _ = self.geometry(z)
         
@@ -178,37 +183,46 @@ class SparWebBuckling():
         return AR_rear
 
     
-    def front_spar_web_buckling(self, AR, E, t_sparweb, b, v):
-        AR = self.LongSparWebAR()
-        k_s_array_np = np.array(k_s_array)
-        ab_values = k_s_array_np[:, 0]
-        k_s_values = k_s_array_np[:, 1]
-        k_s_z_front = []
-        crit_stress_z_front = []
+    def front_spar_web_buckling(self, z, E, t_sparweb, v):
         
-        for i in range(len(AR)):
-            k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
-            crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
-            k_s_z_front.append(k_s)
-            crit_stress_z_front.append(crit_stress) # Stores the relevant critical stress in a list
+        AR = self.front_sparAR(z= z)
         
-#         return crit_stress_z_front
+        ab_values = self.k_s['x']
+        k_s_values = self.k_s['k_s']
+       
+        k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
+        
+        t_1, _, _, _ = self.geometry(z)
+        
+        if t_1 < z:
+            b = t_1
+        else:
+            b = z
+        
+
+        crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
+     
+        return crit_stress
     
-    def rear_spar_web_buckling(self, AR, E, t_sparweb, b, v):
+    def rear_spar_web_buckling(self, z, E, t_sparweb, b, v):
         
-        AR = self.SparWebARSparWebAR()
-        k_s_array_np = np.array(k_s_array)
-        ab_values = k_s_array_np[:, 0]
-        k_s_values = k_s_array_np[:, 1]
-        k_s_z_back = []
-        crit_stress_z_back = []
-        for i in AR:
-            k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
-            crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #This will find the critical stresses for a given k_s
-            k_s_z_back.append(k_s)   
-            crit_stress_z_back.append(crit_stress) # Stores the relevant critical stress in a list
+        AR = self.rear_sparAR(z= z)
         
-#         return crit_stress_z_back
+        ab_values = self.k_s['x']
+        k_s_values = self.k_s['k_s']
+       
+        k_s = np.interp(AR, ab_values, k_s_values) #This will find the corresponding k_s for each AR
+        
+        _, t_1, _, _ = self.geometry(z)
+        
+        if t_1 < z:
+            b = t_1
+        else:
+            b = z
+
+        crit_stress = np.pi**2 * k_s * E /(12*(1-v**2)) * (t_sparweb/b)**2 #find the critical stresses for a given k_s
+     
+        return crit_stress
 
     def front_spar_web_buckling_plot(self, wingspan):
         wingspan = self.wingspan
@@ -259,7 +273,8 @@ class SparWebBuckling():
 #     return Kc
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self):
+    def __init__(self, stringers: list):
+        
         self.Area5 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         self.Area8 = 40e-3*3.5e-3 #Only one block, not entire area of L-stringer. area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
         self.Area9 = 30e-3*3e-3 #Only one block, not entire area of L-stringer. this is fine, option 9 was L stringer to begin with
@@ -283,13 +298,15 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         self.x_8= 10e-3
         self.y_8= 10e-3
 
-    def stringer_MOM (self):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
+    def stringer_MOM(self):#MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
         I5 = 2*(self.Area5*self.x5_9**2)
         I8 = 2*(self.Area8*self.x_8**2)
         I9 = 2*(self.Area9*self.x5_9**2)
         return I5, I8, I9
     
-    def stringer_buckling_values (self, E, K, L, I5, I8, I9): #critical stress of 3 different designs
+    def stringer_buckling_values(self, E): #critical stress of 3 different designs
+        I5, I8, I9 = self.stringer_MOM()
+        L = 15.04148123
         stresscr_stringer_5= (self.K*np.pi**2*E*I5)/(L**2*(2*self.Area5))
         stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
         stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))

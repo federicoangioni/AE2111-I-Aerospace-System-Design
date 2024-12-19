@@ -13,8 +13,8 @@ wb = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersect
 skin_buckling = SkinBuckling(n_ribs=15, wingbox_geometry=wb.geometry, wingspan=wb.wingspan, E= E, v=0.33, t_skin=0.001)
 #print(skin_buckling.skin_buckling_constant(aspect_ratio=5, show= True))
 # skin_buckling.skin_buckling_constant(aspect_ratio=5, show= True)
-skin_buckling.plot_skinAR()
-skin_buckling.plot_sigma_cr()
+# skin_buckling.plot_skinAR()
+# skin_buckling.plot_sigma_cr()
 
-Stringer_buckling = Stringer_bucklin()
-print(Stringer_buckling.stringer_buckling_values())
+Stringer_buckling = Stringer_bucklin(0)
+print(Stringer_buckling.stringer_buckling_values(E))
