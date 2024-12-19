@@ -317,6 +317,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         """
         angle_stringer = 26.59493069  # Sweep angle in degrees
         max_length = 15.04148123  # Maximum stringer length in meters
+        
         effective_length = z / np.cos(np.radians(angle_stringer))
         return min(effective_length, max_length)
 
