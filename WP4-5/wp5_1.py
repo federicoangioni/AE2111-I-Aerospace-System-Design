@@ -332,7 +332,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
     
     def stringer_buckling_values(self, E): 
         """
-        critical stress of 3 different designs, L here is also for longest length so lowest 
+        critical stress of 3 different designs, L here is also for longest length so lowest critical stress
         """
         I5, I8, I9 = self.stringer_MOM()
         L = 15.04148123
@@ -347,7 +347,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         :param E: Young's modulus of the material
         :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
         """
-        z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan
+        z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
         stress_values_5 = []
         stress_values_8 = []
         stress_values_9 = []
@@ -377,6 +377,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         plt.show()
         return z_values, stress_values_5, stress_values_8, stress_values_9
    
+#general note: applied stress so that we have the margin of safety + inclusion of safety factors?
 
     
    
