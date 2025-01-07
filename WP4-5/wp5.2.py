@@ -6,6 +6,7 @@ from scipy import interpolate
 from variables import *
 from wp4_1 import Aerodynamics, InternalForces
 from wp4_2 import WingBox
+from wp5_1 import SkinBuckling
 
 xflr_files = 'XFLRdata\\XFLR5sims'
 
@@ -54,13 +55,13 @@ def My_func(z):
 def Ax_func(z):
     return g_axial(z)
 
-#def Area_func(z):
-#   return 
+def Area_func(z):
+    return Area_crosssection(z)
 
 print(wingbox.MOM_total(z=0, stringers=stringers)[0])
 
 
-def stress_z(Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
+def stress_z(Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, Area_func, z, x, y):
 
     # Evaluate the moment and inertia functions at spanwise location z
     Mx = Mx_func(z)
@@ -69,6 +70,7 @@ def stress_z(Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
     Iyy = Iyy_func(z)
     Ixy = Ixy_func(z)
     Ax = Ax_func(z)
+    A_func = Area_func(z)
 
     # Calculate numerator and denominator
     numerator = (Mx * Iyy - My * Ixy) * y + (My * Ixx - Mx * Ixy) * x
@@ -79,7 +81,7 @@ def stress_z(Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
         raise ValueError("Denominator is zero. Check inertia values.")
 
     # Calculate normal stress
-    sigma_z = (numerator / denominator) + # (Ax/)
+    sigma_z = (numerator / denominator)  + (Ax/A_func)
     return sigma_z
 
 def calculate_stress_distribution(z_points, x_func, y_func, Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func):
