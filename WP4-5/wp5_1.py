@@ -165,6 +165,7 @@ class SkinBuckling():
         
         applied_stress = M(z) * chordwise/(self.I(z, self.stringers)) + N(z)/(section_area)
         
+        print(applied_stress)
         return applied_stress
         
     def plot_sigma_cr(self):
