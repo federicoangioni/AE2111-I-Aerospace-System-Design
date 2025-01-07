@@ -123,53 +123,51 @@ class SkinBuckling():
         plt.tight_layout()  # Improve layout
         plt.show() 
 
-    def sigma_crit(self, z):
+    def critical_stress(self, z):
+        
         """
         E: young's elastic modulus
         v: Poisson's ratio
         t: is the thickness of the skin
         
         """
-        lst_sigma_cr = np.array()
-        for i in range(len(z)):
-        # aspect ratio for the specific panel
-            AR, area = self.skin_AR(z[i])
-            
-            # define the K_c for this specific panel
-            K_c = self.skin_buckling_constant(aspect_ratio= AR, show= False)
-            
-            b = np.sqrt(AR*area)
-            
-            sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t/b)**2
-            
-            lst_sigma_cr = np.append(lst_sigma_cr, sigma_cr)
         
-        return lst_sigma_cr
+        # aspect ratio for the specific panel
+        AR, area = self.skin_AR(z)
+        
+        # define the K_c for this specific panel
+        K_c = self.skin_buckling_constant(aspect_ratio= AR, show= False)
+        
+        b = np.sqrt(AR*area)
+        
+        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t/b)**2
+        
+        return sigma_cr
     
     def applied_stress(self, z):
-        lst_applied = np.array()
-        
-        for i in range(len(z)):
-            
-            _, _, h, alpha = self.geometry(z[i])
+    
+        _, _, h, alpha = self.geometry(z)
 
-            l_skin = h/np.cos(alpha)
-            
-            chordwise = np.linspace(0, l_skin, 100)
-            
-            section_area = l_skin*self.t
-            
-            applied_stress = self.M(z[i]) * chordwise/(self.I(z, self.stringers)) + self.N(z[i])/(section_area)
-            
-            lst_applied = np.append(lst_applied, applied_stress)
+        l_skin = h/np.cos(alpha)
         
-        return lst_applied
+        chordwise = np.linspace(0, l_skin, 100)
         
-    def margin_safety(self, z):
+        section_area = l_skin*self.t
         
-        mos = self.sigma_crit(z=z)/self.applied_stress(z=z)
+        applied_stress = self.M(z) * chordwise/(self.I(z, self.stringers)) + self.N(z)/(section_area)
         
-        return mos
+        return applied_stress
+        
+    def margin_safety(self):
+        
+        list = []
+        z = np.linspace(0, self.halfspan, 1000)
+        for i in range(len(z)):
+            applied_stress = self.applied_stress(z[i])
+            list.append(applied_stress)
+            
+        plt.plot(z, list)
+        plt.show()
     
     def show(self):
         
