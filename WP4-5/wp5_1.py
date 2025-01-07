@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, I_tot, t_skin, stringers):
+    def __init__(self, n_ribs, M, N, wingbox_geometry, wingspan, E, v, I_tot, t_skin, stringers):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
@@ -16,6 +16,10 @@ class SkinBuckling():
         self.geometry = wingbox_geometry 
         
         self.I = I_tot
+        
+        self.M = M
+        
+        self.N = N
         
         self.stringers = stringers
         # attributing to class variable
@@ -126,43 +130,57 @@ class SkinBuckling():
         t: is the thickness of the skin
         
         """
+        lst_sigma_cr = np.array()
+        for i in range(len(z)):
         # aspect ratio for the specific panel
-        AR, area = self.skin_AR(z)
-        
-        # define the K_c for this specific panel
-        K_c = self.skin_buckling_constant(aspect_ratio= AR, show= False)
-        
-        b = np.sqrt(AR*area)
-        
-        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t/b)**2
-        
-        return sigma_cr
-    
-    def applied_stress(self, M, N, z):
-        _, _, h, alpha = self.geometry(z)
-
-        l_skin = h/np.cos(alpha)
-        
-        chordwise = np.linspace(0, l_skin, 100)
-        
-        section_area = l_skin*self.t
-        
-        applied_stress = M(z) * chordwise/(self.I(z, self.stringers)) + N(z)/(section_area)
-        
-        return applied_stress
-        
-    def plot_sigma_cr(self):
-        
-        z_values = np.linspace(0, self.halfspan, 1000)
-        sigmas = []
-        
-        for z in z_values:
-            sigmas.append(self.sigma_crit(z))
+            AR, area = self.skin_AR(z[i])
             
-        plt.plot(z_values, sigmas)
-        plt.ylabel(r'\sigma_cr [Pa]')
-        plt.xlabel('Spanwise location [m]')
+            # define the K_c for this specific panel
+            K_c = self.skin_buckling_constant(aspect_ratio= AR, show= False)
+            
+            b = np.sqrt(AR*area)
+            
+            sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t/b)**2
+            
+            lst_sigma_cr = np.append(lst_sigma_cr, sigma_cr)
+        
+        return lst_sigma_cr
+    
+    def applied_stress(self, z):
+        lst_applied = np.array()
+        
+        for i in range(len(z)):
+            
+            _, _, h, alpha = self.geometry(z[i])
+
+            l_skin = h/np.cos(alpha)
+            
+            chordwise = np.linspace(0, l_skin, 100)
+            
+            section_area = l_skin*self.t
+            
+            applied_stress = self.M(z[i]) * chordwise/(self.I(z, self.stringers)) + self.N(z[i])/(section_area)
+            
+            lst_applied = np.append(lst_applied, applied_stress)
+        
+        return lst_applied
+        
+    def margin_safety(self, z):
+        
+        mos = self.sigma_crit(z=z)/self.applied_stress(z=z)
+        
+        return mos
+    
+    def show(self):
+        
+        z = np.linspace(0, self.halfspan, 1000)
+        
+        applied_stresses = self.applied_stress(z= z)
+        
+        plt.plot(z, applied_stresses)
         plt.show()
+
+        
 
 class SparWebBuckling():
     def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):

@@ -15,5 +15,5 @@ skin_buckling = SkinBuckling(n_ribs=12, wingbox_geometry=wb.geometry, wingspan=w
 #print(skin_buckling.skin_buckling_constant(aspect_ratio=5, show= True))
 skin_buckling.skin_buckling_constant(aspect_ratio=5, show= True)
 skin_buckling.plot_skinAR()
-skin_buckling.plot_sigma_cr()
+skin_buckling.show()
 
