@@ -340,7 +340,7 @@ class SparWebBuckling():
         
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan, chord, geometry):
+    def __init__(self, stringers: list, wingspan, chord, M, N ,geometry, area, chord, flange, t_caps:int, t_spar: int):
         #Only one block, not entire area of L-stringer.
         self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
@@ -350,8 +350,22 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
         self.chord = chord
         self.geometry = geometry
-    
+
+        self.N = N
+        self.M = M
+        
+        self.t_spar = t_spar
+        self.stringers = stringers
+
         self.halfspan = wingspan / 2
+
+        self.area = area
+        
+        self.chord = chord
+        
+        self.flange = flange
+
+        self.t_caps = t_caps
     
         #centroid coordinates:
         self.x5_9=7.5e-3 #coordinates for option 5 and 9
@@ -450,19 +464,33 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         plt.grid(True)
         plt.show()
         return z_values, stress_values_5, stress_values_8, stress_values_9, stress_values_Iter
+    
+    def applied_stress(self, z):
+        a, _, _, _ = self.geometry(z)
+        
+        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
+        
+        I, _ = self.I(z, self.stringers)
+        
+        applied_stress = self.M(z) * (a/2)/(I) + self.N(z)/(section_area)
+        
+        return applied_stress
    
     def MOS_stringers(self, E, stresscr_stringer_iter, applied_stress):
         MOS_stringer =  stresscr_stringer_iter/applied_stress
         return MOS_stringer
     
-    def MOS_buckling_values(self, E, applied_stress):
+    def MOS_buckling_values(self, E):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
         :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
         """
+
+        applied_stress = self.applied_stress ()
         _, _, _, stresscr_stringer_iter = self.graph_buckling_values(E=E)
-        
+
         z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
         MOS_values = []
 
