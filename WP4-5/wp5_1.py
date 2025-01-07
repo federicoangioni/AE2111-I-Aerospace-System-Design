@@ -54,7 +54,7 @@ class SkinBuckling():
     def skin_buckling_constant(self, aspect_ratio, show: bool = False): #ok
         
         # file path of the points for the skin buckling for a plate
-        filepath = 'WP4-5/resources/K_cplates.csv'
+        filepath = 'resources/K_cplates.csv'
         # Given points
         df = pd.read_csv(filepath)
 
@@ -156,7 +156,7 @@ class SkinBuckling():
         
         b = np.sqrt(AR*area)
         
-        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t/b)**2
+        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t_caps/b)**2
         
         return sigma_cr
     
@@ -315,7 +315,7 @@ class SparWebBuckling():
         moss_front = []
         moss_rear = []
         for point in self.z_values:
-            mos_front, mos_rear, applied_stress = self.margin_of_safety(z= point, V= V, T= T)
+            mos_front, mos_rear, _, _ = self.margin_of_safety(z= point, V= V, T= T)
             
             moss_front.append(mos_front)
             moss_rear.append(mos_rear)
