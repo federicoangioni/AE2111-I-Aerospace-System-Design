@@ -322,9 +322,13 @@ class SparWebBuckling():
           
         if choice == 'front':
             plt.plot(self.z_values, moss_front)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.ylabel("Margin of Safety""[-]")
             plt.show()
         elif choice == 'rear':
             plt.plot(self.z_values, moss_rear)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.ylabel("Margin of Safety""[-]")
             plt.show()
             
         
