@@ -455,12 +455,14 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         MOS_stringer =  stresscr_stringer_iter/applied_stress
         return MOS_stringer
     
-    def MOS_buckling_values(self, E, stresscr_stringer_iter, applied_stress):
+    def MOS_buckling_values(self, E, applied_stress):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
         :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
         """
+        _, _, _, stresscr_stringer_iter = self.graph_buckling_values(E=E)
+        
         z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
         MOS_values = []
 
