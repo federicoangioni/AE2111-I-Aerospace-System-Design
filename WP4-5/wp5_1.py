@@ -4,16 +4,20 @@ import matplotlib.pyplot as plt
 import os
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, t_skin):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, I_tot, t_skin, stringers):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
                     you can use WingBox.wingspan to obtain it, it has been defined like this even if it's a half span insult fede for this :)
+        I_tot: takes z values and also stringers
         """        
         
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
+        self.I = I_tot
+        
+        self.stringers = stringers
         # attributing to class variable
         self.halfspan = wingspan / 2
         self.E = E
@@ -134,6 +138,19 @@ class SkinBuckling():
         
         return sigma_cr
     
+    def applied_stress(self, M, N, z):
+        _, _, h, alpha = self.geometry(z)
+
+        l_skin = h/np.cos(alpha)
+        
+        chordwise = np.linspace(0, l_skin, 100)
+        
+        section_area = l_skin*self.t
+        
+        applied_stress = M(z) * chordwise/(self.I(z, self.stringers)) + N(z)/(section_area)
+        
+        return applied_stress
+        
     def plot_sigma_cr(self):
         
         z_values = np.linspace(0, self.halfspan, 1000)
@@ -143,6 +160,8 @@ class SkinBuckling():
             sigmas.append(self.sigma_crit(z))
             
         plt.plot(z_values, sigmas)
+        plt.ylabel(r'\sigma_cr [Pa]')
+        plt.xlabel('Spanwise location [m]')
         plt.show()
 
 class SparWebBuckling():
