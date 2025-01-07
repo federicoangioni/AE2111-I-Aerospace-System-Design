@@ -211,7 +211,7 @@ class SparWebBuckling():
         # define material properties
         self.E = E
         self.pois = pois
-        self.k_v = k_v
+        self.k_v = k_v #1.5 - 2 is probably ok but look it up
         
     # Defines AspectRaio of the long Spar
     def front_sparAR(self, z):
@@ -288,23 +288,27 @@ class SparWebBuckling():
         
         a, b, h, _ = self.geometry(z) # a and b not related to a_over_b
         
-        avg_shear_front = V(z) / ((a + b)*self.t_front) # formula for average shear
-        max_shear_front = self.k_v * avg_shear_front # formula for maximum shear
+        # avg_shear_front = V(z) / ((a + b)*self.t_front) # formula for average shear
+        # max_shear_front = self.k_v * avg_shear_front # formula for maximum shear
         
-        avg_shear_rear = V(z) / ((a + b)*self.t_rear) # formula for average shear
-        max_shear_rear = self.k_v * avg_shear_rear # formula for maximum shear
+        # avg_shear_rear = V(z) / ((a + b)*self.t_rear) # formula for average shear
+        # max_shear_rear = self.k_v * avg_shear_rear # formula for maximum shear
         
+        avg_shear = V(z) / ( a * self.t_front + b * self.t_rear )
+        max_shear = self.k_v * avg_shear
+
         A = (a + b) * h / 2 #enclosed area of trapezoical wingbox
         
         q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
     
-        applied_stress = max_shear_front + q_torsion / self.t_front
+        applied_stress_front = max_shear + q_torsion / self.t_front
+        applied_stress_rear = max_shear + q_torsion / self.t_rear
+
+        mos_front = critical_front / applied_stress_front
+        mos_rear = critical_rear / applied_stress_rear
         
-        mos_front = critical_front / (max_shear_front + q_torsion / self.t_front)
-        mos_rear = critical_rear / (max_shear_rear + q_torsion / self.t_rear)
         
-        
-        return mos_front , mos_rear, applied_stress
+        return mos_front , mos_rear, applied_stress_rear, applied_stress_front
     
     def show_mos(self, V, T, choice:str ='front'):
         """
