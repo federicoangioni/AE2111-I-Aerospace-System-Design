@@ -356,6 +356,8 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         self.x_8= 10e-3
         self.y_8= 10e-3
 
+        self.stringers =stringers
+
         self.x_iter = (stringers[3]['height'])/4
         self.y_iter = (stringers[3]['base'])/4
 
@@ -391,7 +393,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
         return I5, I8, I9, I_iter
     
-    def stringer_buckling_values(self, E, stringers): 
+    def stringer_buckling_values(self, E): 
         """
         critical stress of 3 different designs, L here is also for longest length so lowest critical stress
         """
@@ -401,11 +403,11 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
         stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))
 
-        stresscr_stringer_iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(stringers[3]['base']*stringers[3]['thickness base'])))
+        stresscr_stringer_iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
                                   
         return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9, stresscr_stringer_iter 
     
-    def graph_buckling_values(self, E, stringers):
+    def graph_buckling_values(self, E):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
@@ -424,7 +426,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
             stress5 = (self.K * np.pi**2 * E * I5) / (L**2 * (2 * self.Area5))
             stress8 = (self.K * np.pi**2 * E * I8) / (L**2 * (2 * self.Area8))
             stress9 = (self.K * np.pi**2 * E * I9) / (L**2 * (2 * self.Area9))
-            stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(stringers[3]['base']*stringers[3]['thickness base'])))
+            stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
 
             stress_values_5.append(stress5)
             stress_values_8.append(stress8)
@@ -449,7 +451,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         MOS_stringer =  stresscr_stringer_iter/applied_stress
         return MOS_stringer
     
-    def MOS_buckling_values(self, E, stringers, stresscr_stringer_iter, applied_stress):
+    def MOS_buckling_values(self, E, stresscr_stringer_iter, applied_stress):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
