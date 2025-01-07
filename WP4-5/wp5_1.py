@@ -21,7 +21,7 @@ def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps
 
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_skin, stringers, area, chord, flange, t_spar: int):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
@@ -47,7 +47,7 @@ class SkinBuckling():
         self.halfspan = wingspan / 2
         self.E = E
         self.v = v
-        self.t = t_skin
+        self.t_caps = t_caps
         # raising error if number of ribs is smaller than 3
         if n_ribs < 3:
             raise Exception('Please inseret a number greater than 3! On an Airbus A320 it is 27 per wing :)')
@@ -167,21 +167,25 @@ class SkinBuckling():
         a, _, _, _ = self.geometry(z)
         
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
-                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t, stringers= self.stringers)
+                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
         
         applied_stress = self.M(z) * (a/2)/(self.I(z, self.stringers)) + self.N(z)/(section_area)
         
         return applied_stress
         
     def show(self):
-        
         z_values = np.linspace(0, self.halfspan, 1000)
         cr_stress = []
         applied_stress = []
         for z in z_values:
             cr_stress.append(self.crit_stress(z))
             applied_stress.append(self.applied_stress(z))
-            
+        
+        cr_stress = np.array(cr_stress)
+        applied_stress = np.array(applied_stress)
+        
+        mos = cr_stress/applied_stress
+        
         plt.plot(z_values, cr_stress)
         plt.ylabel(r'\sigma_{cr} [Pa]')
         plt.xlabel('Spanwise location [m]')
