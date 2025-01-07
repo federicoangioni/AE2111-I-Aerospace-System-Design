@@ -20,25 +20,33 @@ def Area_crosssection(self, z , point_area_flange, t_spar: int, t_caps: int,stri
 
     return Total_area_crosssection
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, I_tot, t_skin, stringers):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
                     you can use WingBox.wingspan to obtain it, it has been defined like this even if it's a half span insult fede for this :)
         I_tot: takes z values and also stringers
         """        
+        self.area = area
         
+        self.chord = chord
+        
+        self.flange = flange
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
         self.I = I_tot
+        self.M = M
         
+        self.N = N
+        
+        self.t_spar = t_spar
         self.stringers = stringers
         # attributing to class variable
         self.halfspan = wingspan / 2
         self.E = E
         self.v = v
-        self.t = t_skin
+        self.t_caps = t_caps
         # raising error if number of ribs is smaller than 3
         if n_ribs < 3:
             raise Exception('Please inseret a number greater than 3! On an Airbus A320 it is 27 per wing :)')
@@ -135,7 +143,7 @@ class SkinBuckling():
         plt.tight_layout()  # Improve layout
         plt.show() 
 
-    def sigma_crit(self, z):
+    def crit_stress(self, z):
         """
         E: young's elastic modulus
         v: Poisson's ratio
@@ -154,32 +162,32 @@ class SkinBuckling():
         
         return sigma_cr
     
-    def applied_stress(self, M, N, z):
-        _, _, h, alpha = self.geometry(z)
-
-        l_skin = h/np.cos(alpha)
+    def applied_stress(self, z):
+        a, _, _, _ = self.geometry(z)
         
-        chordwise = np.linspace(0, l_skin, 100)
+        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
         
-        section_area = l_skin*self.t
+        applied_stress = self.M(z) * (a/2)/(self.I(z, self.stringers)) + self.N(z)/(section_area)
         
-        applied_stress = M(z) * chordwise/(self.I(z, self.stringers)) + N(z)/(section_area)
-        
-        print(applied_stress)
         return applied_stress
         
-    def plot_sigma_cr(self):
-        
+    def show(self):
         z_values = np.linspace(0, self.halfspan, 1000)
-        sigmas = []
-        
+        cr_stress = []
+        applied_stress = []
         for z in z_values:
-            sigmas.append(self.sigma_crit(z))
-            
-        plt.plot(z_values, sigmas)
-        plt.ylabel(r'\sigma_cr [Pa]')
+            cr_stress.append(self.crit_stress(z))
+            applied_stress.append(self.applied_stress(z))
+        
+        cr_stress = np.array(cr_stress)
+        applied_stress = np.array(applied_stress)
+        
+        mos = cr_stress/applied_stress
+        
+        plt.plot(z_values, cr_stress)
+        plt.ylabel(r'\sigma_{cr} [Pa]')
         plt.xlabel('Spanwise location [m]')
-        plt.show()
 
 class SparWebBuckling():
     def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):
