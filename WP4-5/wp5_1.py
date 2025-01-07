@@ -19,6 +19,7 @@ def Area_crosssection(self, z , point_area_flange, t_spar: int, t_caps: int,stri
     Total_area_crosssection = Area_1 + Area_2 + Area_3
 
     return Total_area_crosssection
+
 class SkinBuckling():
     def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
         """
