@@ -437,8 +437,37 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         plt.show()
         return z_values, stress_values_5, stress_values_8, stress_values_9, stress_values_Iter
    
-   def MOS_stringers(self, E, stresscr_stringer_iter, applied stress):
-       MOS_stringer =  stresscr_stringer_iter/applied_stress
+    def MOS_stringers(self, E, stresscr_stringer_iter, applied_stress):
+        MOS_stringer =  stresscr_stringer_iter/applied_stress
+        return MOS_stringer
+    
+    def graph_buckling_values(self, E, stringers, stresscr_stringer_iter, applied_stress):
+        """
+        Compute the critical stress along the wingspan until 13.45 meters for graphing.
+        :param E: Young's modulus of the material
+        :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
+        """
+        z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
+        MOS_values = []
+
+        for z in z_values:
+            L = self.calculate_length(z)
+
+            MOS_values_iter =  stresscr_stringer_iter/applied_stress
+
+            MOS_values.append(MOS_values_iter)
+             
+        # Create the plot
+        plt.figure(figsize=(8, 6))
+        plt.plot(z_values, MOS_values, label='Design')
+        plt.xlabel('Wingspan Coordinate (m)')
+        plt.ylabel('TBD')
+        plt.title('MOS')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        return z_values, MOS_values
+       
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
 
 
