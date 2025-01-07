@@ -2,24 +2,21 @@ import numpy as np
 import pandas as pd      
 import matplotlib.pyplot as plt
 import os
-
-def Area_crosssection(self, z , point_area_flange, t_spar: int, t_caps: int,stringers): 
-
-    self.t_spar, self.t_caps = t_spar, t_caps
-    alpha = self.geometry(z)
+def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps: int, stringers): 
+    
+    alpha = geometry(z)
     '''
     first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
     Area_1 is area of the wingskins (upper and lower)
     Area_2 is area of the spar and spar flanges
     Area_3 is area of the stringers
     '''
-    Area_1= 2*(0.55*self.chord(z)/np.cos(alpha))*t_caps 
-    Area_2= 4 * point_area_flange + 0.1741 * self.chord(z)*t_spar
+    Area_1= 2*(0.55*chord(z)/np.cos(alpha))*t_caps 
+    Area_2= 4 * point_area_flange + 0.1741 * chord(z)*t_spar
     Area_3= stringers[0] * (stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height'])
     Total_area_crosssection = Area_1 + Area_2 + Area_3
 
     return Total_area_crosssection
-
 class SkinBuckling():
     def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
         """
