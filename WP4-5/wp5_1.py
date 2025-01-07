@@ -340,7 +340,7 @@ class SparWebBuckling():
         
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan, chord, M, N ,geometry, area, chord, flange, t_caps:int, t_spar: int):
+    def __init__(self, stringers: list, wingspan, chord, M, N ,geometry, area, flange, t_caps:int, t_spar: int):
         #Only one block, not entire area of L-stringer.
         self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
