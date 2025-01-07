@@ -273,13 +273,14 @@ class SparWebBuckling():
         
         q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
     
-        applied_stress = max_shear_front + q_torsion / self.t_front
+        applied_stress_front = max_shear_front + q_torsion / self.t_front
+        applied_stress_rear = max_shear_rear + q_torsion / self.t_rear
+
+        mos_front = critical_front / applied_stress_front
+        mos_rear = critical_rear / applied_stress_rear
         
-        mos_front = critical_front / (max_shear_front + q_torsion / self.t_front)
-        mos_rear = critical_rear / (max_shear_rear + q_torsion / self.t_rear)
         
-        
-        return mos_front , mos_rear, applied_stress
+        return mos_front , mos_rear, applied_stress_front, applied_stress_rear
     
     def show_mos(self, V, T, choice:str ='front'):
         """
