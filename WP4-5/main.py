@@ -24,7 +24,6 @@ wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, inte
 
 stringers = [20, 1, 'L', {'base': 30e-3, 'height': 30e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 
-
 # if I stringer chosen use this
 # [20, 1, 'L', {'base': 30e-3, 'height': 30e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
-wingbox.show(wingbox.z, loads= [g_moment, g_torque], moduli= [E, G], stringers= stringers, limits=[0, 10], plot= True, degrees= True)
+#wingbox.show(wingbox.z, loads= [g_moment, g_torque], moduli= [E, G], stringers= stringers, limits=[0, 10], plot= True, degrees= True)
