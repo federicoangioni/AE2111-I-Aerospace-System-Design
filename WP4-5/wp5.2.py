@@ -22,7 +22,7 @@ g_shear, g_moment, g_torque, g_axial = internal_forces.force_diagrams(engine_mas
                                         fuel_tank_length=fuel_tank_length, fuel_density=fuel_density)[4:]
 
 
-wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.004, t_caps= 0.04)
+wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.004, t_caps= 0.004)
 
 stringers = [20, 1, 'L', {'base': 30e-3, 'height': 30e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 
@@ -51,11 +51,16 @@ def Mx_func(z):
 def My_func(z):
     return 0 * z
 
+def Ax_func(z):
+    return g_axial(z)
+
+#def Area_func(z):
+#   return 
 
 print(wingbox.MOM_total(z=0, stringers=stringers)[0])
 
 
-def stress_z(Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
+def stress_z(Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
 
     # Evaluate the moment and inertia functions at spanwise location z
     Mx = Mx_func(z)
@@ -63,6 +68,7 @@ def stress_z(Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
     Ixx = Ixx_func(z)
     Iyy = Iyy_func(z)
     Ixy = Ixy_func(z)
+    Ax = Ax_func(z)
 
     # Calculate numerator and denominator
     numerator = (Mx * Iyy - My * Ixy) * y + (My * Ixx - Mx * Ixy) * x
@@ -73,7 +79,7 @@ def stress_z(Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func, z, x, y):
         raise ValueError("Denominator is zero. Check inertia values.")
 
     # Calculate normal stress
-    sigma_z = numerator / denominator
+    sigma_z = (numerator / denominator) + # (Ax/)
     return sigma_z
 
 def calculate_stress_distribution(z_points, x_func, y_func, Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func):
