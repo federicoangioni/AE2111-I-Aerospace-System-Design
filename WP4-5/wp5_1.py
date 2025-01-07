@@ -300,7 +300,7 @@ class SparWebBuckling():
         mos_rear = critical_rear / applied_stress_rear
         
         
-        return mos_front , mos_rear, applied_stress
+        return mos_front , mos_rear, applied_stress_rear, applied_stress_front
     
     def show_mos(self, V, T, choice:str ='front'):
         """
