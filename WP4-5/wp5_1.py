@@ -156,6 +156,7 @@ class SkinBuckling():
         
         applied_stress = self.M(z) * chordwise/(self.I(z, self.stringers)) + self.N(z)/(section_area)
         
+        print(applied_stress)
         return applied_stress
         
     def margin_safety(self):
