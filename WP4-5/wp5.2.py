@@ -10,22 +10,6 @@ from wp4_2 import WingBox
 from wp5_1 import Area_crosssection
 from scipy.interpolate import interp1d
 
-xflr_files = 'XFLRdata\\XFLR5sims'
-
-# change these
-aircraft_mass = 35688
-alt_sound_speed = 296.56
-
-# internal_forces = InternalForces(aircraft_mass=aircraft_mass, load_factor= 2.5, sound_speed=alt_sound_speed, half_chord_sweep= hchord_sweep, fus_radius=fus_radius, density=rho0, airspeed= airspeed, 
-#                                  c_r= c_r, wingspan= b, engine_z_loc= engine_z_loc, engine_length= engine_length, x_hl= x_hl, x_lemac= x_lemac, MAC= MAC, 
-#                                  one_engine_thrust= one_engine_thrust, fan_cowl_diameter= fan_cowl_diameter, c_t= c_r*tr)
-    
-    
-# g_shear, g_moment, g_torque, g_axial = internal_forces.force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length, 
-#                                         fuel_tank_length=fuel_tank_length, fuel_density=fuel_density)[4:]
-
-
-
 # Functions for the critical load cases are being called here!!!!!!!
 with open("WP4-5\lists.pkl", "rb") as f:
     loaded_lists = pickle.load(f)
@@ -73,8 +57,8 @@ def My_func(z):
 def Ax_func(z):
     return g_axial(z)
 
-def Area_func(z):
-    return Area_crosssection(z)
+# def Area_func(z):
+#     return Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps: int, stringers)
 
 print(wingbox.MOM_total(z=0, stringers=stringers)[0])
 
