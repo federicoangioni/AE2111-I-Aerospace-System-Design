@@ -27,7 +27,7 @@ alt_sound_speed = 296.56
 
 
 # Functions for the critical load cases are being called here!!!!!!!
-with open("lists.pkl", "rb") as f:
+with open("WP4-5\lists.pkl", "rb") as f:
     loaded_lists = pickle.load(f)
 
 z_points = np.linspace(0, 26.9 / 2, 1000)
