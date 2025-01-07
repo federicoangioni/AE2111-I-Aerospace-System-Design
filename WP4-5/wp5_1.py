@@ -254,14 +254,13 @@ class SparWebBuckling():
         
         q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
     
-        applied_stress_front = max_shear_front + q_torsion / self.t_front
-        applied_stress_rear = max_shear_rear + q_torsion / self.t_rear
-
-        mos_front = critical_front / applied_stress_front
-        mos_rear = critical_rear / applied_stress_rear
+        applied_stress = max_shear_front + q_torsion / self.t_front
+        
+        mos_front = critical_front / (max_shear_front + q_torsion / self.t_front)
+        mos_rear = critical_rear / (max_shear_rear + q_torsion / self.t_rear)
         
         
-        return mos_front , mos_rear, applied_stress_front, applied_stress_rear
+        return mos_front , mos_rear, applied_stress
     
     def show_mos(self, V, T, choice:str ='front'):
         """
@@ -285,13 +284,15 @@ class SparWebBuckling():
         
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan):
+    def __init__(self, stringers: list, wingspan, chord):
         #Only one block, not entire area of L-stringer.
         self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
         self.Area9 = 30e-3*3e-3 #this is fine, option 9 was L stringer to begin with
 
         self.K = 1/4 #1 end fixed, 1 end free 
+
+        self.chord = chord
 
         self.halfspan = wingspan / 2
     
@@ -379,6 +380,29 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         return z_values, stress_values_5, stress_values_8, stress_values_9
    
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
+
+    def margin_of_safety(self, z , stress_values_5 , point_area_flange, t_spar: int, t_caps: int,stringers, ): 
+
+        self.t_spar, self.t_caps = t_spar, t_caps
+        '''
+        first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
+        Area_1 is area of the wingskins (upper and lower)
+        Area_2 is area of the spar and spar flanges
+        Area_3 is area of the stringers
+        '''
+        Area_1= 2*0.55*self.chord(z)*t_caps 
+        Area_2= 4 * point_area_flange +0.1741 * self.chord(z)*t_spar
+        Area_3= stringers[0] * stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height']
+        Total_area_crosssection = Area_1 + Area_2 + Area_3
+
+        Axial_force = 
+
+        applied_stress = Axial_force/Total_area_crosssection    #normal stress
+
+        MOS_stringers = stress_values_5/applied_stress #test for now
+
+ {'base': 30e-3, 'height': 30e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
+
 
     
    
