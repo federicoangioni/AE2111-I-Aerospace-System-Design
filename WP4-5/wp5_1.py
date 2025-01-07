@@ -328,9 +328,13 @@ class SparWebBuckling():
           
         if choice == 'front':
             plt.plot(self.z_values, moss_front)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.ylabel("Margin of Safety""[-]")
             plt.show()
         elif choice == 'rear':
             plt.plot(self.z_values, moss_rear)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.ylabel("Margin of Safety""[-]")
             plt.show()
             
         
@@ -449,7 +453,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         MOS_stringer =  stresscr_stringer_iter/applied_stress
         return MOS_stringer
     
-    def graph_buckling_values(self, E, stringers, stresscr_stringer_iter, applied_stress):
+    def MOS_buckling_values(self, E, stringers, stresscr_stringer_iter, applied_stress):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
