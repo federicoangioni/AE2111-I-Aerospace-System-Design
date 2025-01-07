@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 import matplotlib.pyplot as plt
 from scipy import interpolate
 #from main import g_moment, wingbox
@@ -6,7 +7,7 @@ from scipy import interpolate
 from variables import *
 # from wp4_1 import Aerodynamics, InternalForces
 from wp4_2 import WingBox
-from wp5_1 import SkinBuckling
+from wp5_1 import Area_crosssection
 from scipy.interpolate import interp1d
 
 xflr_files = 'XFLRdata\\XFLR5sims'
@@ -98,10 +99,10 @@ def stress_z(Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, Area_func,
         raise ValueError("Denominator is zero. Check inertia values.")
 
     # Calculate normal stress
-    sigma_z = (numerator / denominator)  + (Ax/A_func)
+    sigma_z = (numerator / denominator) + (Ax/A_func)
     return sigma_z
 
-def calculate_stress_distribution(z_points, x_func, y_func, Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func):
+def calculate_stress_distribution(z_points, x_func, y_func, Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, Area_func):
     """
     Calculate the normal stress distribution along the wing span.
     """
@@ -109,7 +110,7 @@ def calculate_stress_distribution(z_points, x_func, y_func, Mx_func, My_func, Ix
     for z in z_points:
         x = x_func(z)
         y = y_func(z)
-        sigma_z = stress_z(Mx_func, My_func, Ixx_func, Iyy_func, Ixy_func, z, x, y)
+        sigma_z = stress_z(Mx_func, My_func, Ax_func, Ixx_func, Iyy_func, Ixy_func, Area_func, z, x, y)
         stress_distribution.append(sigma_z)
 
 
@@ -132,9 +133,11 @@ def main():
         y_func=y_func,
         Mx_func=Mx_func,
         My_func= My_func,  # Assuming same moment for simplicity
+        Ax_func=Ax_func,
         Ixx_func=Ixx_func,
         Iyy_func=Iyy_func,
-        Ixy_func=Ixy_func
+        Ixy_func=Ixy_func,
+        Area_func=Area_func
     )
 
     # Find critical stress
