@@ -425,7 +425,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
         for z in z_values:
             L = self.calculate_length(z)
-            I5, I8, I9, I_iter= self.stringer_MOM()
+            I5, I8, I9, I_iter= self.stringer_MOM(self.stringers)
 
             stress5 = (self.K * np.pi**2 * E * I5) / (L**2 * (2 * self.Area5))
             stress8 = (self.K * np.pi**2 * E * I8) / (L**2 * (2 * self.Area8))
