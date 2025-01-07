@@ -3,26 +3,50 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+def Area_crosssection(self, z , point_area_flange, t_spar: int, t_caps: int,stringers): 
+
+    self.t_spar, self.t_caps = t_spar, t_caps
+    alpha = self.geometry(z)
+    '''
+    first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
+    Area_1 is area of the wingskins (upper and lower)
+    Area_2 is area of the spar and spar flanges
+    Area_3 is area of the stringers
+    '''
+    Area_1= 2*(0.55*self.chord(z)/np.cos(alpha))*t_caps 
+    Area_2= 4 * point_area_flange + 0.1741 * self.chord(z)*t_spar
+    Area_3= stringers[0] * (stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height'])
+    Total_area_crosssection = Area_1 + Area_2 + Area_3
+
+    return Total_area_crosssection
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, I_tot, t_skin, stringers):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
                     you can use WingBox.wingspan to obtain it, it has been defined like this even if it's a half span insult fede for this :)
         I_tot: takes z values and also stringers
         """        
+        self.area = area
         
+        self.chord = chord
+        
+        self.flange = flange
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
         self.I = I_tot
+        self.M = M
         
+        self.N = N
+        
+        self.t_spar = t_spar
         self.stringers = stringers
         # attributing to class variable
         self.halfspan = wingspan / 2
         self.E = E
         self.v = v
-        self.t = t_skin
+        self.t_caps = t_caps
         # raising error if number of ribs is smaller than 3
         if n_ribs < 3:
             raise Exception('Please inseret a number greater than 3! On an Airbus A320 it is 27 per wing :)')
@@ -119,7 +143,7 @@ class SkinBuckling():
         plt.tight_layout()  # Improve layout
         plt.show() 
 
-    def sigma_crit(self, z):
+    def crit_stress(self, z):
         """
         E: young's elastic modulus
         v: Poisson's ratio
@@ -138,31 +162,32 @@ class SkinBuckling():
         
         return sigma_cr
     
-    def applied_stress(self, M, N, z):
-        _, _, h, alpha = self.geometry(z)
-
-        l_skin = h/np.cos(alpha)
+    def applied_stress(self, z):
+        a, _, _, _ = self.geometry(z)
         
-        chordwise = np.linspace(0, l_skin, 100)
+        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
         
-        section_area = l_skin*self.t
-        
-        applied_stress = M(z) * chordwise/(self.I(z, self.stringers)) + N(z)/(section_area)
+        applied_stress = self.M(z) * (a/2)/(self.I(z, self.stringers)) + self.N(z)/(section_area)
         
         return applied_stress
         
-    def plot_sigma_cr(self):
-        
+    def show(self):
         z_values = np.linspace(0, self.halfspan, 1000)
-        sigmas = []
-        
+        cr_stress = []
+        applied_stress = []
         for z in z_values:
-            sigmas.append(self.sigma_crit(z))
-            
-        plt.plot(z_values, sigmas)
-        plt.ylabel(r'\sigma_cr [Pa]')
+            cr_stress.append(self.crit_stress(z))
+            applied_stress.append(self.applied_stress(z))
+        
+        cr_stress = np.array(cr_stress)
+        applied_stress = np.array(applied_stress)
+        
+        mos = cr_stress/applied_stress
+        
+        plt.plot(z_values, cr_stress)
+        plt.ylabel(r'\sigma_{cr} [Pa]')
         plt.xlabel('Spanwise location [m]')
-        plt.show()
 
 class SparWebBuckling():
     def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):
@@ -186,7 +211,7 @@ class SparWebBuckling():
         # define material properties
         self.E = E
         self.pois = pois
-        self.k_v = k_v
+        self.k_v = k_v #1.5 - 2 is probably ok but look it up
         
     # Defines AspectRaio of the long Spar
     def front_sparAR(self, z):
@@ -263,23 +288,27 @@ class SparWebBuckling():
         
         a, b, h, _ = self.geometry(z) # a and b not related to a_over_b
         
-        avg_shear_front = V(z) / ((a + b)*self.t_front) # formula for average shear
-        max_shear_front = self.k_v * avg_shear_front # formula for maximum shear
+        # avg_shear_front = V(z) / ((a + b)*self.t_front) # formula for average shear
+        # max_shear_front = self.k_v * avg_shear_front # formula for maximum shear
         
-        avg_shear_rear = V(z) / ((a + b)*self.t_rear) # formula for average shear
-        max_shear_rear = self.k_v * avg_shear_rear # formula for maximum shear
+        # avg_shear_rear = V(z) / ((a + b)*self.t_rear) # formula for average shear
+        # max_shear_rear = self.k_v * avg_shear_rear # formula for maximum shear
         
+        avg_shear = V(z) / ( a * self.t_front + b * self.t_rear )
+        max_shear = self.k_v * avg_shear
+
         A = (a + b) * h / 2 #enclosed area of trapezoical wingbox
         
         q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
     
-        applied_stress = max_shear_front + q_torsion / self.t_front
+        applied_stress_front = max_shear + q_torsion / self.t_front
+        applied_stress_rear = max_shear + q_torsion / self.t_rear
+
+        mos_front = critical_front / applied_stress_front
+        mos_rear = critical_rear / applied_stress_rear
         
-        mos_front = critical_front / (max_shear_front + q_torsion / self.t_front)
-        mos_rear = critical_rear / (max_shear_rear + q_torsion / self.t_rear)
         
-        
-        return mos_front , mos_rear, applied_stress
+        return mos_front , mos_rear, applied_stress_rear, applied_stress_front
     
     def show_mos(self, V, T, choice:str ='front'):
         """
@@ -323,6 +352,9 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         self.x_8= 10e-3
         self.y_8= 10e-3
 
+        self.x_iter = (stringers[3]['height'])/4
+        self.y_iter = (stringers[3]['base'])/4
+
     def calculate_length(self, z):
         """
         Calculate the length of the stringer as a function of the wingspan coordinate z.
@@ -331,39 +363,45 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         For max length the following assumtpions:
         # #8 stringers on one side (take configuration with most stringers)
         # #conservative estimate: take the longest stringer also !conservative estimate assumption: from root. Highest Length results in lowest critical stress
-        # #angle_stringer= 26.59493069 degrees at 1/9 of chord
-        # L = 15.04148123 #so 13.45 divided by cos(26.5949) 
+        # #angle_stringer= 27.3 degrees at ;eading edge now
+        # L = 15.13587572 #so 13.45 divided by cos(27.3) 
 
         :param z: Wingspan coordinate
         :return: Effective stringer length
         """
-        angle_stringer = 26.59493069  # Sweep angle in degrees
-        max_length = 15.04148123  # Maximum stringer length in meters
+        angle_stringer = 27.3  # Sweep angle in degrees
+        max_length = 15.13587572  # Maximum stringer length in meters
         
         effective_length = z / np.cos(np.radians(angle_stringer))
         return min(effective_length, max_length)
 
-    def stringer_MOM(self):
+    def stringer_MOM(self, stringers):
         """
         MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
         """
         I5 = 2*(self.Area5*self.x5_9**2)
         I8 = 2*(self.Area8*self.x_8**2)
         I9 = 2*(self.Area9*self.x5_9**2)
-        return I5, I8, I9
+ 
+        I_iter = (stringers[3]['base']*stringers[3]['thickness base'])*self.x_iter**2 + (stringers[3]['height']*stringers[3]['thickness height'])*self.y_iter**2
+
+        return I5, I8, I9, I_iter
     
-    def stringer_buckling_values(self, E): 
+    def stringer_buckling_values(self, E, stringers): 
         """
         critical stress of 3 different designs, L here is also for longest length so lowest critical stress
         """
-        I5, I8, I9 = self.stringer_MOM()
-        L = 15.04148123
+        I5, I8, I9, I_iter = self.stringer_MOM()
+        L = 15.13587572
         stresscr_stringer_5= (self.K*np.pi**2*E*I5)/(L**2*(2*self.Area5))
         stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
         stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))
-        return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9
+
+        stresscr_stringer_iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(stringers[3]['base']*stringers[3]['thickness base'])))
+                                  
+        return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9, stresscr_stringer_iter 
     
-    def graph_buckling_values(self, E):
+    def graph_buckling_values(self, E, stringers):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
@@ -373,54 +411,40 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         stress_values_5 = []
         stress_values_8 = []
         stress_values_9 = []
+        stress_values_Iter = []
 
         for z in z_values:
             L = self.calculate_length(z)
-            I5, I8, I9 = self.stringer_MOM()
+            I5, I8, I9, I_iter= self.stringer_MOM()
 
             stress5 = (self.K * np.pi**2 * E * I5) / (L**2 * (2 * self.Area5))
             stress8 = (self.K * np.pi**2 * E * I8) / (L**2 * (2 * self.Area8))
             stress9 = (self.K * np.pi**2 * E * I9) / (L**2 * (2 * self.Area9))
+            stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(stringers[3]['base']*stringers[3]['thickness base'])))
 
             stress_values_5.append(stress5)
             stress_values_8.append(stress8)
             stress_values_9.append(stress9)
+            stress_values_Iter.append(stress_Iter)
              
         # Create the plot
         plt.figure(figsize=(8, 6))
         plt.plot(z_values, stress_values_5, label='Design 5')
         plt.plot(z_values, stress_values_8, label='Design 8')
         plt.plot(z_values, stress_values_9, label='Design 9')
+        plt.plot(z_values, stress_values_Iter, label='Design 9')
         plt.xlabel('Wingspan Coordinate (m)')
         plt.ylabel('Critical Buckling Stress (Pa)')
         plt.title('Stringer Buckling Stress Along Wingspan')
         plt.legend()
         plt.grid(True)
         plt.show()
-        return z_values, stress_values_5, stress_values_8, stress_values_9
+        return z_values, stress_values_5, stress_values_8, stress_values_9, stress_values_Iter
    
+   def MOS_stringers(self, E, stresscr_stringer_iter, applied stress):
+       MOS_stringer =  stresscr_stringer_iter/applied_stress
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
 
-    def Area_crosssection(self, z , point_area_flange, t_spar: int, t_caps: int,stringers): 
-
-        self.t_spar, self.t_caps = t_spar, t_caps
-        alpha = self.geometry(z)
-        '''
-        first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
-        Area_1 is area of the wingskins (upper and lower)
-        Area_2 is area of the spar and spar flanges
-        Area_3 is area of the stringers
-        '''
-        Area_1= 2*(0.55*self.chord(z)/np.cos(alpha))*t_caps 
-        Area_2= 4 * point_area_flange + 0.1741 * self.chord(z)*t_spar
-        Area_3= stringers[0] * (stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height'])
-        Total_area_crosssection = Area_1 + Area_2 + Area_3
-
-        return Total_area_crosssection
-
-
-
- #{'base': 30e-3, 'height': 30e-3, 'thickness base': 2e-3, 'thickness height': 2e-3}]
 
 
     
