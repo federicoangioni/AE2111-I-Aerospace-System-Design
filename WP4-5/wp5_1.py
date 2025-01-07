@@ -3,36 +3,45 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-def Area_crosssection(self, z , point_area_flange, t_spar: int, t_caps: int,stringers): 
-
-    self.t_spar, self.t_caps = t_spar, t_caps
-    alpha = self.geometry(z)
+def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps: int, stringers): 
+    
+    alpha = geometry(z)
     '''
     first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
     Area_1 is area of the wingskins (upper and lower)
     Area_2 is area of the spar and spar flanges
     Area_3 is area of the stringers
     '''
-    Area_1= 2*(0.55*self.chord(z)/np.cos(alpha))*t_caps 
-    Area_2= 4 * point_area_flange + 0.1741 * self.chord(z)*t_spar
+    Area_1= 2*(0.55*chord(z)/np.cos(alpha))*t_caps 
+    Area_2= 4 * point_area_flange + 0.1741 * chord(z)*t_spar
     Area_3= stringers[0] * (stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height'])
     Total_area_crosssection = Area_1 + Area_2 + Area_3
 
     return Total_area_crosssection
+
+
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, I_tot, t_skin, stringers):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_skin, stringers, area, chord, flange, t_spar: int):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
                     you can use WingBox.wingspan to obtain it, it has been defined like this even if it's a half span insult fede for this :)
         I_tot: takes z values and also stringers
         """        
+        self.area = area
         
+        self.chord = chord
+        
+        self.flange = flange
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
         self.I = I_tot
+        self.M = M
         
+        self.N = N
+        
+        self.t_spar = t_spar
         self.stringers = stringers
         # attributing to class variable
         self.halfspan = wingspan / 2
@@ -135,7 +144,7 @@ class SkinBuckling():
         plt.tight_layout()  # Improve layout
         plt.show() 
 
-    def sigma_crit(self, z):
+    def crit_stress(self, z):
         """
         E: young's elastic modulus
         v: Poisson's ratio
@@ -154,30 +163,27 @@ class SkinBuckling():
         
         return sigma_cr
     
-    def applied_stress(self, M, N, z):
-        _, _, h, alpha = self.geometry(z)
-
-        l_skin = h/np.cos(alpha)
+    def applied_stress(self, z):
+        a, _, _, _ = self.geometry(z)
         
-        chordwise = np.linspace(0, l_skin, 100)
+        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t, stringers= self.stringers)
         
-        section_area = l_skin*self.t
+        applied_stress = self.M(z) * (a/2)/(self.I(z, self.stringers)) + self.N(z)/(section_area)
         
-        applied_stress = M(z) * chordwise/(self.I(z, self.stringers)) + N(z)/(section_area)
-        
-        print(applied_stress)
         return applied_stress
         
-    def plot_sigma_cr(self):
+    def show(self):
         
         z_values = np.linspace(0, self.halfspan, 1000)
-        sigmas = []
-        
+        cr_stress = []
+        applied_stress = []
         for z in z_values:
-            sigmas.append(self.sigma_crit(z))
+            cr_stress.append(self.crit_stress(z))
+            applied_stress.append(self.applied_stress(z))
             
-        plt.plot(z_values, sigmas)
-        plt.ylabel(r'\sigma_cr [Pa]')
+        plt.plot(z_values, cr_stress)
+        plt.ylabel(r'\sigma_{cr} [Pa]')
         plt.xlabel('Spanwise location [m]')
         plt.show()
 
