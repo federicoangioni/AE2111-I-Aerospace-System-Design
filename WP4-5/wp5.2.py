@@ -4,9 +4,10 @@ from scipy import interpolate
 #from main import g_moment, wingbox
 #from variables import b
 from variables import *
-from wp4_1 import Aerodynamics, InternalForces
+# from wp4_1 import Aerodynamics, InternalForces
 from wp4_2 import WingBox
 from wp5_1 import SkinBuckling
+from scipy.interpolate import interp1d
 
 xflr_files = 'XFLRdata\\XFLR5sims'
 
@@ -14,13 +15,29 @@ xflr_files = 'XFLRdata\\XFLR5sims'
 aircraft_mass = 35688
 alt_sound_speed = 296.56
 
-internal_forces = InternalForces(aircraft_mass=aircraft_mass, load_factor= 2.5, sound_speed=alt_sound_speed, half_chord_sweep= hchord_sweep, fus_radius=fus_radius, density=rho0, airspeed= airspeed, 
-                                 c_r= c_r, wingspan= b, engine_z_loc= engine_z_loc, engine_length= engine_length, x_hl= x_hl, x_lemac= x_lemac, MAC= MAC, 
-                                 one_engine_thrust= one_engine_thrust, fan_cowl_diameter= fan_cowl_diameter, c_t= c_r*tr)
+# internal_forces = InternalForces(aircraft_mass=aircraft_mass, load_factor= 2.5, sound_speed=alt_sound_speed, half_chord_sweep= hchord_sweep, fus_radius=fus_radius, density=rho0, airspeed= airspeed, 
+#                                  c_r= c_r, wingspan= b, engine_z_loc= engine_z_loc, engine_length= engine_length, x_hl= x_hl, x_lemac= x_lemac, MAC= MAC, 
+#                                  one_engine_thrust= one_engine_thrust, fan_cowl_diameter= fan_cowl_diameter, c_t= c_r*tr)
     
     
-g_shear, g_moment, g_torque, g_axial = internal_forces.force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length, 
-                                        fuel_tank_length=fuel_tank_length, fuel_density=fuel_density)[4:]
+# g_shear, g_moment, g_torque, g_axial = internal_forces.force_diagrams(engine_mass=engine_mass, wing_box_length=wing_box_length, 
+#                                         fuel_tank_length=fuel_tank_length, fuel_density=fuel_density)[4:]
+
+
+
+# Functions for the critical load cases are being called here!!!!!!!
+with open("lists.pkl", "rb") as f:
+    loaded_lists = pickle.load(f)
+
+z_points = np.linspace(0, 26.9 / 2, 1000)
+
+# Access the lists
+g_shear = interp1d(z_points, loaded_lists["list1"], kind='cubic', fill_value="extrapolate")
+g_moment = interp1d(z_points, loaded_lists["list2"], kind='cubic', fill_value="extrapolate")
+g_torque = interp1d(z_points, loaded_lists["list3"], kind='cubic', fill_value="extrapolate")
+g_axial = interp1d(z_points, loaded_lists["list4"], kind='cubic', fill_value="extrapolate")
+
+
 
 
 wingbox = WingBox(c_r= c_r, c_t = None, wingspan=b, area_factor_flanges=12, intersection= intersection, tr= tr, t_spar= 0.004, t_caps= 0.004)
