@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps: int, stringers): 
     
-    alpha = geometry(z)
+    _, _, _, alpha = geometry(z)
     '''
     first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
     Area_1 is area of the wingskins (upper and lower)
@@ -12,11 +12,14 @@ def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps
     Area_3 is area of the stringers
     '''
     Area_1= 2*(0.55*chord(z)/np.cos(alpha))*t_caps 
+    
+    
     Area_2= 4 * point_area_flange + 0.1741 * chord(z)*t_spar
     Area_3= stringers[0] * (stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height'])
     Total_area_crosssection = Area_1 + Area_2 + Area_3
-
+    
     return Total_area_crosssection
+
 class SkinBuckling():
     def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
         """
@@ -166,7 +169,9 @@ class SkinBuckling():
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
         
-        applied_stress = self.M(z) * (a/2)/(self.I(z, self.stringers)) + self.N(z)/(section_area)
+        I, _ = self.I(z, self.stringers)
+        
+        applied_stress = self.M(z) * (a/2)/(I) + self.N(z)/(section_area)
         
         return applied_stress
         
@@ -183,7 +188,8 @@ class SkinBuckling():
         
         mos = cr_stress/applied_stress
         
-        plt.plot(z_values, cr_stress)
+        # plt.plot(z_values, cr_stress)
+        plt.plot(z_values, mos)
         plt.ylabel(r'\sigma_{cr} [Pa]')
         plt.xlabel('Spanwise location [m]')
 
