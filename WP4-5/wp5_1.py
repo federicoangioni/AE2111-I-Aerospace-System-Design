@@ -159,7 +159,7 @@ class SkinBuckling():
 
         applied_stress = np.array(applied_stress)
         
-        mos = critical_stress/applied_stress
+        mos = critical_stress/(applied_stress * 1.5) # 1.5 saftey factor
         
         plt.plot(self.dimensions, mos)
         plt.scatter(self.dimensions, mos, color='tab:orange', zorder = 999)
