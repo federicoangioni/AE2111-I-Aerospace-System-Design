@@ -172,9 +172,9 @@ class SkinBuckling():
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = self.M(z) * (a/2)/(I) + self.N(z)/(section_area)
+        applied_stress = (self.M(z) * (a/2))/(I) + self.N(z)/(section_area)
         
-        return applied_stress, I
+        return applied_stress
         
     def show(self):
         z_values = np.linspace(0, self.halfspan, 1000)
