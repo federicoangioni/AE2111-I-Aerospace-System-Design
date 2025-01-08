@@ -166,13 +166,13 @@ class SkinBuckling():
     
     def applied_stress(self, z):
         a, b, h, alpha = self.geometry(z)
-        
+        print(a/2)
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = (self.M(z) * (a/2))/(I) + self.N(z)/(section_area)
+        applied_stress = (self.M(z) * (a/2))/(I)
         
         return applied_stress
         
@@ -183,7 +183,7 @@ class SkinBuckling():
         for z in z_values:
             cr_stress.append(self.crit_stress(z))
             applied_stress.append(self.applied_stress(z))
-        
+
         cr_stress = np.array(cr_stress)
         applied_stress = np.array(applied_stress)
         
@@ -192,6 +192,7 @@ class SkinBuckling():
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, mos)
         plt.ylabel(r'MOS')
+        plt.ylim(0, 2)
         plt.xlabel('Spanwise location [m]')
 
 class SparWebBuckling():
