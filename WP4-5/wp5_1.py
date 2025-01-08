@@ -190,7 +190,7 @@ class SkinBuckling():
         
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, mos)
-        plt.ylabel(r'MOS')
+        plt.ylabel(r'MOS of skin buckling [-]')
         plt.ylim(0, 2)
         plt.xlabel('Spanwise location [m]')
 
@@ -429,7 +429,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
                                   
         return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9, stresscr_stringer_iter 
     
-    def graph_buckling_values(self, E):
+    def graph_buckling_values(self, E, show=False):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
@@ -454,19 +454,19 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
             stress_values_8.append(stress8)
             stress_values_9.append(stress9)
             stress_values_Iter.append(stress_Iter)
-             
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-        plt.plot(z_values, stress_values_5, label='Design 5')
-        plt.plot(z_values, stress_values_8, label='Design 8')
-        plt.plot(z_values, stress_values_9, label='Design 9')
-        plt.plot(z_values, stress_values_Iter, label='Design 9')
-        plt.xlabel('Wingspan Coordinate (m)')
-        plt.ylabel('Critical Buckling Stress (Pa)')
-        plt.title('Stringer Buckling Stress Along Wingspan')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        if show:   
+            # Create the plot
+            plt.figure(figsize=(8, 6))
+            plt.plot(z_values, stress_values_5, label='Design 5')
+            plt.plot(z_values, stress_values_8, label='Design 8')
+            plt.plot(z_values, stress_values_9, label='Design 9')
+            plt.plot(z_values, stress_values_Iter, label='Design 9')
+            plt.xlabel('Wingspan Coordinate (m)')
+            plt.ylabel('Critical Buckling Stress (Pa)')
+            plt.title('Stringer Buckling Stress Along Wingspan')
+            plt.legend()
+            plt.grid(True)
+            plt.show()
         return z_values, stress_values_5, stress_values_8, stress_values_9, stress_values_Iter
     
     def applied_stress(self, z):
@@ -535,7 +535,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, MOS_values_iter)
-        plt.ylabel(r'TBD')
+        plt.ylabel(r'MOS of stringer buckling [-]')
         plt.xlabel('Spanwise location [m]')
 
        
