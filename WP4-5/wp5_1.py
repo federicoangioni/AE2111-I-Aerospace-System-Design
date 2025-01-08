@@ -27,12 +27,17 @@ class SkinBuckling():
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
                     you can use WingBox.wingspan to obtain it, it has been defined like this even if it's a half span insult fede for this :)
         I_tot: takes z values and also stringers
+        stringers: stringes[0] number of stringers
         """        
+        # defining the cross sectional area function
         self.area = area
         
+        # defining the chord function as a function of z
         self.chord = chord
         
+
         self.flange = flange
+        
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
@@ -40,7 +45,7 @@ class SkinBuckling():
         self.M = M
         
         self.N = N
-        
+        self.dimensions = None
         self.t_spar = t_spar
         self.stringers = stringers
         # attributing to class variable
@@ -66,7 +71,6 @@ class SkinBuckling():
             # Create linear x
             x_vals = np.linspace(min(df['x']), max(df['x']), len(df['x']))
             
-
             # Generate interpolated values
             y_vals = np.interp(x_vals, df['x'], df['y'])
         
@@ -82,69 +86,43 @@ class SkinBuckling():
         Kc = np.interp(aspect_ratio, df['x'], df['y'])
         
         return Kc
-        
-    def skin_AR(self, z):
-        """
-        The wing is defined with a rib at the root and at the tip orginally 
-        """
-        # nr of panels on the half wing will always be one less than the number of ribs
-        n_panels = self.n_ribs - 1
-        
-        # here ASSUMPTION, the wing ribs are equally spaceed along the half span
-        # length of one panel
-        l_panel = self.halfspan/n_panels
-        
-        l_ribs = []
     
-        panel_AR = []
-
-        areas = []
+    def skin_Ks(self):
+        # define a distribution with which the rib panels will be put (here linear)
         
-        for i in range(self.n_ribs): # ok
-            a, b, h, alpha = self.geometry(l_panel * i)
-            l_ribs.append(h)
-
-        for i in range(n_panels):
-            # area of a trapezoid
-            area = l_panel*(l_ribs[i]+l_ribs[i+1])/2 
-            
-            # aspect ratio for each panel
-            AR = (l_panel**2)/(area)
-            
-            panel_AR.append(AR)
-            areas.append(area)
-            
-        # define the function as a function of z
-        z_ribs = [l_panel*i for i in range(n_panels + 1)]
+        end = self.halfspan
         
-        for i in range(len(z_ribs) - 1):
-            if z_ribs[i] <= z < z_ribs[i + 1]:
-                return panel_AR[i], areas[i]
+        start = 0
         
-        return panel_AR[-1], areas[-1]
-    
-    def plot_skinAR(self):
-        AR_final = []
-        z_values = np.linspace(0, self.halfspan, 2000)
+        increments = np.linspace(1, self.n_ribs, self.n_ribs - 1)  
+        spacing = np.cumsum(increments)            
+        scaled_spacing = (spacing / spacing[-1]) * (end - start)
 
-        # Calculate AR_final for each z value
-        for z in z_values:
-            AR, area = self.skin_AR(z)
-            AR_final.append(AR)
+        # Generate dimensions, a numpy array defining the position of the ribs along the halfspan
+        self.dimensions = np.concatenate(([start], start + scaled_spacing))       
+        
+        # idea is to create an array with the aspect ratios
+        
+        l_ribs = np.array([]) # of length self.n_ribs
+        
+        for i in (self.dimensions): 
+            _, _, h, _ = self.geometry(i)
+            l_ribs = np.append(l_ribs, h)
+        
+        b_values = l_ribs / (self.stringers[0] - 1)
+        
+        a_b = self.dimensions / b_values
+        
+        # remember now we are assuming each row has the same aspect ratio
+        
+        Ks = np.array([])
+        for i in a_b:
+            K = self.skin_buckling_constant(i)
+            Ks = np.append(Ks, K)     
+        
+        return b_values, Ks
 
-
-    # Create the plot
-        plt.figure(figsize=(10, 6))
-        plt.plot(z_values, AR_final, marker='o', linestyle='-', color='b', label='AR_final(z)')
-        plt.title("Skin Aspect Ratio as a Function of z")
-        plt.xlabel("z Position")
-        plt.ylabel("Aspect Ratio (AR_final)")
-        plt.grid(True)
-        plt.legend()
-        plt.tight_layout()  # Improve layout
-        plt.show() 
-
-    def crit_stress(self, z):
+    def crit_stress(self):
         """
         E: young's elastic modulus
         v: Poisson's ratio
@@ -152,46 +130,48 @@ class SkinBuckling():
         
         """
         # aspect ratio for the specific panel
-        AR, area = self.skin_AR(z)
+        b_values, Ks = self.skin_Ks()
         
-        # define the K_c for this specific panel
-        K_c = self.skin_buckling_constant(aspect_ratio= AR, show= False)
-        
-        b = np.sqrt(AR*area)
-        
-        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t_caps/b)**2
-        
+        sigma_cr = ((np.pi**2 * Ks * self.E)/(12 * (1 - self.v**2)))*((self.t_caps/b_values)**2)
+    
         return sigma_cr
     
     def applied_stress(self, z):
-        a, _, _, _ = self.geometry(z)
+        a, b, h, alpha = self.geometry(z)
         
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = self.M(z) * (a/2)/(I) + self.N(z)/(section_area)
+        applied_stress = (self.M(z) * (a/2))/(I) + abs(self.N(z) /section_area)
         
         return applied_stress
         
     def show(self):
-        z_values = np.linspace(0, self.halfspan, 1000)
-        cr_stress = []
+        
         applied_stress = []
-        for z in z_values:
-            cr_stress.append(self.crit_stress(z))
+        critical_stress = self.crit_stress()
+        
+        for z in self.dimensions:
+            
             applied_stress.append(self.applied_stress(z))
+
+        applied_stress = np.array(applied_stress)
         
-        cr_stress = np.array(cr_stress)
-        applied_stress = np.array(applied_stress) 
+        mos = critical_stress/applied_stress
         
-        mos = cr_stress/applied_stress
-        
-        # plt.plot(z_values, cr_stress)
-        plt.plot(z_values, mos)
-        plt.ylabel(r'\sigma_{cr} [Pa]')
+        plt.plot(self.dimensions, mos)
+        plt.scatter(self.dimensions, mos, color='tab:orange', zorder = 999)
+        plt.ylabel(r'MOS of skin buckling [-]')
         plt.xlabel('Spanwise location [m]')
+        plt.axhline(y = 1, color = 'r', linestyle = '--')
+        
+        # if you want to save uncomment line below
+        # plt.savefig('mos_skinbuckling.svg')
+        plt.show()
+        plt.clf()
+        
 
 class SparWebBuckling():
     def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):
@@ -323,16 +303,18 @@ class SparWebBuckling():
         for point in self.z_values:
             mos_front, mos_rear, _, _ = self.margin_of_safety(z= point, V= V, T= T)
             
-            moss_front.append(mos_front)
-            moss_rear.append(mos_rear)
+            moss_front.append(abs(mos_front))
+            moss_rear.append(abs(mos_rear))
           
         if choice == 'front':
             plt.plot(self.z_values, moss_front)
             plt.xlabel("Spanwise Position""[m]")
+            plt.axhline(y = 1, color = 'r', linestyle = '-') 
             plt.ylabel("Margin of Safety""[-]")
             plt.show()
         elif choice == 'rear':
             plt.plot(self.z_values, moss_rear)
+            plt.axhline(y = 1, color = 'r', linestyle = '-') 
             plt.xlabel("Spanwise Position""[m]")
             plt.ylabel("Margin of Safety""[-]")
             plt.show()
@@ -427,7 +409,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
                                   
         return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9, stresscr_stringer_iter 
     
-    def graph_buckling_values(self, E):
+    def graph_buckling_values(self, E, show=False):
         """
         Compute the critical stress along the wingspan until 13.45 meters for graphing.
         :param E: Young's modulus of the material
@@ -454,19 +436,19 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
             stress_values_8.append(stress8)
             stress_values_9.append(stress9)
             stress_values_Iter.append(stress_Iter)
-             
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-        plt.plot(z_values, stress_values_5, label='Design 5')
-        plt.plot(z_values, stress_values_8, label='Design 8')
-        plt.plot(z_values, stress_values_9, label='Design 9')
-        plt.plot(z_values, stress_values_Iter, label='Design 9')
-        plt.xlabel('Wingspan Coordinate (m)')
-        plt.ylabel('Critical Buckling Stress (Pa)')
-        plt.title('Stringer Buckling Stress Along Wingspan')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        if show:   
+            # Create the plot
+            plt.figure(figsize=(8, 6))
+            plt.plot(z_values, stress_values_5, label='Design 5')
+            plt.plot(z_values, stress_values_8, label='Design 8')
+            plt.plot(z_values, stress_values_9, label='Design 9')
+            plt.plot(z_values, stress_values_Iter, label='Design 9')
+            plt.xlabel('Wingspan Coordinate (m)')
+            plt.ylabel('Critical Buckling Stress (Pa)')
+            plt.title('Stringer Buckling Stress Along Wingspan')
+            plt.legend()
+            plt.grid(True)
+            plt.show()
         return z_values, stress_values_5, stress_values_8, stress_values_9, stress_values_Iter
     
     def applied_stress(self, z):
@@ -537,8 +519,10 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, MOS_values_iter)
-        plt.ylabel(r'TBD')
+        plt.ylabel(r'MOS of stringer buckling [-]')
+        plt.axhline(y = 1, color = 'r', linestyle = '-') 
         plt.xlabel('Spanwise location [m]')
+        plt.show()
 
        
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
