@@ -165,11 +165,13 @@ class SkinBuckling():
         plt.scatter(self.dimensions, mos, color='tab:orange', zorder = 999)
         plt.ylabel(r'MOS of skin buckling [-]')
         plt.xlabel('Spanwise location [m]')
-        plt.axhline(y = 1, color = 'r', linestyle = '--')
+        plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
         if ceiling:
             plt.ylim(0, 10)
         # if you want to save uncomment line below
         # plt.savefig('mos_skinbuckling.svg')
+        plt.legend()
+        plt.grid(True)
         plt.show()
         plt.clf()
         
@@ -310,26 +312,32 @@ class SparWebBuckling():
         if choice == 'front':
             plt.plot(self.z_values, moss_front)
             plt.xlabel("Spanwise Position""[m]")
-            plt.axhline(y = 1, color = 'r', linestyle = '-') 
-            plt.ylabel("Margin of Safety""[-]")
+            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.ylabel("MOS of spar web shear buckling""[-]")
+            plt.legend()
+            plt.grid(True)
             plt.show()
         elif choice == 'rear':
             plt.plot(self.z_values, moss_rear)
-            plt.axhline(y = 1, color = 'r', linestyle = '-') 
+            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.legend()
+            plt.grid(True)
             plt.xlabel("Spanwise Position""[m]")
-            plt.ylabel("Margin of Safety""[-]")
+            plt.ylabel("MOS of spar web shear buckling""[-]")
             plt.show()
-            
         
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int):
+    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int, n_ribs):
         #Only one block, not entire area of L-stringer.
         self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
         self.Area9 = 30e-3*3e-3 #this is fine, option 9 was L stringer to begin with
 
-        self.K = 1/4 #1 end fixed, 1 end free 
+        #self.K = 1/4 #1 end fixed, 1 end free 
+        self.K = 4 #assuming it is clamped on both sides
+
+        self.n_ribs = n_ribs
 
         self.chord = chord
         self.geometry = geometry
@@ -503,12 +511,16 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
     def MOS_buckling_values(self, E, stringers):
         _,_,_,I_iter = self.stringer_MOM(stringers)
-
+        
+        #z_values = np.linspace(0, self.halfspan, self.n_ribs + 1)  
         z_values = np.linspace(1, self.halfspan, 100)
         applied_stress = []
         stress_values_Iter = []
         for z in z_values:
-            L = self.calculate_length(z)
+            #L = self.calculate_length(z)/(self.n_ribs+1) 
+            #critical stress should be a constant value; it's not like the stringer elongates during flight therefore it shouldn't be a function of z
+
+            L = 15.13587572 / (self.n_ribs+1) 
             applied_stress.append(self.applied_stress(z))
             stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
             stress_values_Iter.append(stress_Iter)
@@ -520,16 +532,16 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, MOS_values_iter)
-        plt.ylabel(r'MOS of stringer buckling [-]')
-        plt.axhline(y = 1, color = 'r', linestyle = '-') 
-        plt.xlabel('Spanwise location [m]')
+        plt.ylabel(r'MOS of stringer column buckling [-]')
+        plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1') 
+        plt.xlabel('Spanwise position [m]')
+        plt.legend()
+        plt.grid(True)
         plt.show()
+
+        print("Applied Stress Array:", applied_stress)
+        print("Iterative Stress Array:", stress_iter)
+        
 
        
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
-
-
-
-    
-   
-    
