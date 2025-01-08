@@ -195,7 +195,7 @@ class WingBox():
 
         I_total_xx = I_wingbox_xx + I_xx_stringers_steiner +Ixx_sparflanges
         I_total_yy = I_wingbox_yy + I_yy_stringers_steiner
-        
+        print(I_total_xx)
         return I_total_xx, I_total_yy
 
     def polar (self, z): # T : torsion, 
@@ -391,5 +391,5 @@ class WingBox():
          # Double the total contributions because we have two bars
         I_xx_stringers_steiner *= 2
         I_yy_stringers_steiner *= 2
-        
+        # print(I_xx_stringers_steiner)
         return I_xx_stringers_steiner, I_yy_stringers_steiner, x_pos_string, y_pos_string

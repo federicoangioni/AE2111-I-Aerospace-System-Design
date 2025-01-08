@@ -166,7 +166,6 @@ class SkinBuckling():
     
     def applied_stress(self, z):
         a, b, h, alpha = self.geometry(z)
-        print(a/2)
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
         
@@ -329,6 +328,7 @@ class SparWebBuckling():
             moss_rear.append(mos_rear)
           
         if choice == 'front':
+            plt.ylim(-10, 0)
             plt.plot(self.z_values, moss_front)
             plt.xlabel("Spanwise Position""[m]")
             plt.ylabel("Margin of Safety""[-]")
