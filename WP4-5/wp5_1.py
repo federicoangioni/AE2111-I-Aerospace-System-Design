@@ -323,13 +323,16 @@ class SparWebBuckling():
         
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int):
+    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int, n_ribs):
         #Only one block, not entire area of L-stringer.
         self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
         self.Area9 = 30e-3*3e-3 #this is fine, option 9 was L stringer to begin with
 
-        self.K = 1/4 #1 end fixed, 1 end free 
+        #self.K = 1/4 #1 end fixed, 1 end free 
+        self.K = 4 #assuming it is clamped on both sides
+
+        self.n_ribs = n_ribs
 
         self.chord = chord
         self.geometry = geometry
@@ -503,12 +506,16 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
     def MOS_buckling_values(self, E, stringers):
         _,_,_,I_iter = self.stringer_MOM(stringers)
-
-        z_values = np.linspace(1, self.halfspan, 100)
+        
+        z_values = np.linspace(0, self.halfspan, self.n_ribs + 1)  
+        #z_values = np.linspace(1, self.halfspan, 100)
         applied_stress = []
         stress_values_Iter = []
         for z in z_values:
-            L = self.calculate_length(z)
+            #L = self.calculate_length(z)/(self.n_ribs+1) 
+            #critical stress should be a constant value; it's not like the stringer elongates during flight therefore it shouldn't be a function of z
+
+            L = 15.13587572 / (self.n_ribs+1) 
             applied_stress.append(self.applied_stress(z))
             stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
             stress_values_Iter.append(stress_Iter)
@@ -525,11 +532,52 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         plt.xlabel('Spanwise location [m]')
         plt.show()
 
+        print("Applied Stress Array:", applied_stress)
+        print("Iterative Stress Array:", stress_iter)
+        
+
        
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
 
+    def MOS_buckling_values1(self, E, stringers):
+        _, _, _, I_iter = self.stringer_MOM(stringers)
+        
+        # Divide into segments based on ribs
+        z_values = np.linspace(0, self.halfspan, self.n_ribs + 1)  
+        applied_stress = []
+        stress_values_Iter = []
+
+        for i, z in enumerate(z_values[:-1]):  # Iterate over each segment
+            # Length of the current segment (assuming uniform spacing)
+            segment_length = self.halfspan / self.n_ribs
+            L = segment_length
+            
+            # Applied stress and critical stress for the current segment
+            stress_applied = self.applied_stress(z)
+            applied_stress.append(stress_applied)
+            
+            stress_Iter = (self.K * np.pi**2 * E * I_iter) / (L**2 * (2 * (self.stringers[3]['base'] * self.stringers[3]['thickness base'])))
+            stress_values_Iter.append(stress_Iter)
+
+            # Plot MOS for the current segment
+            MOS_values_iter = stress_Iter / stress_applied
+            plt.plot(z, MOS_values_iter, label=f"Segment {i + 1}")
+
+        applied_stress = np.array(applied_stress)
+        stress_iter = np.array(stress_values_Iter)
+        
+        plt.ylabel(r'MOS of stringer buckling [-]')
+        plt.axhline(y=1, color='r', linestyle='--', label='Safety Limit') 
+        plt.xlabel('Spanwise location [m]')
+        plt.legend()
+        plt.show()
+        
+        print("Applied Stress Array:", applied_stress)
+        print("Iterative Stress Array:", stress_iter)
 
 
+
+
+        
     
-   
-    
+        
