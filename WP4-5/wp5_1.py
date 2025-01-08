@@ -191,7 +191,7 @@ class SkinBuckling():
         
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, mos)
-        plt.ylabel(r'\sigma_{cr} [Pa]')
+        plt.ylabel(r'MOS')
         plt.xlabel('Spanwise location [m]')
 
 class SparWebBuckling():
