@@ -87,21 +87,21 @@ class SkinBuckling():
         
         return Kc
     
-    def skin_Ks(self):
+    def skin_Ks(self, concentration):
         # define a distribution with which the rib panels will be put (here linear)
         
         end = self.halfspan
         
         start = 0
         
-        increments = np.linspace(1, self.n_ribs, self.n_ribs - 1)  
-        spacing = np.cumsum(increments)            
-        scaled_spacing = (spacing / spacing[-1]) * (end - start)
-
-        # Generate dimensions, a numpy array defining the position of the ribs along the halfspan
-        self.dimensions = np.concatenate(([start], start + scaled_spacing))       
+        x = np.linspace(0, 1, self.n_ribs)
         
-        # idea is to create an array with the aspect ratios
+        # Apply stronger transformation based on the concentration
+        transformed_x = x ** (1 - concentration)  # Concentrate values near 0
+    
+        # Scale to the desired range
+        self.dimensions = start + transformed_x * (end - start)
+    
         
         l_ribs = np.array([]) # of length self.n_ribs
         
@@ -122,7 +122,7 @@ class SkinBuckling():
         
         return b_values, Ks
 
-    def crit_stress(self):
+    def crit_stress(self, concentration):
         """
         E: young's elastic modulus
         v: Poisson's ratio
@@ -130,14 +130,14 @@ class SkinBuckling():
         
         """
         # aspect ratio for the specific panel
-        b_values, Ks = self.skin_Ks()
+        b_values, Ks = self.skin_Ks(concentration=concentration)
         
         sigma_cr = ((np.pi**2 * Ks * self.E)/(12 * (1 - self.v**2)))*((self.t_caps/b_values)**2)
     
         return sigma_cr
     
     def applied_stress(self, z):
-        a, b, h, alpha = self.geometry(z)
+        a, _, _, _ = self.geometry(z)
         
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
@@ -148,10 +148,10 @@ class SkinBuckling():
         
         return applied_stress
         
-    def show(self):
+    def show(self,concentration, ceiling = False):
         
         applied_stress = []
-        critical_stress = self.crit_stress()
+        critical_stress = self.crit_stress(concentration=concentration)
         
         for z in self.dimensions:
             
@@ -166,7 +166,8 @@ class SkinBuckling():
         plt.ylabel(r'MOS of skin buckling [-]')
         plt.xlabel('Spanwise location [m]')
         plt.axhline(y = 1, color = 'r', linestyle = '--')
-        
+        if ceiling:
+            plt.ylim(0, 10)
         # if you want to save uncomment line below
         # plt.savefig('mos_skinbuckling.svg')
         plt.show()
