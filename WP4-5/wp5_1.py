@@ -184,7 +184,7 @@ class SkinBuckling():
             applied_stress.append(self.applied_stress(z))
         
         cr_stress = np.array(cr_stress)
-        applied_stress = np.array(applied_stress)
+        applied_stress = np.array(applied_stress) 
         
         mos = cr_stress/applied_stress
         
@@ -446,7 +446,9 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
             stress5 = (self.K * np.pi**2 * E * I5) / (L**2 * (2 * self.Area5))
             stress8 = (self.K * np.pi**2 * E * I8) / (L**2 * (2 * self.Area8))
             stress9 = (self.K * np.pi**2 * E * I9) / (L**2 * (2 * self.Area9))
-            stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
+            #stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
+            stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(30e-3*3e-3)))
+
 
             stress_values_5.append(stress5)
             stress_values_8.append(stress8)
@@ -475,8 +477,10 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = self.M(z) * (a/2)/(I) + self.N(z)/(section_area)
-        
+        applied_stress = self.M(z) * (a/2)/(I) - self.N(z)/(section_area) #axial force is negative but should be considered positive
+        #applied_stress = self.M(z) * (a/2)/(I) + 29982.71629/(section_area)
+        #applied_stress = self.N(z)/(section_area)
+    
         return applied_stress
    
     def MOS_stringers(self, E, stresscr_stringer_iter, applied_stress):
