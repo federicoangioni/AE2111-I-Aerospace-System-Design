@@ -159,12 +159,13 @@ class SkinBuckling():
         
         b = np.sqrt(AR*area)
         
-        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*(self.t_caps/b)**2
+        sigma_cr = ((np.pi**2 * K_c * self.E)/(12 * (1 - self.v**2)))*((self.t_caps/b)**2)
+    
         
         return sigma_cr
     
     def applied_stress(self, z):
-        a, _, _, _ = self.geometry(z)
+        a, b, h, alpha = self.geometry(z)
         
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
@@ -173,7 +174,7 @@ class SkinBuckling():
         
         applied_stress = self.M(z) * (a/2)/(I) + self.N(z)/(section_area)
         
-        return applied_stress
+        return applied_stress, self.M(z), (a, b, h, alpha), I
         
     def show(self):
         z_values = np.linspace(0, self.halfspan, 1000)
