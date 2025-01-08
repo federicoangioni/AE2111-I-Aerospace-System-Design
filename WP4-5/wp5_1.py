@@ -340,7 +340,7 @@ class SparWebBuckling():
         
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan, chord, M, N ,geometry, area, chord, flange, t_caps:int, t_spar: int):
+    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int):
         #Only one block, not entire area of L-stringer.
         self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
         self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
@@ -353,6 +353,8 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
         self.N = N
         self.M = M
+
+        self.I = I_tot
         
         self.t_spar = t_spar
         self.stringers = stringers
@@ -481,36 +483,59 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         MOS_stringer =  stresscr_stringer_iter/applied_stress
         return MOS_stringer
     
-    def MOS_buckling_values(self, E):
-        """
-        Compute the critical stress along the wingspan until 13.45 meters for graphing.
-        :param E: Young's modulus of the material
-        :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
-        """
+    # def MOS_buckling_values(self, E):
+    #     """
+    #     Compute the critical stress along the wingspan until 13.45 meters for graphing.
+    #     :param E: Young's modulus of the material
+    #     :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
+    #     """
+        
+    #     applied_stress = self.applied_stress(z)
+    #     _, _, _, stresscr_stringer_iter = self.graph_buckling_values(E=E)
 
-        applied_stress = self.applied_stress ()
-        _, _, _, stresscr_stringer_iter = self.graph_buckling_values(E=E)
+    #     z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
+    #     MOS_values = []
 
-        z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
-        MOS_values = []
+    #     for z in z_values:
+    #         L = self.calculate_length(z)
 
+    #         MOS_values_iter =  stresscr_stringer_iter/applied_stress
+
+    #         MOS_values.append(MOS_values_iter)
+             
+    #     # Create the plot
+    #     plt.figure(figsize=(8, 6))
+    #     plt.plot(z_values, MOS_values, label='Design')
+    #     plt.xlabel('Wingspan Coordinate (m)')
+    #     plt.ylabel('TBD')
+    #     plt.title('MOS')
+    #     plt.legend()
+    #     plt.grid(True)
+    #     plt.show()
+    #     return z_values, MOS_values
+
+    def MOS_buckling_values(self, E, stringers):
+        _,_,_,I_iter = self.stringer_MOM(stringers)
+
+        z_values = np.linspace(1, self.halfspan, 100)
+        applied_stress = []
+        stress_values_Iter = []
         for z in z_values:
             L = self.calculate_length(z)
+            applied_stress.append(self.applied_stress(z))
+            stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
+            stress_values_Iter.append(stress_Iter)
 
-            MOS_values_iter =  stresscr_stringer_iter/applied_stress
+        applied_stress = np.array(applied_stress)
+        stress_iter = np.array(stress_values_Iter)
+      
+        MOS_values_iter =  stress_iter/applied_stress
+        
+        # plt.plot(z_values, cr_stress)
+        plt.plot(z_values, MOS_values_iter)
+        plt.ylabel(r'TBD')
+        plt.xlabel('Spanwise location [m]')
 
-            MOS_values.append(MOS_values_iter)
-             
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-        plt.plot(z_values, MOS_values, label='Design')
-        plt.xlabel('Wingspan Coordinate (m)')
-        plt.ylabel('TBD')
-        plt.title('MOS')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-        return z_values, MOS_values
        
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
 
