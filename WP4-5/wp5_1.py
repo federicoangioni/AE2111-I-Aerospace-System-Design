@@ -388,71 +388,65 @@ class SparWebBuckling():
             plt.xlabel("Spanwise Position""[m]")
             plt.ylabel("MOS of spar web shear buckling""[-]")
             plt.show()
-        
+            
+            
     def show_mos_normal(self, choice:str = 'front'):
         """
         choice: string input use either front or rear
         """
-        applied_stress = []
+        stresses_front = []
+        stresses_rear = []
         
         for point in self.z_values:
             stress_front, stress_rear = self.applied_normal_stress(point)
-            stress.append(abs(self.applied_tension(point)))
+            stresses_front.append(abs(stress_front))
+            stresses_rear.append(abs(stress_rear))
             
-        applied_stress = np.array(applied_stress)
+        stresses_front = np.array(stresses_front)
+        stresses_rear = np.array(stresses_rear)
         
-        mos_rear_comp = self.sigmacomp / self.applied_tension
         
-        mos_rear_comp = self.sigmacomp / self.applied_tension
+        mos_rear_comp = self.sigmacomp / stresses_rear
         
-         
-          
+        mos_front_comp = self.sigmacomp / stresses_front
+        
+        mos_rear_tens = self.sigmayield / stresses_rear
+        
+        mos_front_tens = self.sigmayield / stresses_front
+            
         if choice == 'front':
             plt.plot(self.z_values, mos_front_comp)
             plt.xlabel("Spanwise Position""[m]")
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
-            plt.ylabel("MOS of Compression Strength of Spar""[-]")
+            plt.ylabel("MOS of Compression Strength of Front Spar""[-]")
             plt.legend()
             plt.grid(True)
             plt.show()
+            
+            plt.plot(self.z_values, mos_front_tens)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.ylabel("MOS of Tensile Strength of Front Spar""[-]")
+            plt.legend()
+            plt.grid(True)
+            plt.show()
+            
+            
         elif choice == 'rear':
             plt.plot(self.z_values, mos_rear_comp)
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
             plt.legend()
             plt.grid(True)
             plt.xlabel("Spanwise Position""[m]")
-            plt.ylabel("MOS of Compression Strength of Spar""[-]")
+            plt.ylabel("MOS of Compression Strength of Rear Spar""[-]")
             plt.show()
             
-            
-    def show_mos_tens(self, V, T, choice:str = 'front'):
-        """
-        choice: string input use either front or rear
-        """
-        mos_front_comp = []
-        mos_rear_comp = []
-        
-        for point in self.z_values:
-            mos_front_comp, mos_rear_comp, _, _ = self.margin_of_safety(z= point, V= V, T= T)
-            
-            mos_front_comp.append(abs(mos_front_comp))
-            mos_rear_comp.append(abs(mos_rear_comp))
-          
-        if choice == 'front':
-            plt.plot(self.z_values, mos_front_comp)
+            plt.plot(self.z_values, mos_rear_tens)
             plt.xlabel("Spanwise Position""[m]")
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
-            plt.ylabel("MOS of Compression Strength of Spar""[-]")
+            plt.ylabel("MOS of Tensile Strength of Rear Spar""[-]")
             plt.legend()
             plt.grid(True)
-            plt.show()
-        elif choice == 'rear':
-            plt.plot(self.z_values, mos_rear_comp)
-            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
-            plt.legend()
-            plt.grid(True)
-            plt.xlabel("Spanwise Position""[m]")
-            plt.ylabel("MOS of Compression Strength of Spar""[-]")
             plt.show()
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
