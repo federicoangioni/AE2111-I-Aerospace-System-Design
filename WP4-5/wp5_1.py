@@ -212,7 +212,7 @@ class SkinBuckling():
         
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry, I_tot, chord,  wingspan, sigmayield, sigmacomp, E, pois, t_front, t_rear, area, t_caps, stringers, area_factor, M, N, k_v = 1.5):
+    def __init__(self, wingbox_geometry, I_tot,  wingspan, sigmayield, sigmacomp, E, pois, t_front, t_rear, area, t_caps, stringers, area_factor, M, N, k_v = 1.5):
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
@@ -221,7 +221,6 @@ class SparWebBuckling():
         self.sigmayield = sigmayield
         
         self.area = area 
-        self.chord = chord
         self.I = I_tot
         self.t_caps = t_caps
         
