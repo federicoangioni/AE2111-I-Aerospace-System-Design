@@ -21,7 +21,7 @@ def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps
     return Total_area_crosssection
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, sigma_yield, compressive_yield, t_spar: int):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
@@ -34,7 +34,8 @@ class SkinBuckling():
         
         # defining the chord function as a function of z
         self.chord = chord
-        
+
+        self.simgma_yield = sigma_yield
 
         self.flange = flange
         
@@ -43,6 +44,8 @@ class SkinBuckling():
         
         self.I = I_tot
         self.M = M
+        
+        self.compressive_yield = compressive_yield
         
         self.N = N
         self.dimensions = None
@@ -144,9 +147,11 @@ class SkinBuckling():
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = (self.M(z) * (a/2))/(I) + abs(self.N(z) /section_area)
+        applied_stress = abs((self.M(z) * (a/2))/(I)) + abs(self.N(z) /section_area)
         
         return applied_stress
+           
+        
         
     def show(self,concentration, ceiling = False):
         
@@ -157,13 +162,45 @@ class SkinBuckling():
             
             applied_stress.append(self.applied_stress(z))
 
+
         applied_stress = np.array(applied_stress)
         
-        mos = critical_stress/(applied_stress * 1.5) # 1.5 saftey factor
+        mos_buckling = critical_stress/(applied_stress * 1.5) # 1.5 saftey factor
+        mos_tension = self.simgma_yield/(applied_stress*1.5)
+        mos_compression = self.compressive_yield/(applied_stress*1.5)
         
-        plt.plot(self.dimensions, mos)
-        plt.scatter(self.dimensions, mos, color='tab:orange', zorder = 999)
+        
+        plt.plot(self.dimensions, mos_buckling)
+        plt.scatter(self.dimensions, mos_buckling, color='tab:orange', zorder = 999)
         plt.ylabel(r'MOS of skin buckling [-]')
+        plt.xlabel('Spanwise location [m]')
+        plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
+        if ceiling:
+            plt.ylim(0, 10)
+        # if you want to save uncomment line below
+        # plt.savefig('mos_skinbuckling.svg')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        plt.clf()
+        
+        plt.plot(self.dimensions, mos_compression)
+        plt.scatter(self.dimensions, mos_compression, color='tab:orange', zorder = 999)
+        plt.ylabel(r'MOS of skin compression [-]')
+        plt.xlabel('Spanwise location [m]')
+        plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
+        if ceiling:
+            plt.ylim(0, 10)
+        # if you want to save uncomment line below
+        # plt.savefig('mos_skinbuckling.svg')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        plt.clf()
+        
+        plt.plot(self.dimensions, mos_tension)
+        plt.scatter(self.dimensions, mos_tension, color='tab:orange', zorder = 999)
+        plt.ylabel(r'MOS of skin tesnsion [-]')
         plt.xlabel('Spanwise location [m]')
         plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
         if ceiling:
@@ -591,6 +628,4 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         print("Applied Stress Array:", applied_stress)
         print("Iterative Stress Array:", stress_iter)
         
-
-       
-#general note: applied stress so that we have the margin of safety + inclusion of safety factors?
+        
