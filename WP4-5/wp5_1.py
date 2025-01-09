@@ -150,9 +150,7 @@ class SkinBuckling():
         applied_stress = abs((self.M(z) * (a/2))/(I)) + abs(self.N(z) /section_area)
         
         return applied_stress
-           
-        
-        
+    
     def show(self,concentration, ceiling = False):
         
         applied_stress = []
@@ -214,13 +212,17 @@ class SkinBuckling():
         
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry, chord,  wingspan, sigmayield, E, pois, t_front, t_rear, area, t_caps, stringers, area_factor, k_v = 1.5):
+    def __init__(self, wingbox_geometry, I_tot, chord,  wingspan, sigmayield, sigmacomp, E, pois, t_front, t_rear, area, t_caps, stringers, area_factor, M, N, k_v = 1.5):
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
+        self.sigmacomp = sigmacomp
+        
+        self.sigmayield = sigmayield
+        
         self.area = area 
         self.chord = chord
-        
+        self.I = I_tot
         self.t_caps = t_caps
         
         # attributing to class variable
@@ -228,7 +230,11 @@ class SparWebBuckling():
         
         # np array with all the values from root to the 
         self.z_values = np.linspace(1, self.halfspan, 1000) 
+        self.M = M
+        self.N = N
+        self.flange = area_factor
         
+        self.stringers = stringers 
         filepath_ks = os.path.join('WP4-5', 'resources', 'k_s_curve.csv')
         
         self.k_s = pd.read_csv('resources\\k_s_curve.csv')
@@ -339,39 +345,21 @@ class SparWebBuckling():
         
         
         return mos_front , mos_rear, applied_stress_rear, applied_stress_front
-    
-    def Compression(self, z, V, T):
-        a, b, h, _ = self.geometry(z) # a and b not related to a_over_b
 
-        avg_shear = V(z) / ( a * self.t_front + b * self.t_rear )
-        max_shear = self.k_v * avg_shear
-
-        A = (a + b) * h / 2 #enclosed area of trapezoical wingbox
-        
-        q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
-    
-        applied_stress_front = 1.5 * (max_shear + q_torsion / self.t_front)
-        applied_stress_rear = 1.5 * (max_shear + q_torsion / self.t_rear)
-
-        mos_front_comp = self.sigmayield / applied_stress_front
-        mos_rear_comp = self.sigmayield / applied_stress_rear
-
-        return mos_front_comp , mos_rear_comp
-
-    def applied_stress(self, z):
-        a, _, _, _ = self.geometry(z)
+    def applied_normal_stress(self, z):
+        a, b, _, _ = self.geometry(z)
         
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_front= self.t_front, t_rear = self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = abs((self.M(z) * (a/2))/(I)) + abs(self.N(z) /section_area)
-        
-        return applied_stress
+        stress_front = abs((self.M(z) * (a/2))/(I)) + abs(self.N(z) /section_area)
+        stress_rear = abs((self.M(z) * (b/2))/(I)) + abs(self.N(z) /section_area)
+        return stress_front, stress_rear
         
     
-    def show_mos(self, V, T, choice:str ='front'):
+    def show_mos_buckling(self, V, T, choice:str ='front'):
         """
         choice: string input use either front or rear
         """
@@ -382,6 +370,8 @@ class SparWebBuckling():
             
             moss_front.append(abs(mos_front))
             moss_rear.append(abs(mos_rear))
+          
+          
           
         if choice == 'front':
             plt.plot(self.z_values, moss_front)
@@ -400,7 +390,43 @@ class SparWebBuckling():
             plt.ylabel("MOS of spar web shear buckling""[-]")
             plt.show()
         
-    def show_mos_comp(self, V, T, choice:str = 'front'):
+    def show_mos_normal(self, choice:str = 'front'):
+        """
+        choice: string input use either front or rear
+        """
+        applied_stress = []
+        
+        for point in self.z_values:
+            stress_front, stress_rear = self.applied_normal_stress(point)
+            stress.append(abs(self.applied_tension(point)))
+            
+        applied_stress = np.array(applied_stress)
+        
+        mos_rear_comp = self.sigmacomp / self.applied_tension
+        
+        mos_rear_comp = self.sigmacomp / self.applied_tension
+        
+         
+          
+        if choice == 'front':
+            plt.plot(self.z_values, mos_front_comp)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.ylabel("MOS of Compression Strength of Spar""[-]")
+            plt.legend()
+            plt.grid(True)
+            plt.show()
+        elif choice == 'rear':
+            plt.plot(self.z_values, mos_rear_comp)
+            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.legend()
+            plt.grid(True)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.ylabel("MOS of Compression Strength of Spar""[-]")
+            plt.show()
+            
+            
+    def show_mos_tens(self, V, T, choice:str = 'front'):
         """
         choice: string input use either front or rear
         """
