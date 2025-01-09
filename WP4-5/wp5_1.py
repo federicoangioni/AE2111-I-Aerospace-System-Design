@@ -476,7 +476,7 @@ class SparWebBuckling():
             plt.xlabel("Spanwise Position""[m]")
             
             plt.scatter(min_z, np.min(mos_front_comp), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_front_comp):.2f} at {min_z:.2f} m')
-            plt.annotate(f'{np.min(mos_front_comp):.2f}', xy=(min_z+0.1, np.min(mos_front_comp)+1), xytext=(min_z + 1.7, np.min(mos_front_comp)+1
+            plt.annotate(f'{np.min(mos_front_comp):.2f}', xy=(min_z+0.1, np.min(mos_front_comp)), xytext=(min_z + 1.7, np.min(mos_front_comp)+1
                                                                                                             ),
                     arrowprops=dict(facecolor='black', arrowstyle='-|>'),
                     fontsize=14, color='black')
