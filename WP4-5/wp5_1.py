@@ -2,26 +2,26 @@ import numpy as np
 import pandas as pd      
 import matplotlib.pyplot as plt
 import os
-def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps: int, stringers): 
+def area_crosssection(geometry, z, point_area_flange, t_front: int, t_rear, t_caps: int, stringers): 
     
-    _, _, _, alpha = geometry(z)
+    a, b, h, alpha = geometry(z)
     '''
     first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
     Area_1 is area of the wingskins (upper and lower)
     Area_2 is area of the spar and spar flanges
     Area_3 is area of the stringers
     '''
-    Area_1= 2*(0.55*chord(z)/np.cos(alpha))*t_caps 
+    Area_1= 2*(h/np.cos(alpha))*t_caps 
     
     
-    Area_2= 4 * point_area_flange + 0.1741 * chord(z)*t_spar
+    Area_2= 4 * point_area_flange + a * t_front + b * t_rear
     Area_3= stringers[0] * (stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height'])
-    Total_area_crosssection = Area_1 + Area_2 + Area_3
+    total_area = Area_1 + Area_2 + Area_3
     
-    return Total_area_crosssection
+    return total_area
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, t_spar: int):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, sigma_yield, compressive_yield, t_front, t_rear):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
@@ -32,9 +32,11 @@ class SkinBuckling():
         # defining the cross sectional area function
         self.area = area
         
+        self.t_front, self.t_rear = t_front, t_rear # spars dimensions
         # defining the chord function as a function of z
         self.chord = chord
-        
+
+        self.simgma_yield = sigma_yield
 
         self.flange = flange
         
@@ -44,9 +46,10 @@ class SkinBuckling():
         self.I = I_tot
         self.M = M
         
+        self.compressive_yield = compressive_yield
+        
         self.N = N
         self.dimensions = None
-        self.t_spar = t_spar
         self.stringers = stringers
         # attributing to class variable
         self.halfspan = wingspan / 2
@@ -139,15 +142,15 @@ class SkinBuckling():
     def applied_stress(self, z):
         a, _, _, _ = self.geometry(z)
         
-        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
-                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
+        section_area = self.area(geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_front = self.t_front, t_rear= self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = (self.M(z) * (a/2))/(I) + abs(self.N(z) /section_area)
+        applied_stress = abs((self.M(z) * (a/2))/(I)) + abs(self.N(z) /section_area)
         
         return applied_stress
-        
+    
     def show(self,concentration, ceiling = False):
         
         applied_stress = []
@@ -157,17 +160,13 @@ class SkinBuckling():
             
             applied_stress.append(self.applied_stress(z))
 
+
         applied_stress = np.array(applied_stress)
         
         mos = critical_stress/(applied_stress * 1.5) # 1.5 saftey factor
-
-          # Find the lowest MOS value and its corresponding z_value
-        min_mosskin = np.min(mos)
-        min_index3 = np.argmin(mos)
-        min_z = self.dimensions[min_index3]
         
-        plt.plot(self.dimensions, mos, label ='MOS curve')
-        plt.scatter(self.dimensions, mos, color='tab:blue', s = 16, zorder = 999, label = 'Rib location')
+        plt.plot(self.dimensions, mos)
+        plt.scatter(self.dimensions, mos, color='tab:orange', zorder = 999)
         plt.ylabel(r'MOS of skin buckling [-]')
         plt.xlabel('Spanwise location [m]')
         plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
@@ -187,18 +186,55 @@ class SkinBuckling():
         plt.show()
         plt.clf()
         
+        plt.plot(self.dimensions, mos_compression)
+        plt.scatter(self.dimensions, mos_compression, color='tab:orange', zorder = 999)
+        plt.ylabel(r'MOS of skin compression [-]')
+        plt.xlabel('Spanwise location [m]')
+        plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
+        if ceiling:
+            plt.ylim(0, 10)
+        # if you want to save uncomment line below
+        # plt.savefig('mos_skinbuckling.svg')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        plt.clf()
+        
+        plt.plot(self.dimensions, mos_tension)
+        plt.scatter(self.dimensions, mos_tension, color='tab:orange', zorder = 999)
+        plt.ylabel(r'MOS of skin tesnsion [-]')
+        plt.xlabel('Spanwise location [m]')
+        plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
+        if ceiling:
+            plt.ylim(0, 10)
+        # if you want to save uncomment line below
+        # plt.savefig('mos_skinbuckling.svg')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        plt.clf()
+        
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):
+    def __init__(self, wingbox_geometry, I_tot,  wingspan, sigmayield, sigmacomp, E, pois, t_front, t_rear, area, t_caps, stringers, area_factor, M, N, k_v = 1.5):
         # attributing to class variable
         self.geometry = wingbox_geometry 
+        
+        self.sigmacomp = sigmacomp
+        
+        self.sigmayield = sigmayield
+        
+        self.area = area 
+        self.I = I_tot
+        self.t_caps = t_caps
         
         # attributing to class variable
         self.halfspan = wingspan / 2
         
         # np array with all the values from root to the 
-        self.z_values = np.linspace(0.09, self.halfspan, 1000) 
+        self.z_values = np.linspace(1, self.halfspan, 1000) 
         
+        self.stringers = stringers 
         filepath_ks = os.path.join('WP4-5', 'resources', 'k_s_curve.csv')
         
         self.k_s = pd.read_csv('resources\\k_s_curve.csv')
@@ -211,6 +247,7 @@ class SparWebBuckling():
         self.E = E
         self.pois = pois
         self.k_v = k_v #1.5 - 2 is probably ok but look it up
+        self.sigmayield = sigmayield
         
     # Defines AspectRaio of the long Spar
     def front_sparAR(self, z):
@@ -300,16 +337,29 @@ class SparWebBuckling():
         
         q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
     
-        applied_stress_front = max_shear + q_torsion / self.t_front
-        applied_stress_rear = max_shear + q_torsion / self.t_rear
+        applied_stress_front = 1.5 * (max_shear + q_torsion / self.t_front)
+        applied_stress_rear = 1.5 * (max_shear + q_torsion / self.t_rear)
 
         mos_front = critical_front / applied_stress_front
         mos_rear = critical_rear / applied_stress_rear
         
         
         return mos_front , mos_rear, applied_stress_rear, applied_stress_front
+
+    def applied_normal_stress(self, z):
+        a, b, _, _ = self.geometry(z)
+        
+        section_area = self.area(geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_front= self.t_front, t_rear = self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
+        
+        I, _ = self.I(z, self.stringers)
+        
+        stress_front = abs((self.M(z) * (a/2))/(I)) + abs(self.N(z) /section_area)
+        stress_rear = abs((self.M(z) * (b/2))/(I)) + abs(self.N(z) /section_area)
+        return stress_front, stress_rear
+        
     
-    def show_mos(self, V, T, choice:str ='front'):
+    def show_mos_buckling(self, V, T, choice:str ='front'):
         """
         choice: string input use either front or rear
         """
@@ -329,6 +379,8 @@ class SparWebBuckling():
         min_mossrear = np.min(moss_rear)
         min_index2 = np.argmin(moss_rear)
         min_z2 = self.z_values[min_index2]
+          
+          
           
         if choice == 'front':
             plt.plot(self.z_values, moss_front, label='MOS Curve')
@@ -363,20 +415,21 @@ class SparWebBuckling():
 
             plt.show()
         
-   
+
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int, n_ribs):
+    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_front, t_rear: int, n_ribs, compressive_yield, tensile_yield):
         #Only one block, not entire area of L-stringer.
-        self.Area5 = 30e-3*3e-3  #area should be 90e-6: I dimensions translated into base and height of 30e-3 and thickness of 3e-3 
-        self.Area8 = 40e-3*3.5e-3 # area should be 140e-6: I dimensions translated into base and height of 35e-3 and thickness of 4e-3
-        self.Area9 = 30e-3*3e-3 #this is fine, option 9 was L stringer to begin with
 
         #self.K = 1/4 #1 end fixed, 1 end free 
         self.K = 4 #assuming it is clamped on both sides
 
+        self.compressive_yield = compressive_yield
+        
+        self.tensile_yield = tensile_yield
         self.n_ribs = n_ribs
 
         self.chord = chord
+        
         self.geometry = geometry
 
         self.N = N
@@ -384,7 +437,9 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
         self.I = I_tot
         
-        self.t_spar = t_spar
+        self.t_rear = t_rear
+        
+        self.t_front = t_front
         self.stringers = stringers
 
         self.halfspan = wingspan / 2
@@ -396,13 +451,6 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         self.flange = flange
 
         self.t_caps = t_caps
-    
-        #centroid coordinates:
-        self.x5_9=7.5e-3 #coordinates for option 5 and 9
-        self.y5_9=7.5e-3#coordinates for option 5 and 9
-
-        self.x_8= 10e-3
-        self.y_8= 10e-3
 
         self.stringers =stringers
 
@@ -433,27 +481,21 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         """
         MoM around own centroid of L-stringer (bending around x-axis). So translate areas of I-stringer into L stringer. Also thin-walled assumption
         """
-        I5 = 2*(self.Area5*self.x5_9**2)
-        I8 = 2*(self.Area8*self.x_8**2)
-        I9 = 2*(self.Area9*self.x5_9**2)
  
         I_iter = (stringers[3]['base']*stringers[3]['thickness base'])*self.x_iter**2 + (stringers[3]['height']*stringers[3]['thickness height'])*self.y_iter**2
 
-        return I5, I8, I9, I_iter
+        return I_iter
     
     def stringer_buckling_values(self, E): 
         """
         critical stress of 3 different designs, L here is also for longest length so lowest critical stress
         """
-        I5, I8, I9, I_iter = self.stringer_MOM()
+        I_iter = self.stringer_MOM()
         L = 15.13587572
-        stresscr_stringer_5= (self.K*np.pi**2*E*I5)/(L**2*(2*self.Area5))
-        stresscr_stringer_8= (self.K*np.pi**2*E*I8)/(L**2*(2*self.Area8))
-        stresscr_stringer_9= (self.K*np.pi**2*E*I9)/(L**2*(2*self.Area9))
 
         stresscr_stringer_iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
                                   
-        return stresscr_stringer_5, stresscr_stringer_8, stresscr_stringer_9, stresscr_stringer_iter 
+        return stresscr_stringer_iter 
     
     def graph_buckling_values(self, E, show=False):
         """
@@ -461,33 +503,21 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         :param E: Young's modulus of the material
         :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
         """
-        z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
-        stress_values_5 = []
-        stress_values_8 = []
-        stress_values_9 = []
+        z_values = np.linspace(1, self.halfspan, 100) 
+
         stress_values_Iter = []
 
         for z in z_values:
             L = self.calculate_length(z)
-            I5, I8, I9, I_iter= self.stringer_MOM(self.stringers)
+            I_iter= self.stringer_MOM(self.stringers)
 
-            stress5 = (self.K * np.pi**2 * E * I5) / (L**2 * (2 * self.Area5))
-            stress8 = (self.K * np.pi**2 * E * I8) / (L**2 * (2 * self.Area8))
-            stress9 = (self.K * np.pi**2 * E * I9) / (L**2 * (2 * self.Area9))
-            #stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
             stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(30e-3*3e-3)))
 
 
-            stress_values_5.append(stress5)
-            stress_values_8.append(stress8)
-            stress_values_9.append(stress9)
             stress_values_Iter.append(stress_Iter)
         if show:   
             # Create the plot
             plt.figure(figsize=(8, 6))
-            plt.plot(z_values, stress_values_5, label='Design 5')
-            plt.plot(z_values, stress_values_8, label='Design 8')
-            plt.plot(z_values, stress_values_9, label='Design 9')
             plt.plot(z_values, stress_values_Iter, label='Design 9')
             plt.xlabel('Wingspan Coordinate (m)')
             plt.ylabel('Critical Buckling Stress (Pa)')
@@ -495,86 +525,74 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
             plt.legend()
             plt.grid(True)
             plt.show()
-        return z_values, stress_values_5, stress_values_8, stress_values_9, stress_values_Iter
+        return z_values, stress_values_Iter
     
     def applied_stress(self, z):
         a, _, _, _ = self.geometry(z)
         
-        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
-                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
+        section_area = self.area(geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_front= self.t_front, t_rear = self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = self.M(z) * (a/2)/(I) - self.N(z)/(section_area) #axial force is negative but should be considered positive
-        #applied_stress = self.M(z) * (a/2)/(I) + 29982.71629/(section_area)
-        #applied_stress = self.N(z)/(section_area)
+        applied_stress = abs(self.M(z) * (a/2)/(I)) + abs(self.N(z)/(section_area)) #axial force is negative but should be considered positive
     
         return applied_stress
    
     def MOS_stringers(self, E, stresscr_stringer_iter, applied_stress):
         MOS_stringer =  stresscr_stringer_iter/applied_stress
         return MOS_stringer
-    
-    # def MOS_buckling_values(self, E):
-    #     """
-    #     Compute the critical stress along the wingspan until 13.45 meters for graphing.
-    #     :param E: Young's modulus of the material
-    #     :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
-    #     """
-        
-    #     applied_stress = self.applied_stress(z)
-    #     _, _, _, stresscr_stringer_iter = self.graph_buckling_values(E=E)
-
-    #     z_values = np.linspace(1, self.halfspan, 100)  # 13.45 wingspan, not the case perhaps revision here (12.08 but should be an easy fix)
-    #     MOS_values = []
-
-    #     for z in z_values:
-    #         L = self.calculate_length(z)
-
-    #         MOS_values_iter =  stresscr_stringer_iter/applied_stress
-
-    #         MOS_values.append(MOS_values_iter)
-             
-    #     # Create the plot
-    #     plt.figure(figsize=(8, 6))
-    #     plt.plot(z_values, MOS_values, label='Design')
-    #     plt.xlabel('Wingspan Coordinate (m)')
-    #     plt.ylabel('TBD')
-    #     plt.title('MOS')
-    #     plt.legend()
-    #     plt.grid(True)
-    #     plt.show()
-    #     return z_values, MOS_values
 
     def MOS_buckling_values(self, E, stringers):
-        _,_,_,I_iter = self.stringer_MOM(stringers)
+        I_iter = self.stringer_MOM(stringers)
         
         #z_values = np.linspace(0, self.halfspan, self.n_ribs + 1)  
-        z_values = np.linspace(0.1, self.halfspan, 100)
+        z_values = np.linspace(1, self.halfspan, 100)
         applied_stress = []
         stress_values_Iter = []
+        
+        stress_crit = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
+        
         for z in z_values:
-            #L = self.calculate_length(z)/(self.n_ribs+1) 
-            #critical stress should be a constant value; it's not like the stringer elongates during flight therefore it shouldn't be a function of z
-
-            L = 15.13587572 / (self.n_ribs+1) 
+            
             applied_stress.append(self.applied_stress(z))
-            stress_Iter = (self.K*np.pi**2*E*I_iter)/(L**2*(2*(self.stringers[3]['base']*self.stringers[3]['thickness base'])))
-            stress_values_Iter.append(stress_Iter)
+            
+            stress_values_Iter.append(stress_crit)
 
         applied_stress = np.array(applied_stress)
         stress_iter = np.array(stress_values_Iter)
       
-        MOS_values_iter =  stress_iter/applied_stress
+        mos_buckling =  stress_crit / (applied_stress*1.5)
+        mos_compression = self.compressive_yield / (applied_stress*1.5)
+        
+        mos_tension = self.tensile_yield / (applied_stress*1.5)
         
         # plt.plot(z_values, cr_stress)
-        plt.plot(z_values, MOS_values_iter)
+        plt.plot(z_values, mos_buckling)
         plt.ylabel(r'MOS of stringer column buckling [-]')
         plt.axhline(y = 1, color = 'r', linestyle = '- -', label='Critical MOS = 1') 
         plt.xlabel('Spanwise position [m]')
         plt.legend()
         plt.grid(True)
         plt.show()
+        
+        plt.plot(z_values, mos_compression)
+        plt.ylabel(r'MOS of stringer column compression [-]')
+        plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1') 
+        plt.xlabel('Spanwise position [m]')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+
+        plt.plot(z_values, mos_tension)
+        plt.ylabel(r'MOS of stringer column tension [-]')
+        plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1') 
+        plt.xlabel('Spanwise position [m]')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
 
         print("Applied Stress Array:", applied_stress)
         print("Iterative Stress Array:", stress_iter)
@@ -582,48 +600,3 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
        
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
-
-    def MOS_buckling_values1(self, E, stringers):   
-        _,_,_,I_iter = self.stringer_MOM(stringers)
-        
-        # z_values = np.linspace(0, self.halfspan, self.n_ribs + 1)  
-        z_values = np.linspace(0, self.halfspan, 100)
-        applied_stress = []
-        stress_values_Iter = []
-        for z in z_values:
-            # L = self.calculate_length(z)/(self.n_ribs+1) 
-            # Critical stress should be a constant value; it's not like the stringer elongates during flight therefore it shouldn't be a function of z
-
-            L = 15.13587572 / (self.n_ribs+1) 
-            applied_stress.append(self.applied_stress(z))
-            stress_Iter = (self.K * np.pi**2 * E * I_iter) / (L**2 * (2 * (self.stringers[3]['base'] * self.stringers[3]['thickness base'])))
-            stress_values_Iter.append(stress_Iter)
-
-        applied_stress = np.array(applied_stress)
-        stress_iter = np.array(stress_values_Iter)
-    
-        MOS_values_iter = stress_iter / applied_stress
-
-        # Find the lowest MOS value and its corresponding z_value
-        min_MOS = np.min(MOS_values_iter)
-        min_index = np.argmin(MOS_values_iter)
-        min_z = z_values[min_index]
-
-        # Plot MOS curve
-        plt.plot(z_values, MOS_values_iter, label='MOS Curve')
-        plt.ylabel(r'MOS of stringer column buckling [-]')
-        plt.axhline(y=1, color='r', linestyle='--', label='Critical MOS = 1') 
-        plt.xlabel('Spanwise position [m]')
-        plt.grid(True)
-
-        # Highlight and annotate the lowest MOS value
-        plt.scatter(min_z, min_MOS, color='orange', zorder = 999, label=f'Min MOS: {min_MOS:.2f} at {min_z:.2f} m')
-        plt.annotate(f'{min_MOS:.2f}', xy=(min_z+0.1, min_MOS+1), xytext=(min_z + 2.1, min_MOS + 5),
-                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
-                    fontsize=14, color='black')
-
-        plt.legend()
-        plt.show()
-
-        print("Applied Stress Array:", applied_stress)
-        print("Iterative Stress Array:", stress_iter)
