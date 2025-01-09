@@ -160,16 +160,28 @@ class SkinBuckling():
         applied_stress = np.array(applied_stress)
         
         mos = critical_stress/(applied_stress * 1.5) # 1.5 saftey factor
+
+          # Find the lowest MOS value and its corresponding z_value
+        min_mosskin = np.min(mos)
+        min_index3 = np.argmin(mos)
+        min_z = self.dimensions[min_index3]
         
-        plt.plot(self.dimensions, mos)
-        plt.scatter(self.dimensions, mos, color='tab:orange', zorder = 999)
+        plt.plot(self.dimensions, mos, label ='MOS curve')
+        plt.scatter(self.dimensions, mos, color='tab:blue', s = 16, zorder = 999, label = 'Rib location')
         plt.ylabel(r'MOS of skin buckling [-]')
         plt.xlabel('Spanwise location [m]')
         plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
         if ceiling:
-            plt.ylim(0, 10)
+            plt.ylim(0, 100)
         # if you want to save uncomment line below
         # plt.savefig('mos_skinbuckling.svg')
+
+            # Highlight and annotate the lowest MOS value
+        plt.scatter(min_z, min_mosskin, color='orange', zorder = 999, label=f'Minimum MOS: {min_mosskin:.2f} at {min_z:.2f} m')
+        plt.annotate(f'{min_mosskin:.2f}', xy=(min_z+0.1, min_mosskin+1), xytext=(min_z + 1.7, min_mosskin + 8),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
+        
         plt.legend()
         plt.grid(True)
         plt.show()
@@ -185,7 +197,7 @@ class SparWebBuckling():
         self.halfspan = wingspan / 2
         
         # np array with all the values from root to the 
-        self.z_values = np.linspace(1, self.halfspan, 1000) 
+        self.z_values = np.linspace(0.09, self.halfspan, 1000) 
         
         filepath_ks = os.path.join('WP4-5', 'resources', 'k_s_curve.csv')
         
@@ -308,25 +320,50 @@ class SparWebBuckling():
             
             moss_front.append(abs(mos_front))
             moss_rear.append(abs(mos_rear))
+
+          # Find the lowest MOS value and its corresponding z_value
+        min_mossfront = np.min(moss_front)
+        min_index1 = np.argmin(moss_front)
+        min_z1 = self.z_values[min_index1]
+
+        min_mossrear = np.min(moss_rear)
+        min_index2 = np.argmin(moss_rear)
+        min_z2 = self.z_values[min_index2]
           
         if choice == 'front':
-            plt.plot(self.z_values, moss_front)
+            plt.plot(self.z_values, moss_front, label='MOS Curve')
             plt.xlabel("Spanwise Position""[m]")
-            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.axhline(y = 1, color = 'r', linestyle = '--',  label='Critical MOS = 1') 
             plt.ylabel("MOS of spar web shear buckling""[-]")
+
+                   # Highlight and annotate the lowest MOS value
+            plt.scatter(min_z1, min_mossfront, color='orange', zorder = 999, label=f'Min MOS: {min_mossfront:.2f} at {min_z1:.2f} m')
+            plt.annotate(f'{min_mossfront:.2f}', xy=(min_z1+0.1, min_mossfront+1), xytext=(min_z1 + 1.2, min_mossfront + 2.8),
+                        arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
+
             plt.legend()
             plt.grid(True)
             plt.show()
+
+         
         elif choice == 'rear':
-            plt.plot(self.z_values, moss_rear)
-            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.plot(self.z_values, moss_rear, label='MOS Curve')
+            plt.axhline(y = 1, color = 'r', linestyle = '--',  label='Critical MOS = 1') 
             plt.legend()
             plt.grid(True)
             plt.xlabel("Spanwise Position""[m]")
             plt.ylabel("MOS of spar web shear buckling""[-]")
+
+                   # Highlight and annotate the lowest MOS value
+            plt.scatter(min_z2, min_mossrear, color='orange',zorder = 999, label=f'Min MOS: {min_mossrear:.2f} at {min_z2:.2f} m')
+            plt.annotate(f'{min_mossrear:.2f}', xy=(min_z2+0.1, min_mossrear+1), xytext=(min_z2 + 1.2, min_mossrear + 6),
+                        arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
+
             plt.show()
         
-
+   
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
     def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int, n_ribs):
         #Only one block, not entire area of L-stringer.
@@ -513,7 +550,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         _,_,_,I_iter = self.stringer_MOM(stringers)
         
         #z_values = np.linspace(0, self.halfspan, self.n_ribs + 1)  
-        z_values = np.linspace(1, self.halfspan, 100)
+        z_values = np.linspace(0.1, self.halfspan, 100)
         applied_stress = []
         stress_values_Iter = []
         for z in z_values:
@@ -533,7 +570,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, MOS_values_iter)
         plt.ylabel(r'MOS of stringer column buckling [-]')
-        plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1') 
+        plt.axhline(y = 1, color = 'r', linestyle = '- -', label='Critical MOS = 1') 
         plt.xlabel('Spanwise position [m]')
         plt.legend()
         plt.grid(True)
@@ -545,3 +582,48 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
        
 #general note: applied stress so that we have the margin of safety + inclusion of safety factors?
+
+    def MOS_buckling_values1(self, E, stringers):   
+        _,_,_,I_iter = self.stringer_MOM(stringers)
+        
+        # z_values = np.linspace(0, self.halfspan, self.n_ribs + 1)  
+        z_values = np.linspace(0, self.halfspan, 100)
+        applied_stress = []
+        stress_values_Iter = []
+        for z in z_values:
+            # L = self.calculate_length(z)/(self.n_ribs+1) 
+            # Critical stress should be a constant value; it's not like the stringer elongates during flight therefore it shouldn't be a function of z
+
+            L = 15.13587572 / (self.n_ribs+1) 
+            applied_stress.append(self.applied_stress(z))
+            stress_Iter = (self.K * np.pi**2 * E * I_iter) / (L**2 * (2 * (self.stringers[3]['base'] * self.stringers[3]['thickness base'])))
+            stress_values_Iter.append(stress_Iter)
+
+        applied_stress = np.array(applied_stress)
+        stress_iter = np.array(stress_values_Iter)
+    
+        MOS_values_iter = stress_iter / applied_stress
+
+        # Find the lowest MOS value and its corresponding z_value
+        min_MOS = np.min(MOS_values_iter)
+        min_index = np.argmin(MOS_values_iter)
+        min_z = z_values[min_index]
+
+        # Plot MOS curve
+        plt.plot(z_values, MOS_values_iter, label='MOS Curve')
+        plt.ylabel(r'MOS of stringer column buckling [-]')
+        plt.axhline(y=1, color='r', linestyle='--', label='Critical MOS = 1') 
+        plt.xlabel('Spanwise position [m]')
+        plt.grid(True)
+
+        # Highlight and annotate the lowest MOS value
+        plt.scatter(min_z, min_MOS, color='orange', zorder = 999, label=f'Min MOS: {min_MOS:.2f} at {min_z:.2f} m')
+        plt.annotate(f'{min_MOS:.2f}', xy=(min_z+0.1, min_MOS+1), xytext=(min_z + 2.1, min_MOS + 5),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
+
+        plt.legend()
+        plt.show()
+
+        print("Applied Stress Array:", applied_stress)
+        print("Iterative Stress Array:", stress_iter)
