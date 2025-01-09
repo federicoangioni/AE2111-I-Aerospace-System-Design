@@ -450,7 +450,7 @@ class SparWebBuckling():
             plt.show()
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
-    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int, n_ribs, compressive_yield, tensile_yield):
+    def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_front, t_rear: int, n_ribs, compressive_yield, tensile_yield):
         #Only one block, not entire area of L-stringer.
 
         #self.K = 1/4 #1 end fixed, 1 end free 
@@ -470,7 +470,9 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
 
         self.I = I_tot
         
-        self.t_spar = t_spar
+        self.t_rear = t_rear
+        
+        self.t_front = t_front
         self.stringers = stringers
 
         self.halfspan = wingspan / 2
@@ -561,8 +563,8 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
     def applied_stress(self, z):
         a, _, _, _ = self.geometry(z)
         
-        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
-                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
+        section_area = self.area(geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_front= self.t_front, t_rear = self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
         
