@@ -319,7 +319,7 @@ class SparWebBuckling():
             mos_front, mos_rear, _, _ = self.margin_of_safety(z= point, V= V, T= T)
             
             moss_front.append(abs(mos_front))
-            moss_rear.append(abs(mos_rear))
+            moss_rear.append(abs(mos_rear)) 
 
           # Find the lowest MOS value and its corresponding z_value
         min_mossfront = np.min(moss_front)
