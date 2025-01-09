@@ -177,7 +177,7 @@ class SkinBuckling():
         
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5):
+    def __init__(self, wingbox_geometry, wingspan, E, pois, t_front, t_rear, k_v = 1.5, sigmayield):
         # attributing to class variable
         self.geometry = wingbox_geometry 
         
@@ -199,6 +199,7 @@ class SparWebBuckling():
         self.E = E
         self.pois = pois
         self.k_v = k_v #1.5 - 2 is probably ok but look it up
+        self.sigmayield = sigmayield
         
     # Defines AspectRaio of the long Spar
     def front_sparAR(self, z):
@@ -297,6 +298,26 @@ class SparWebBuckling():
         
         return mos_front , mos_rear, applied_stress_rear, applied_stress_front
     
+    def Compression(self, z, V, T):
+        a, b, h, _ = self.geometry(z) # a and b not related to a_over_b
+
+        avg_shear = V(z) / ( a * self.t_front + b * self.t_rear )
+        max_shear = self.k_v * avg_shear
+
+        A = (a + b) * h / 2 #enclosed area of trapezoical wingbox
+        
+        q_torsion = T(z) / (2 * A) #torsion shear stress in thin-walled closed section
+    
+        applied_stress_front = 1.5 * (max_shear + q_torsion / self.t_front)
+        applied_stress_rear = 1.5 * (max_shear + q_torsion / self.t_rear)
+
+        mos_front_comp = self.sigmayield / applied_stress_front
+        mos_rear_comp = self.sigmayield / applied_stress_rear
+
+        return mos_front_comp , mos_rear_comp
+
+        
+    
     def show_mos(self, V, T, choice:str ='front'):
         """
         choice: string input use either front or rear
@@ -326,6 +347,34 @@ class SparWebBuckling():
             plt.ylabel("MOS of spar web shear buckling""[-]")
             plt.show()
         
+    def show_mos_comp(self, V, T, choice:str = 'front'):
+        """
+        choice: string input use either front or rear
+        """
+        mos_front_comp = []
+        mos_rear_comp = []
+        for point in self.z_values:
+            mos_front_comp, mos_rear_comp, _, _ = self.margin_of_safety(z= point, V= V, T= T)
+            
+            mos_front_comp.append(abs(mos_front_comp))
+            mos_rear_comp.append(abs(mos_rear_comp))
+          
+        if choice == 'front':
+            plt.plot(self.z_values, mos_front_comp)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.ylabel("MOS of Compression Strength of Spar""[-]")
+            plt.legend()
+            plt.grid(True)
+            plt.show()
+        elif choice == 'rear':
+            plt.plot(self.z_values, mos_rear_comp)
+            plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
+            plt.legend()
+            plt.grid(True)
+            plt.xlabel("Spanwise Position""[m]")
+            plt.ylabel("MOS of Compression Strength of Spar""[-]")
+            plt.show()
 
 class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's 
     def __init__(self, stringers: list, wingspan, chord, M, N , I_tot, geometry, area, flange, t_caps:int, t_spar: int, n_ribs):
