@@ -566,7 +566,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         
         I, _ = self.I(z, self.stringers)
         
-        applied_stress = self.M(z) * (a/2)/(I) - self.N(z)/(section_area) #axial force is negative but should be considered positive
+        applied_stress = abs(self.M(z) * (a/2)/(I)) + abs(self.N(z)/(section_area)) #axial force is negative but should be considered positive
     
         return applied_stress
    
@@ -575,7 +575,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         return MOS_stringer
 
     def MOS_buckling_values(self, E, stringers):
-        _,_,_,I_iter = self.stringer_MOM(stringers)
+        I_iter = self.stringer_MOM(stringers)
         
         z_values = np.linspace(1, self.halfspan, 100)
         
@@ -599,6 +599,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         mos_compression = self.compressive_yield / (applied_stress*1.5)
         
         mos_tension = self.tensile_yield / (applied_stress*1.5)
+        
         # plt.plot(z_values, cr_stress)
         plt.plot(z_values, mos_buckling)
         plt.ylabel(r'MOS of stringer column buckling [-]')
