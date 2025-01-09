@@ -24,6 +24,7 @@ G = 28_000_000_000 #shear modulus [Pa]
 rho = 2780 #density [kg/m^3]
 tsY = 450000000 #tensile strength yield [Pa]
 tsU = 485000000 #tensile strength ultimate [Pa]
+sigmaComp = 175000000 #Compressive Strength [Pa]
 
 # Atmospheric properties
 rho0 = 0.409727 #kg/m^3
