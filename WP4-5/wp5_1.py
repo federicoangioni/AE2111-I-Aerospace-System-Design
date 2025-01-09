@@ -151,7 +151,7 @@ class SkinBuckling():
         
         return applied_stress
     
-    def show(self,concentration, ceiling = False):
+    def show(self, concentration, ceiling = False):
         
         applied_stress = []
         critical_stress = self.crit_stress(concentration=concentration)
@@ -168,13 +168,24 @@ class SkinBuckling():
         mos_compression = self.compressive_yield/(applied_stress*1.5)
         
         
-        plt.plot(self.dimensions, mos_buckling)
-        plt.scatter(self.dimensions, mos_buckling, color='tab:orange', zorder = 999)
+        argmin = np.argmin(mos_buckling)
+        min_z = self.dimensions[argmin]
+        #######
+        
+        plt.plot(self.dimensions, mos_buckling, color= 'tab:blue', label = 'MOS Curve')
+        plt.scatter(self.dimensions, mos_buckling, color='tab:blue', zorder = 999, s = 15, label='Rib Location')
         plt.ylabel(r'MOS of skin buckling [-]')
+    
         plt.xlabel('Spanwise location [m]')
         plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
         if ceiling:
             plt.ylim(0, 10)
+            
+        plt.scatter(min_z, np.min(mos_buckling), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_buckling):.2f} at {min_z:.2f} m')
+        
+        plt.annotate(f'{np.min(mos_buckling):.2f}', xy=(min_z+0.1, np.min(mos_buckling)), xytext=(min_z + 1.7, np.min(mos_buckling)+1.4),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
         # if you want to save uncomment line below
         # plt.savefig('mos_skinbuckling.svg')
         plt.legend()
@@ -182,33 +193,54 @@ class SkinBuckling():
         plt.show()
         plt.clf()
         
-        plt.plot(self.dimensions, mos_compression)
-        plt.scatter(self.dimensions, mos_compression, color='tab:orange', zorder = 999)
+        argmin = np.argmin(mos_compression)
+        min_z = self.dimensions[argmin]
+        #######
+        plt.plot(self.dimensions, mos_compression, color= 'tab:blue', label = 'MOS Curve')
+        plt.scatter(self.dimensions, mos_compression, color='tab:blue', zorder = 999, s = 15, label='Rib Location')
         plt.ylabel(r'MOS of skin compression [-]')
+    
         plt.xlabel('Spanwise location [m]')
         plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
         if ceiling:
             plt.ylim(0, 10)
-        # if you want to save uncomment line below
-        # plt.savefig('mos_skinbuckling.svg')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-        plt.clf()
+            
+        plt.scatter(min_z, min(mos_compression), color='orange', zorder = 999, label=f'Minimum MOS: {min(mos_compression):.2f} at {min_z:.2f} m')
         
-        plt.plot(self.dimensions, mos_tension)
-        plt.scatter(self.dimensions, mos_tension, color='tab:orange', zorder = 999)
-        plt.ylabel(r'MOS of skin tesnsion [-]')
-        plt.xlabel('Spanwise location [m]')
-        plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
-        if ceiling:
-            plt.ylim(0, 10)
+        plt.annotate(f'{min(mos_compression):.2f}', xy=(min_z+0.1, min(mos_compression)), xytext=(min_z + 1.7, min(mos_compression)+1.4),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
         # if you want to save uncomment line below
         # plt.savefig('mos_skinbuckling.svg')
         plt.legend()
         plt.grid(True)
         plt.show()
         plt.clf()
+        min(mos_tension)
+        argmin = np.argmin(mos_tension)
+        min_z = self.dimensions[argmin]
+        #######
+        plt.plot(self.dimensions, mos_tension, color= 'tab:blue', label = 'MOS Curve')
+        plt.scatter(self.dimensions, mos_tension, color='tab:blue', zorder = 999, s = 15, label='Rib Location')
+        plt.ylabel(r'MOS of skin tesnsion [-]')
+    
+        plt.xlabel('Spanwise location [m]')
+        plt.axhline(y = 1, color = 'r', linestyle = '--', label='Critical MOS = 1') 
+        if ceiling:
+            plt.ylim(0, 10)
+            
+        plt.scatter(min_z, min(mos_tension), color='orange', zorder = 999, label=f'Minimum MOS: {min(mos_tension):.2f} at {min_z:.2f} m')
+        
+        plt.annotate(f'{min(mos_tension):.2f}', xy=(min_z+0.1, min(mos_tension)), xytext=(min_z + 1.7, min(mos_tension)+1.4),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
+        # if you want to save uncomment line below
+        # plt.savefig('mos_skinbuckling.svg')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        plt.clf()
+    
         
 
 class SparWebBuckling():
@@ -228,7 +260,7 @@ class SparWebBuckling():
         self.halfspan = wingspan / 2
         
         # np array with all the values from root to the 
-        self.z_values = np.linspace(1, self.halfspan, 1000) 
+        self.z_values = np.linspace(0.1, self.halfspan, 1000) 
         self.M = M
         self.N = N
         self.flange = area_factor
@@ -369,22 +401,41 @@ class SparWebBuckling():
             
             moss_front.append(abs(mos_front))
             moss_rear.append(abs(mos_rear))
-          
-          
-          
+        
+        argmin = np.argmin(moss_front)  
+        min_z = self.z_values[argmin]
+        
+        #######
         if choice == 'front':
-            plt.plot(self.z_values, moss_front)
-            plt.xlabel("Spanwise Position""[m]")
+            argmin = np.argmin(moss_front)  
+            min_z = self.z_values[argmin]
+            plt.plot(self.z_values, moss_front, label = 'MOS Curve')
+            
+            plt.xlabel("Spanwise Position [m]")
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
             plt.ylabel("MOS of spar web shear buckling""[-]")
+            
+            plt.scatter(min_z, np.min(moss_front), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(moss_front):.2f} at {min_z:.2f} m')
+            plt.annotate(f'{np.min(moss_front):.2f}', xy=(min_z+0.1, np.min(moss_front)+1), xytext=(min_z + 1.7, np.min(moss_front) + 8),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black') 
             plt.legend()
             plt.grid(True)
             plt.show()
+            
+        #######
         elif choice == 'rear':
-            plt.plot(self.z_values, moss_rear)
+            argmin = np.argmin(moss_front)  
+            min_z = self.z_values[argmin]
+            plt.plot(self.z_values, moss_rear, label = 'MOS Curve')
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
             plt.legend()
             plt.grid(True)
+            plt.scatter(min_z, moss_rear[0], color='orange', zorder = 999, label=f'Minimum MOS: {moss_rear[0]:.2f} at {min_z:.2f} m')
+            plt.annotate(f'{moss_rear[0]:.2f}', xy=(min_z+0.1, moss_rear[0]+1), xytext=(min_z + 1.7, moss_rear[0] + 8),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
+            
             plt.xlabel("Spanwise Position""[m]")
             plt.ylabel("MOS of spar web shear buckling""[-]")
             plt.show()
@@ -413,18 +464,38 @@ class SparWebBuckling():
         mos_rear_tens = self.sigmayield / stresses_rear
         
         mos_front_tens = self.sigmayield / stresses_front
-            
+        
+        
         if choice == 'front':
-            plt.plot(self.z_values, mos_front_comp)
+            
+            argmin = np.argmin(mos_front_comp)
+            min_z = self.z_values[argmin]
+        
+            plt.plot(self.z_values, mos_front_comp, label = 'MOS Curve')
+            
             plt.xlabel("Spanwise Position""[m]")
+            
+            plt.scatter(min_z, np.min(mos_front_comp), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_front_comp):.2f} at {min_z:.2f} m')
+            plt.annotate(f'{np.min(mos_front_comp):.2f}', xy=(min_z+0.1, np.min(mos_front_comp)+1), xytext=(min_z + 1.7, np.min(mos_front_comp)+1
+                                                                                                            ),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
+            
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
             plt.ylabel("MOS of Compression Strength of Front Spar""[-]")
             plt.legend()
             plt.grid(True)
             plt.show()
             
-            plt.plot(self.z_values, mos_front_tens)
+            argmin = np.argmin(mos_front_tens)
+            min_z = self.z_values[argmin]
+            
+            plt.plot(self.z_values, mos_front_tens, label= 'MOS Curve')
             plt.xlabel("Spanwise Position""[m]")
+            plt.scatter(min_z, np.min(mos_front_tens), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_front_tens):.2f} at {min_z:.2f} m')
+            plt.annotate(f'{np.min(mos_front_tens):.2f}', xy=(min_z+0.1, np.min(mos_front_tens)+1), xytext=(min_z + 1.7, np.min(mos_front_tens) + 8),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
             plt.ylabel("MOS of Tensile Strength of Front Spar""[-]")
             plt.legend()
@@ -437,12 +508,20 @@ class SparWebBuckling():
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
             plt.legend()
             plt.grid(True)
+            plt.scatter(min_z, np.min(mos_rear_comp), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_rear_comp):.2f} at {min_z:.2f} m')
+            plt.annotate(f'{np.min(mos_rear_comp):.2f}', xy=(min_z+0.1, np.min(mos_rear_comp)+1), xytext=(min_z + 1.7, np.min(mos_rear_comp) + 8),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
             plt.xlabel("Spanwise Position""[m]")
             plt.ylabel("MOS of Compression Strength of Rear Spar""[-]")
             plt.show()
             
             plt.plot(self.z_values, mos_rear_tens)
             plt.xlabel("Spanwise Position""[m]")
+            plt.scatter(min_z, np.min(mos_rear_tens), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_rear_tens):.2f} at {min_z:.2f} m')
+            plt.annotate(f'{np.min(mos_rear_tens):.2f}', xy=(min_z+0.1, np.min(mos_rear_tens)+1), xytext=(min_z + 1.7, np.min(mos_rear_tens) + 8),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
             plt.axhline(y = 1, color = 'r', linestyle = '-',  label='Critical MOS = 1') 
             plt.ylabel("MOS of Tensile Strength of Rear Spar""[-]")
             plt.legend()
@@ -536,7 +615,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         :param E: Young's modulus of the material
         :return: Lists of z values and corresponding stresses for designs 5, 8, and 9
         """
-        z_values = np.linspace(1, self.halfspan, 100) 
+        z_values = np.linspace(0., self.halfspan, 100) 
 
         stress_values_Iter = []
 
@@ -579,7 +658,7 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
     def MOS_buckling_values(self, E, stringers):
         I_iter = self.stringer_MOM(stringers)
         
-        z_values = np.linspace(1, self.halfspan, 100)
+        z_values = np.linspace(0, self.halfspan, 100)
         
         L = 15.13587572 / (self.n_ribs+1) 
         
@@ -602,27 +681,52 @@ class Stringer_bucklin(): #Note to self: 3 designs, so: 3 Areas and 3 I's
         
         mos_tension = self.tensile_yield / (applied_stress*1.5)
         
+        argmin = np.argmin(mos_buckling)
+        
+        min_z = z_values[argmin]
+        
+    
         # plt.plot(z_values, cr_stress)
-        plt.plot(z_values, mos_buckling)
+        plt.plot(z_values, mos_buckling, label = 'MOS Curve')
         plt.ylabel(r'MOS of stringer column buckling [-]')
+        
         plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1') 
         plt.xlabel('Spanwise position [m]')
+        plt.scatter(min_z, np.min(mos_buckling), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_buckling):.2f} at {min_z:.2f} m')
+        plt.annotate(f'{np.min(mos_buckling):.2f}', xy=(min_z+0.1, np.min(mos_buckling)), xytext=(min_z + 1.7, np.min(mos_buckling) + 1.2),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
         plt.legend()
         plt.grid(True)
         plt.show()
         
-        plt.plot(z_values, mos_compression)
+        
+        argmin = np.argmin(mos_compression)
+        
+        min_z = z_values[argmin]
+        
+        plt.plot(z_values, mos_compression, label = 'MOS Curve')
         plt.ylabel(r'MOS of stringer column compression [-]')
         plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1') 
+        plt.scatter(min_z, np.min(mos_compression), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_compression):.2f} at {min_z:.2f} m')
+        plt.annotate(f'{np.min(mos_compression):.2f}', xy=(min_z+0.1, np.min(mos_compression)), xytext=(min_z + 1.7, np.min(mos_compression) + 1.2),
+                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black')
         plt.xlabel('Spanwise position [m]')
         plt.legend()
         plt.grid(True)
         plt.show()
 
-
-        plt.plot(z_values, mos_tension)
+        argmin = np.argmin(mos_tension)
+        
+        min_z = z_values[argmin]
+        
+        plt.plot(z_values, mos_tension, label = 'MOS Curve')
         plt.ylabel(r'MOS of stringer column tension [-]')
-        plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1') 
+        plt.axhline(y = 1, color = 'r', linestyle = '-', label='Critical MOS = 1')
+        plt.scatter(min_z, np.min(mos_tension), color='orange', zorder = 999, label=f'Minimum MOS: {np.min(mos_tension):.2f} at {min_z:.2f} m')
+        plt.annotate(f'{np.min(mos_tension):.2f}', xy=(min_z+0.1, np.min(mos_tension)), xytext=(min_z + 1.7, np.min(mos_tension) + 1.2),                    arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+                    fontsize=14, color='black') 
         plt.xlabel('Spanwise position [m]')
         plt.legend()
         plt.grid(True)
