@@ -348,7 +348,7 @@ class SparWebBuckling():
     def applied_normal_stress(self, z):
         a, b, _, _ = self.geometry(z)
         
-        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
+        section_area = self.area(geometry= self.geometry, z= z, 
                                  point_area_flange= self.flange, t_front= self.t_front, t_rear = self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
