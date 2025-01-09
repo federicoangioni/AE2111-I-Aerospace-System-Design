@@ -2,26 +2,26 @@ import numpy as np
 import pandas as pd      
 import matplotlib.pyplot as plt
 import os
-def Area_crosssection(chord, geometry, z, point_area_flange, t_spar: int, t_caps: int, stringers): 
+def area_crosssection(geometry, z, point_area_flange, t_front: int, t_rear, t_caps: int, stringers): 
     
-    _, _, _, alpha = geometry(z)
+    a, b, h, alpha = geometry(z)
     '''
     first the areas, as force is -29982.71629 as mentioned in WP4 section 2.2
     Area_1 is area of the wingskins (upper and lower)
     Area_2 is area of the spar and spar flanges
     Area_3 is area of the stringers
     '''
-    Area_1= 2*(0.55*chord(z)/np.cos(alpha))*t_caps 
+    Area_1= 2*(h/np.cos(alpha))*t_caps 
     
     
-    Area_2= 4 * point_area_flange + 0.1741 * chord(z)*t_spar
+    Area_2= 4 * point_area_flange + a * t_front + b * t_rear
     Area_3= stringers[0] * (stringers[3]['base']*stringers[3]['thickness base'] + stringers[3]['height']*stringers[3]['thickness height'])
-    Total_area_crosssection = Area_1 + Area_2 + Area_3
+    total_area = Area_1 + Area_2 + Area_3
     
-    return Total_area_crosssection
+    return total_area
 
 class SkinBuckling():
-    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, sigma_yield, compressive_yield, t_spar: int):
+    def __init__(self, n_ribs, wingbox_geometry, wingspan, E, v, M, N, I_tot, t_caps, stringers, area, chord, flange, sigma_yield, compressive_yield, t_front, t_rear):
         """
         wingbox_geometry: remember this is a function of z, it is given by WingBox.geometry(z)
         wingspan: # modified half wingspan from the attachement of the wing with the fuseslage to the tip, 
@@ -32,6 +32,7 @@ class SkinBuckling():
         # defining the cross sectional area function
         self.area = area
         
+        self.t_front, self.t_rear = t_front, t_rear # spars dimensions
         # defining the chord function as a function of z
         self.chord = chord
 
@@ -49,7 +50,6 @@ class SkinBuckling():
         
         self.N = N
         self.dimensions = None
-        self.t_spar = t_spar
         self.stringers = stringers
         # attributing to class variable
         self.halfspan = wingspan / 2
@@ -143,7 +143,7 @@ class SkinBuckling():
         a, _, _, _ = self.geometry(z)
         
         section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
-                                 point_area_flange= self.flange, t_spar= self.t_spar, t_caps=self.t_caps, stringers= self.stringers)
+                                 point_area_flange= self.flange, t_front = self.t_front, t_rear= self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
         
         I, _ = self.I(z, self.stringers)
         
@@ -214,9 +214,14 @@ class SkinBuckling():
         
 
 class SparWebBuckling():
-    def __init__(self, wingbox_geometry, wingspan, sigmayield, E, pois, t_front, t_rear, k_v = 1.5):
+    def __init__(self, wingbox_geometry, chord,  wingspan, sigmayield, E, pois, t_front, t_rear, area, t_caps, stringers, area_factor, k_v = 1.5):
         # attributing to class variable
         self.geometry = wingbox_geometry 
+        
+        self.area = area 
+        self.chord = chord
+        
+        self.t_caps = t_caps
         
         # attributing to class variable
         self.halfspan = wingspan / 2
@@ -353,6 +358,17 @@ class SparWebBuckling():
 
         return mos_front_comp , mos_rear_comp
 
+    def applied_stress(self, z):
+        a, _, _, _ = self.geometry(z)
+        
+        section_area = self.area(chord= self.chord, geometry= self.geometry, z= z, 
+                                 point_area_flange= self.flange, t_front= self.t_front, t_rear = self.t_rear, t_caps=self.t_caps, stringers= self.stringers)
+        
+        I, _ = self.I(z, self.stringers)
+        
+        applied_stress = abs((self.M(z) * (a/2))/(I)) + abs(self.N(z) /section_area)
+        
+        return applied_stress
         
     
     def show_mos(self, V, T, choice:str ='front'):
